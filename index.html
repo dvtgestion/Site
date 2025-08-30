@@ -81,21 +81,24 @@
   .fin-egr{color:#fca5a5}
 </style>
 </head>
+
 <body>
   <!-- LOGIN -->
   <section id="login" class="login">
     <h1>Inicio de sesión</h1>
     <div class="muted">Acceso interno de la empresa</div>
-    <label>Email</label>
-    <input id="user" autocomplete="username" placeholder="correo@empresa.com" autocapitalize="none" autocorrect="off" spellcheck="false" />
+
+    <!-- Email -> Usuario -->
+    <label>Usuario</label>
+    <input id="user" autocomplete="username" placeholder="usuario@empresa.com" autocapitalize="none" autocorrect="off" spellcheck="false" />
+
     <label>Contraseña</label>
     <input id="pass" type="password" autocomplete="current-password" placeholder="••••••••" />
     <div class="row" style="margin-top:16px">
       <button id="btnLogin">Entrar</button>
     </div>
-    <div class="hint" style="margin-top:10px">
-      Roles y empresa vienen de <code>profiles</code> (role: <code>admin</code> o <code>asesor</code>).
-    </div>
+
+    <!-- REMOVIDO: texto de roles/profiles -->
   </section>
 
   <!-- APP -->
@@ -103,7 +106,8 @@
     <div class="header">
       <div>
         <h1 style="margin:0">Panel — Alquiler de Autos</h1>
-        <div class="muted">Control de vehículos, salidas, entradas, mantenimiento y finanzas (Supabase)</div>
+        <!-- Remover só a palavra Supabase -->
+        <div class="muted">Control de vehículos, salidas, entradas, mantenimiento y finanzas</div>
       </div>
       <div class="tabs">
         <div class="tab active" data-tab="locacoes">Locaciones</div>
@@ -276,17 +280,18 @@
 
         <div class="card" style="margin-top:16px">
           <h3 style="margin-top:0">Historial y próximos</h3>
+          <!-- TROCAR etiquetas para 7 días e 1000 km -->
           <div id="mantIndicators" class="muted" style="margin:6px 0 10px 0">
-            <span class="pill">Vencen ≤15 días: <strong id="ind15">0</strong></span>
-            <span class="pill">Vencen ≤5 km: <strong id="ind5km">0</strong></span>
+            <span class="pill">Vencen ≤7 días: <strong id="ind15">0</strong></span>
+            <span class="pill">Vencen ≤1000 km: <strong id="ind5km">0</strong></span>
           </div>
           <div class="toolbar">
             <input id="mq" placeholder="Buscar por placa, marca/modelo, servicio..." />
             <select id="mfEstado"><option value="">Todos</option><option>Pendiente</option><option>Hecho</option></select>
             <select id="mfVence" title="Filtrar vencimientos">
               <option value="">Todos los vencimientos</option>
-              <option value="15d">Próximos 15 días</option>
-              <option value="5km">Próximos 5 km</option>
+              <option value="7d">Próximos 7 días</option>
+              <option value="1000km">Próximos 1000 km</option>
             </select>
           </div>
           <div class="grid-m thead-m">
@@ -377,11 +382,12 @@
             </div>
           </div>
 
-          <div class="hint" style="margin-top:8px">Los totales arriba se calculan desde Supabase respetando tus filtros.</div>
+          <div class="hint" style="margin-top:8px">Los totales arriba se calculan desde tu base respetando tus filtros.</div>
         </div>
       </div>
     </div>
   </section>
+
 
 <script>
 /* Helpers */
@@ -594,51 +600,54 @@ $("#btnExport").onclick = async ()=>{
   const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="reporte.csv"; a.click();
 };
 
-/* Manutenção — mantém seu bloco original completo (já funcionava) */
+/* Manutenção (7 días / 1000 km) */
 async function loadMaint(){
   const { data: ms, error } = await supa.from('maintenances').select('*').eq('company_id', session.company_id).order('fecha', { ascending:false });
   if(error){ alert("Erro al cargar mantenimientos: " + error.message); return; }
-  let cnt15=0, cnt5km=0;
+  let cnt7=0, cnt1000=0;
   const { data: vs } = await supa.from('vehicles').select('placa,modelo,km').eq('company_id', session.company_id);
   const byPlaca=Object.fromEntries((vs||[]).map(v=>[v.placa,v]));
+
   (ms||[]).forEach(m=>{
     if(m.estado!=="Pendiente") return;
     if(m.prox_fecha){
       const today=new Date(); today.setHours(0,0,0,0);
       const target=new Date(m.prox_fecha+"T00:00:00");
       const dleft=Math.ceil((target-today)/86400000);
-      if(dleft<=15) cnt15++;
+      if(dleft<=7) cnt7++;
     }
     if(m.prox_km!=null){
       const v=byPlaca[m.placa];
       if(v && typeof v.km==="number"){
         const diff=Number(m.prox_km)-Number(v.km);
-        if(diff<=5) cnt5km++;
+        if(diff<=1000) cnt1000++;
       }
     }
   });
-  $("#ind15").textContent=cnt15; $("#ind5km").textContent=cnt5km;
+  $("#ind15").textContent=cnt7;
+  $("#ind5km").textContent=cnt1000;
 
   const q=($("#mq").value||"").toLowerCase();
   const fs=$("#mfEstado").value||"";
   const fvence=$("#mfVence").value||"";
   const box=$("#mList"); box.innerHTML="";
+
   (ms||[]).filter(m=>{
     const v=byPlaca[m.placa];
     const text=`${m.placa} ${v?.modelo||""} ${m.titulo||""} ${m.tipo||""}`.toLowerCase();
     const okQ=q?text.includes(q):true;
     const okF=fs?(fs===m.estado):true;
     let okV=true;
-    if(fvence==="15d"){
+    if(fvence==="7d"){
       if(!(m.estado==="Pendiente"&&m.prox_fecha)){ okV=false; } else {
         const dleft=Math.ceil((new Date(m.prox_fecha+"T00:00:00") - new Date().setHours(0,0,0,0))/86400000);
-        okV=dleft<=15;
+        okV=dleft<=7;
       }
-    } else if(fvence==="5km"){
+    } else if(fvence==="1000km"){
       okV=false;
       if(m.estado==="Pendiente"&&m.prox_km!=null&&byPlaca[m.placa]){
         const diff=Number(m.prox_km)-Number(byPlaca[m.placa].km||0);
-        okV=diff<=5;
+        okV=diff<=1000;
       }
     }
     return okQ&&okF&&okV;
@@ -649,8 +658,8 @@ async function loadMaint(){
     let rowCls="grid-m rowline-m";
     if(m.estado==="Hecho"){ rowCls+=" done"; }
     else{
-      const imminent=(dleft!=null&&dleft<=3)||(diffKm!=null&&diffKm<=1);
-      const soon=!imminent&&((dleft!=null&&dleft<=15)||(diffKm!=null&&diffKm<=5));
+      const imminent=(dleft!=null&&dleft<=3)||(diffKm!=null&&diffKm<=200); // realce visual
+      const soon=!imminent&&((dleft!=null&&dleft<=7)||(diffKm!=null&&diffKm<=1000));
       if(imminent) rowCls+=" imminent"; else if(soon) rowCls+=" due";
     }
     const line=document.createElement("div");
@@ -660,8 +669,8 @@ async function loadMaint(){
       <div><span class="${m.tipo==='Preventivo'?'badge-p':'badge-c'} badge">${esc(m.tipo)}</span>${m.estado==='Hecho'?' <span class="pill-done">✅ Hecho</span>':''}</div>
       <div>${esc(m.titulo)}</div>
       <div>${fmtYMD(m.fecha)}</div>
-      <div>${fmtYMD(m.prox_fecha)} ${m.estado==='Pendiente'&&dleft!=null&&dleft<=15?`<span class="small-hint">(faltan ${dleft} d)</span>`:''}</div>
-      <div>${m.km??"—"}${m.prox_km!=null?` <span class="kv">(→ ${m.prox_km})</span>`:""} ${m.estado==='Pendiente'&&diffKm!=null&&diffKm<=5?`<span class="small-hint">(faltan ${Math.max(0,diffKm)} km)</span>`:''}</div>
+      <div>${fmtYMD(m.prox_fecha)} ${m.estado==='Pendiente'&&dleft!=null&&dleft<=7?`<span class="small-hint">(faltan ${dleft} d)</span>`:''}</div>
+      <div>${m.km??"—"}${m.prox_km!=null?` <span class="kv">(→ ${m.prox_km})</span>`:""} ${m.estado==='Pendiente'&&diffKm!=null&&diffKm<=1000?`<span class="small-hint">(faltan ${Math.max(0,diffKm)} km)</span>`:''}</div>
       <div>${(m.costo!=null && !isNaN(m.costo)) ? Number(m.costo).toFixed(2) : "—"}</div>
       <div class="kv">${esc(m.obs||"—")}</div>
       <div class="t-right">
@@ -671,6 +680,7 @@ async function loadMaint(){
       </div>`;
     box.appendChild(line);
   });
+
   box.querySelectorAll("button").forEach(btn=>{
     const act=btn.getAttribute("data-act"); const id=btn.getAttribute("data-id");
     if(act==="editMant"){
@@ -823,8 +833,9 @@ function activateTab(name){
 /* Auth (sem auto-login) */
 async function doLogin(){
   try{
-    const email=$("#user").value.trim(); const pass=$("#pass").value.trim();
-    if(!email||!pass){ alert("Informe email y contraseña."); return; }
+    const email=$("#user").value.trim(); // rótulo mudou para Usuario, mas é o mesmo campo
+    const pass=$("#pass").value.trim();
+    if(!email||!pass){ alert("Informe usuario y contraseña."); return; }
     const { data, error } = await supa.auth.signInWithPassword({ email, password: pass });
     if(error) throw error;
     const prof=await fetchProfile(data.user.id);
@@ -867,3 +878,4 @@ document.addEventListener('DOMContentLoaded', ()=>{
 </script>
 </body>
 </html>
+
