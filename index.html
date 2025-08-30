@@ -347,11 +347,12 @@
           </div>
 
           <div class="row" style="margin-top:12px">
-            <div class="col"><div class="card"><div class="muted">Ingresos totales (filtrado)</div><div id="mIngTotal" style="font-size:28px;font-weight:700">0.00</div></div></div>
-            <div class="col"><div class="card"><div class="muted">Egresos totales (filtrado)</div><div id="mEgrTotal" style="font-size:28px;font-weight:700">0.00</div></div></div>
-          </div>
+  <div class="col"><div class="card"><div class="muted">Ingresos totales (filtrado)</div><div id="mIngTotal" style="font-size:28px;font-weight:700">0.00</div></div></div>
+  <div class="col"><div class="card"><div class="muted">Egresos totales (filtrado)</div><div id="mEgrTotal" style="font-size:28px;font-weight:700">0.00</div></div></div>
+  <div class="col"><div class="card"><div class="muted">Ganancia líquida</div><div id="mGanancia" style="font-size:28px;font-weight:700">0.00</div></div></div>
+</div>
 
-          <div class="hint" style="margin-top:8px">Los totales arriba se calculan desde Supabase respetando tus filtros.</div>
+        
         </div>
       </div>
     </div>
@@ -1036,11 +1037,21 @@ async function refreshKPIs(){
     $("#mMantenimiento").textContent=data.manut??0;
   }
   if(session.role==='admin'){
-    const desde=$("#repDesde")?.value||""; const hasta=$("#repHasta")?.value||"";
-    const { data: fin } = await supa.from('finances').select('fecha,tipo,monto').eq('company_id', session.company_id);
-    const items=(fin||[]).filter(x=>{ const okD=desde?((x.fecha||"")>=desde):true; const okH=hasta?((x.fecha||"")<=hasta):true; return okD&&okH; });
-    const s=sumFin(items); $("#mIngTotal").textContent=s.inSum.toFixed(2); $("#mEgrTotal").textContent=s.outSum.toFixed(2);
-  } else { $("#mIngTotal").textContent="0.00"; $("#mEgrTotal").textContent="0.00"; }
+  const desde=$("#repDesde")?.value||""; const hasta=$("#repHasta")?.value||"";
+  const { data: fin } = await supa.from('finances').select('fecha,tipo,monto').eq('company_id', session.company_id);
+  const items=(fin||[]).filter(x=>{ 
+    const okD=desde?((x.fecha||"")>=desde):true; 
+    const okH=hasta?((x.fecha||"")<=hasta):true; 
+    return okD&&okH; 
+  });
+  const s=sumFin(items);
+  $("#mIngTotal").textContent = s.inSum.toFixed(2);
+  $("#mEgrTotal").textContent = s.outSum.toFixed(2);
+  $("#mGanancia").textContent = s.saldo.toFixed(2);   // << NOVO
+} else { 
+  $("#mIngTotal").textContent="0.00"; 
+  $("#mEgrTotal").textContent="0.00"; 
+  $("#mGanancia").textContent="0.00";                  // << NOVO
 }
 
 /* ===== Tabs ===== */
