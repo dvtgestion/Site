@@ -157,10 +157,16 @@
             <button id="btnExport">Exportar CSV</button>
           </div>
 
-          <div class="grid thead">
-            <div>Placa / Marca / Modelo</div><div>Conductor</div><div>Salida</div>
-            <div>Previsto</div><div>Entrada</div><div>Estado</div><div class="t-right">Acciones</div>
-          </div>
+          <<div class="grid thead" style="grid-template-columns:1.2fr 1fr .9fr .9fr .9fr 1fr .7fr 260px">
+  <div>Placa / Marca / Modelo</div>
+  <div>Conductor</div>
+  <div>Salida</div>
+  <div>Previsto</div>
+  <div>Entrada</div>
+  <div>KM</div>
+  <div>Estado</div>
+  <div class="t-right">Acciones</div>
+</div>
           <div id="list"></div>
         </div>
       </div>
@@ -355,6 +361,7 @@ function badge(status){
   if(status==="Disponible") return '<span class="badge b-ok">Disponible</span>';
   if(status==="En uso") return '<span class="badge b-warn">En uso</span>';
   if(status==="Atrasado") return '<span class="badge b-bad">Atrasado</span>';
+  if(status==="Entregado") return '<span class="badge b-ok">Entregado</span>';
   return '<span class="badge">Mantenimiento</span>';
 }
 function toTZLocalValue(dtLocalInput){ if(!dtLocalInput) return null; const d=new Date(dtLocalInput); return d.toISOString(); }
@@ -453,26 +460,44 @@ async function loadRentals(){
     supa.from('vehicles').select('placa,modelo,status').eq('company_id', session.company_id)
   ]);
   const box=$("#list"); if(!box) return; box.innerHTML="";
-  const rows=(locs||[]).map(l=>({ kind:"loc", status: l.data_entrada ? "Disponible" : (isLate(l.prev_retorno)?"Atrasado":"En uso"), l }));
+  const rows=(locs||[]).map(l=>({
+  kind:"loc",
+  status: l.data_entrada ? "Entregado" : (isLate(l.prev_retorno) ? "Atrasado" : "En uso"),
+  l
+}));
   (veics||[]).filter(v=>v.status==="Mantenimiento").forEach(v=>rows.push({kind:"maint", status:"Mantenimiento", v}));
 
   rows.forEach(r=>{
     const div=document.createElement("div"); div.className="grid rowline";
-    if(r.kind==="loc"){
-      const l=r.l;
-      div.innerHTML=`
-        <div><strong>${esc(l.placa)}</strong> <span class="kv">— ${esc(l.modelo||"")}</span></div>
-        <div>${esc(l.motorista||"—")}</div>
-        <div>${fmtDTISOToLocal(l.data_saida)}</div>
-        <div>${fmtDTISOToLocal(l.prev_retorno)}</div>
-        <div>${fmtDTISOToLocal(l.data_entrada)}</div>
-        <div>${badge(r.status)}</div>
-        <div class="t-right">
-          ${!l.data_entrada?`<button class="secondary" data-act="entrada" data-id="${l.id}">Dar entrada</button>`:""}
-          <button class="btn-obs" data-act="obs" data-id="${l.id}">Observaciones</button>
-          <button class="danger" data-act="delLoc" data-id="${l.id}">Eliminar</button>
-        </div>`;
-    }else{
+   if (r.kind === "loc") {
+  const l = r.l;
+
+  // 8 colunas (inclui a coluna de KM)
+  div.style.gridTemplateColumns = "1.2fr 1fr .9fr .9fr .9fr 1fr .7fr 260px";
+
+  const sKm = (l.km_salida!=null && !isNaN(l.km_salida)) ? Number(l.km_salida) : null;
+  const eKm = (l.km_entrada!=null && !isNaN(l.km_entrada)) ? Number(l.km_entrada) : null;
+  const dKm = (sKm!=null && eKm!=null) ? (eKm - sKm) : null;
+  const kmInfo = (sKm==null && eKm==null) ? "—"
+                : (sKm!=null && eKm==null) ? `${sKm} / —`
+                : (sKm==null && eKm!=null) ? `— / ${eKm}`
+                : `${sKm} / ${eKm} (${dKm>=0?'+':''}${dKm} km)`;
+
+  div.innerHTML = `
+    <div><strong>${esc(l.placa)}</strong> <span class="kv">— ${esc(l.modelo||"")}</span></div>
+    <div>${esc(l.motorista||"—")}</div>
+    <div>${fmtDTISOToLocal(l.data_saida)}</div>
+    <div>${fmtDTISOToLocal(l.prev_retorno)}</div>
+    <div>${fmtDTISOToLocal(l.data_entrada)}</div>
+    <div>${kmInfo}</div>
+    <div>${badge(r.status)}</div>
+    <div class="t-right">
+      ${!l.data_entrada ? `<button class="secondary" data-act="entrada" data-id="${l.id}">Dar entrada</button>` : ""}
+      <button class="ghost btn-obs" data-act="obs" data-id="${l.id}">Observaciones</button>
+      <button class="danger" data-act="delLoc" data-id="${l.id}">Eliminar</button>
+    </div>`;
+} 
+      }else{
       const v=r.v;
       div.innerHTML=`
         <div><strong>${esc(v.placa)}</strong> <span class="kv">— ${esc(v.modelo||"")}</span></div>
