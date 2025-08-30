@@ -631,53 +631,7 @@ async function loadRentals(){
 }
 
 // === Guardar/Actualizar vehículo (placa globalmente única) ===
-document.getElementById("btnAddVeiculo").onclick = async ()=>{
-  const placa = $("#vPlaca").value.trim().toUpperCase();
-  const modelo = $("#vModelo").value.trim();
-  if(!placa || !modelo){
-    alert("Placa y Marca/Modelo son obligatorios.");
-    return;
-  }
 
-  const payload = {
-    company_id: session.company_id,
-    placa,
-    modelo,
-    cor: $("#vCor").value.trim() || null,
-    km: $("#vKm").value ? Number($("#vKm").value) : null,
-    status: $("#vStatus").value,
-    fecha_registro: $("#vFechaRegistro").value || null
-  };
-
-  // IMPORTANTE: onConflict pela coluna 'placa' (unicidade global)
-  const { error } = await supa
-    .from('vehicles')
-    .upsert(payload, { onConflict: 'placa' });
-
-  if (error) {
-    // 23505 = unique_violation (Postgres)
-    if (error.code === '23505') {
-      alert("Este vehículo ya está cadastrado (placa existente). Use una placa única.");
-    } else {
-      alert("Error al guardar vehículo: " + error.message);
-    }
-    return;
-  }
-
-  await supa.rpc('fn_audit', { p_action:'vehicle_upsert', p_payload: payload });
-
-  // limpar formulário
-  $("#vPlaca").value = "";
-  $("#vModelo").value = "";
-  $("#vCor").value = "";
-  $("#vKm").value = "";
-  $("#vStatus").value = "Disponible";
-  $("#vFechaRegistro").value = "";
-
-  await refreshCombos();
-  await loadVehicles();
-  await refreshKPIs();
-};
 
 $("#btnRegistrarEntrada") && ($("#btnRegistrarEntrada").onclick = async ()=>{
   const placa=$("#inPlaca").value; const data=$("#inData").value; const km = parseNumber($("#inKm").value);
@@ -903,31 +857,91 @@ async function loadMaint(){
 }
 
 $("#btnAddMant") && ($("#btnAddMant").onclick = async ()=>{
-  const payload={ company_id:session.company_id, placa:$("#mPlaca").value, tipo:$("#mTipo").value, titulo:$("#mTitulo").value.trim(),
-    fecha:$("#mFecha").value||null, prox_fecha:$("#mProx").value||null, km: parseNumber($("#mKm").value),
-    prox_km: parseNumber($("#mProxKm").value), estado:$("#mEstado").value, obs:$("#mObs").value.trim()||null,
-    costo: parseNumber($("#mCosto").value),
-  if(!payload.placa||!payload.titulo){ alert("Placa y Servicio/Tarea son obligatorios."); return; }
-  const editing=$("#btnAddMant").getAttribute("data-editing");
-  if(editing){
-    const { error } = await supa.from('maintenances').update(payload).eq('company_id', session.company_id).eq('id', editing);
-    if(error){ alert("Error al actualizar: "+error.message); return; }
-    await supa.rpc('fn_audit',{ p_action:'maintenance_update', p_payload:{ id:editing, ...payload }});
-    $("#btnAddMant").removeAttribute("data-editing");
-  }else{
-    const { data, error } = await supa.from('maintenances').insert(payload).select('id').single();
-    if(error){ alert("Error al guardar: "+error.message); return; }
-    await supa.rpc('fn_audit',{ p_action:'maintenance_create', p_payload:{ id:data.id, ...payload }});
+  const payload = {
+    company_id: session.company_id,
+    placa: $("#mPlaca").value,
+    tipo: $("#mTipo").value,
+    titulo: $("#mTitulo").value.trim(),
+    fecha: $("#mFecha").value || null,
+    prox_fecha: $("#mProx").value || null,
+    km: parseNumber($("#mKm").value),
+    prox_km: parseNumber($("#mProxKm").value),
+    estado: $("#mEstado").value,
+    obs: ($("#mObs").value || "").trim() || null,
+    costo: parseNumber($("#mCosto").value)
+  };
+
+  if (!payload.placa || !payload.titulo) {
+    alert("Placa y Servicio/Tarea son obligatorios.");
+    return;
   }
-  if(payload.costo && session.role==='admin'){
-    const fin={ company_id:session.company_id, fecha:payload.fecha || todayYMD(), tipo:'Egreso', monto:Number(payload.costo),
-      placa:payload.placa, categoria:'Mantenimiento', nota: payload.titulo + (payload.obs?` — ${payload.obs}`:'') };
-    await supa.from('finances').insert(fin);
+
+  const editing = $("#btnAddMant").getAttribute("data-editing");
+
+  try {
+    if (editing) {
+      // UPDATE
+      const { error } = await supa
+        .from('maintenances')
+        .update(payload)
+        .eq('company_id', session.company_id)
+        .eq('id', editing);
+
+      if (error) { throw error; }
+
+      await supa.rpc('fn_audit', {
+        p_action: 'maintenance_update',
+        p_payload: { id: editing, ...payload }
+      });
+
+      $("#btnAddMant").removeAttribute("data-editing");
+    } else {
+      // INSERT
+      const { data, error } = await supa
+        .from('maintenances')
+        .insert(payload)
+        .select('id')
+        .single();
+
+      if (error) { throw error; }
+
+      await supa.rpc('fn_audit', {
+        p_action: 'maintenance_create',
+        p_payload: { id: data.id, ...payload }
+      });
+    }
+
+    // Se informou custo e é admin, registra em finanzas
+    if (payload.costo && session.role === 'admin') {
+      const fin = {
+        company_id: session.company_id,
+        fecha: payload.fecha || todayYMD(),
+        tipo: 'Egreso',
+        monto: Number(payload.costo),
+        placa: payload.placa,
+        categoria: 'Mantenimiento',
+        nota: payload.titulo + (payload.obs ? ` — ${payload.obs}` : '')
+      };
+      await supa.from('finances').insert(fin);
+    }
+
+    // Limpa formulário de manutenção
+    $("#mTitulo").value = "";
+    $("#mFecha").value = "";
+    $("#mProx").value = "";
+    $("#mKm").value = "";
+    $("#mProxKm").value = "";
+    $("#mEstado").value = "Pendiente";
+    $("#mCosto").value = "";
+    $("#mObs").value = "";
+
+    // Recarrega listas
+    await loadMaint();
+    await loadFinances();
+
+  } catch (err) {
+    alert("Error al guardar mantenimiento: " + (err?.message || err));
   }
-  $("#mTitulo").value=""; $("#mFecha").value=""; $("#mProx").value="";
-  $("#mKm").value=""; $("#mProxKm").value=""; $("#mEstado").value="Pendiente";
-  $("#mCosto").value=""; $("#mObs").value="";
-  await loadMaint(); await loadFinances();
 });
 
 /* ===== Finanzas ===== */
