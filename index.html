@@ -8,18 +8,11 @@
 <!-- Supabase JS -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
+  // >>>>> TROQUE pela sua chave completa (mantive encurtada aqui no chat)
   const SUPABASE_URL = "https://xzsreuijmlpnpvfmibum.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh6c3JldWlqbWxwbnB2Zm1pYnVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzOTczNjAsImV4cCI6MjA3MTk3MzM2MH0.w5rPE35NNV19qeXi8StL02DuJZ01dgWpcZPgvLjq0uI";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh6c3JldWlqbWxwbnB2Zm1pYnVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzOTczNjAsImV4cCI6MjA3MTk3MzM2MH0.w5rPE35NNV19qeXi8StL02DuJZ01dgWpcZPgvLjq0uI...";
   const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: { persistSession: false, autoRefreshToken: false, storageKey: 'no-persist' }
-  });
-
-  // Garantir estado inicial correto antes de qualquer outra lógica
-  document.addEventListener('DOMContentLoaded', ()=>{
-    const login = document.getElementById('login');
-    const app = document.getElementById('app');
-    if (login) login.classList.remove('hide');
-    if (app) app.classList.add('hide');
   });
 </script>
 
@@ -34,6 +27,7 @@
   .muted{color:var(--muted);font-size:14px}
   label{display:block;font-size:13px;margin:14px 0 6px;color:#cbd5e1}
   input,select,textarea{width:100%;padding:12px 14px;border-radius:10px;border:1px solid #1f2937;background:var(--input);color:var(--white);outline:none}
+  input:focus,select:focus,textarea:focus{border-color:#374151;box-shadow:0 0 0 4px rgba(96,165,250,.15)}
   button{border:0;border-radius:10px;padding:10px 14px;color:#0b1220;background:#86efac;cursor:pointer;font-weight:600}
   button.secondary{background:#93c5fd}
   button.ghost{background:transparent;border:1px solid #334155;color:#e2e8f0}
@@ -53,19 +47,16 @@
   .b-warn{background:#3b2a06;color:#fbbf24;border:1px solid #4d3410}
   .b-bad{background:#3b0a0a;color:#fca5a5;border:1px solid #4c1111}
   .t-right{text-align:right}
+  .hide{display:none}
 
-  /* IMPORTANTE: garante que telas escondidas fiquem realmente invisíveis */
-  .hide{display:none !important}
-
-  /* Modal Observações */
+  /* Modal Observaciones */
   #obsModal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:9999}
-  #obsModal .modal-content{background:var(--card);padding:20px;border-radius:12px;max-width:500px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,.4)}
+  #obsModal .modal-content{background:var(--card);padding:20px;border-radius:12px;max-width:520px;width:92%;box-shadow:0 10px 40px rgba(0,0,0,.4)}
   #obsModal h3{margin-top:0;color:#fff}
   #obsModal p{white-space:pre-wrap;color:#e5e7eb;font-size:14px}
 </style>
 </head>
 <body>
-
   <!-- LOGIN -->
   <section id="login" class="login">
     <h1>Inicio de sesión</h1>
@@ -75,11 +66,11 @@
     <label>Contraseña</label>
     <input id="pass" type="password" autocomplete="current-password" placeholder="••••••••" />
     <div class="row" style="margin-top:16px">
-  <button id="btnLogin" onclick="doLogin()">Entrar</button>
-</div>
+      <button id="btnLogin">Entrar</button>
+    </div>
   </section>
 
-  <!-- APP -->
+  <!-- APP (oculta até logar) -->
   <section id="app" class="app hide">
     <div class="header">
       <div>
@@ -101,37 +92,41 @@
       <div class="wrap">
         <div class="row">
           <div class="col card">
-            <h3>Registrar salida</h3>
+            <h3 style="margin-top:0">Registrar salida</h3>
             <div class="row">
               <div class="col"><label>Placa</label><select id="outPlaca"></select></div>
               <div class="col"><label>Conductor / Cliente</label><input id="outMotorista" placeholder="Nombre del conductor" /></div>
               <div class="col"><label>Fecha/Hora salida</label><input id="outData" type="datetime-local" /></div>
               <div class="col"><label>Previsto retorno</label><input id="outPrev" type="datetime-local" /></div>
               <div class="col"><label>KM salida</label><input id="outKm" type="number" min="0" step="1" /></div>
-              <div class="col"><label>Combustible (salida)</label>
+              <div class="col">
+                <label>Combustible (salida)</label>
                 <select id="outFuel"><option>Lleno</option><option>3/4</option><option>1/2</option><option>1/4</option></select>
               </div>
             </div>
             <label>Observaciones</label>
             <textarea id="outObs" rows="2" placeholder="Accesorios, daños, depósito..."></textarea>
-            <div class="row" style="margin-top:10px">
+            <div class="t-right" style="margin-top:8px">
+              <span class="muted" style="float:left">Solo aparecen autos “Disponible”.</span>
               <button id="btnRegistrarSaida">Registrar salida</button>
             </div>
           </div>
 
           <div class="col card">
-            <h3>Registrar entrada</h3>
+            <h3 style="margin-top:0">Registrar entrada</h3>
             <div class="row">
               <div class="col"><label>Placa</label><select id="inPlaca"></select></div>
               <div class="col"><label>Fecha/Hora entrada</label><input id="inData" type="datetime-local" /></div>
               <div class="col"><label>KM entrada</label><input id="inKm" type="number" min="0" step="1" /></div>
-              <div class="col"><label>Combustible (entrada)</label>
+              <div class="col">
+                <label>Combustible (entrada)</label>
                 <select id="inFuel"><option>Lleno</option><option>3/4</option><option>1/2</option><option>1/4</option></select>
               </div>
             </div>
             <label>Observaciones de retorno</label>
             <textarea id="inObs" rows="2" placeholder="Multas, daños, limpieza..."></textarea>
-            <div class="row" style="margin-top:10px">
+            <div class="t-right" style="margin-top:8px">
+              <span class="muted" style="float:left">Solo aparecen autos “En uso”.</span>
               <button class="secondary" id="btnRegistrarEntrada">Registrar entrada</button>
             </div>
           </div>
@@ -139,9 +134,8 @@
 
         <div class="card" style="margin-top:16px">
           <div class="grid thead">
-            <div>Placa / Marca / Modelo</div>
-            <div>Conductor</div><div>Salida</div><div>Previsto</div>
-            <div>Entrada</div><div>Estado</div><div class="t-right">Acciones</div>
+            <div>Placa / Marca / Modelo</div><div>Conductor</div><div>Salida</div>
+            <div>Previsto</div><div>Entrada</div><div>Estado</div><div class="t-right">Acciones</div>
           </div>
           <div id="list"></div>
         </div>
@@ -152,7 +146,7 @@
     <div id="tab-frota" class="pad hide">
       <div class="wrap">
         <div class="card">
-          <h3>Registro de vehículo</h3>
+          <h3 style="margin-top:0">Registro de vehículo</h3>
           <div class="row">
             <div class="col"><label>Placa</label><input id="vPlaca" placeholder="ABC1D23" /></div>
             <div class="col"><label>Marca / Modelo</label><input id="vModelo" placeholder="Toyota Corolla 2.0" /></div>
@@ -163,31 +157,30 @@
             </div>
             <div class="col"><label>Fecha de registro</label><input id="vFechaRegistro" type="date" /></div>
           </div>
-          <div class="row" style="margin-top:10px">
+          <div class="t-right" style="margin-top:8px">
+            <span class="muted" style="float:left">Placa y Marca/Modelo son obligatorios.</span>
             <button id="btnAddVeiculo">Guardar/Actualizar vehículo</button>
           </div>
         </div>
 
         <div class="card" style="margin-top:16px">
-          <h3>Vehículos</h3>
+          <h3 style="margin-top:0">Vehículos</h3>
           <div class="grid thead">
-            <div>Placa / Marca / Modelo</div><div>Color</div><div>KM</div>
-            <div>Fecha registro</div><div>—</div><div>Estado</div><div class="t-right">Acciones</div>
+            <div>Placa / Marca / Modelo</div><div>Color</div><div>KM</div><div>Fecha registro</div><div>—</div><div>Estado</div><div class="t-right">Acciones</div>
           </div>
           <div id="frotaList"></div>
         </div>
       </div>
     </div>
-        <!-- MANTENIMIENTO -->
+
+    <!-- MANTENIMIENTO -->
     <div id="tab-mantenimiento" class="pad hide">
       <div class="wrap">
         <div class="card">
           <h3 style="margin-top:0">Registrar mantenimiento</h3>
           <div class="row">
             <div class="col"><label>Placa</label><select id="mPlaca"></select></div>
-            <div class="col"><label>Tipo</label>
-              <select id="mTipo"><option>Preventivo</option><option>Correctivo</option></select>
-            </div>
+            <div class="col"><label>Tipo</label><select id="mTipo"><option>Preventivo</option><option>Correctivo</option></select></div>
             <div class="col"><label>Servicio / Tarea</label><input id="mTitulo" placeholder="Cambio de aceite, frenos, etc." /></div>
             <div class="col"><label>Fecha</label><input id="mFecha" type="date" /></div>
             <div class="col"><label>Próxima fecha (opcional)</label><input id="mProx" type="date" /></div>
@@ -198,7 +191,8 @@
           </div>
           <label>Observación</label>
           <textarea id="mObs" rows="2" placeholder="Detalle del trabajo o nota."></textarea>
-          <div class="row" style="margin-top:10px">
+          <div class="t-right" style="margin-top:8px">
+            <span class="muted" style="float:left">Si informas Costo, se intentará crear/actualizar un Egreso en Finanzas (admin).</span>
             <button id="btnAddMant">Guardar mantenimiento</button>
           </div>
         </div>
@@ -218,9 +212,8 @@
               <option value="1000km">Próximos 1.000 km</option>
             </select>
           </div>
-          <div class="grid-m thead-m">
-            <div>Placa / Marca / Modelo</div><div>Tipo</div><div>Servicio</div>
-            <div>Fecha</div><div>Próxima</div><div>KM</div><div>Costo</div><div>Observación</div><div class="t-right">Acciones</div>
+          <div class="grid thead" style="grid-template-columns:1fr .8fr 1.2fr .9fr .9fr .8fr .8fr 1.2fr 220px">
+            <div>Placa / Marca / Modelo</div><div>Tipo</div><div>Servicio</div><div>Fecha</div><div>Próxima</div><div>KM</div><div>Costo</div><div>Observación</div><div class="t-right">Acciones</div>
           </div>
           <div id="mList"></div>
         </div>
@@ -246,7 +239,8 @@
           </div>
           <label>Concepto / Nota</label>
           <input id="finNota" placeholder="Detalle del movimiento (ej. Alquiler Juan Pérez - 3 días)" />
-          <div class="row" style="margin-top:10px">
+          <div class="t-right" style="margin-top:8px">
+            <span class="muted" style="float:left">Solo <strong>admin</strong> puede escribir/leer finanzas (RLS).</span>
             <button id="btnFinGuardar">Guardar movimiento</button>
           </div>
         </div>
@@ -257,24 +251,20 @@
             <input id="finQ" placeholder="Buscar por placa, concepto o categoría..." />
             <input id="finDesde" type="date" title="Desde" />
             <input id="finHasta" type="date" title="Hasta" />
-            <select id="finFiltroTipo" title="Tipo">
-              <option value="">Ingresos + Egresos</option><option>Ingreso</option><option>Egreso</option>
-            </select>
+            <select id="finFiltroTipo" title="Tipo"><option value="">Ingresos + Egresos</option><option>Ingreso</option><option>Egreso</option></select>
             <select id="finFiltroPlaca" title="Placa"><option value="">Todas las placas</option></select>
             <button id="btnFinExport">Exportar CSV</button>
           </div>
 
-          <div class="grid-fin thead">
+          <div class="grid thead" style="grid-template-columns:.9fr .8fr .8fr 1fr 1.6fr .8fr 160px">
             <div>Fecha</div><div>Tipo</div><div>Placa</div><div>Categoría</div><div>Concepto</div><div class="t-right">Monto</div><div class="t-right">Acciones</div>
           </div>
           <div id="finList"></div>
 
-          <div class="row" style="margin-top:10px">
-            <div class="muted">
-              Ingresos: <strong id="finSumIn">0.00</strong> • 
-              Egresos: <strong id="finSumOut">0.00</strong> • 
-              Saldo: <strong id="finSaldo">0.00</strong>
-            </div>
+          <div class="muted" style="margin-top:12px">
+            Ingresos: <strong id="finSumIn">0.00</strong> • 
+            Egresos: <strong id="finSumOut">0.00</strong> • 
+            Saldo: <strong id="finSaldo">0.00</strong>
           </div>
         </div>
       </div>
@@ -300,31 +290,28 @@
           </div>
 
           <div class="row" style="margin-top:12px">
-            <div class="col">
-              <div class="card"><div class="muted">Ingresos totales (filtrado)</div><div id="mIngTotal" style="font-size:28px;font-weight:700">0.00</div></div>
-            </div>
-            <div class="col">
-              <div class="card"><div class="muted">Egresos totales (filtrado)</div><div id="mEgrTotal" style="font-size:28px;font-weight:700">0.00</div></div>
-            </div>
+            <div class="col"><div class="card"><div class="muted">Ingresos totales (filtrado)</div><div id="mIngTotal" style="font-size:28px;font-weight:700">0.00</div></div></div>
+            <div class="col"><div class="card"><div class="muted">Egresos totales (filtrado)</div><div id="mEgrTotal" style="font-size:28px;font-weight:700">0.00</div></div></div>
           </div>
 
-          <div class="muted" style="margin-top:8px">Los totales arriba se calculan desde Supabase respetando tus filtros.</div>
+          <div class="hint" style="margin-top:8px">Los totales arriba se calculan desde Supabase respetando tus filtros.</div>
         </div>
       </div>
     </div>
+  </section>
 
-    <!-- MODAL DE OBSERVACIONES -->
-    <div id="obsModal">
-      <div class="modal-content">
-        <h3>Observaciones</h3>
-        <p id="obsSalida"><strong>Salida:</strong> —</p>
-        <p id="obsEntrada" style="margin-top:8px"><strong>Entrada:</strong> —</p>
-        <div class="t-right" style="margin-top:12px">
-          <button class="ghost" id="btnObsClose">Cerrar</button>
-        </div>
+  <!-- MODAL DE OBSERVACIONES -->
+  <div id="obsModal">
+    <div class="modal-content">
+      <h3>Observaciones</h3>
+      <p id="obsSalida"><strong>Salida:</strong> —</p>
+      <p id="obsEntrada" style="margin-top:8px"><strong>Entrada:</strong> —</p>
+      <div class="t-right" style="margin-top:12px">
+        <button class="ghost" id="btnObsClose">Cerrar</button>
       </div>
     </div>
-    
+  </div>
+  
     <script>
 /* ===== Helpers ===== */
 const $ = sel => document.querySelector(sel);
@@ -349,7 +336,7 @@ async function fetchProfile(userId){
     .from('profiles')
     .select('role, company_id, email')
     .eq('id', userId).single();
-  if(error){ alert("Perfil não encontrado/sem acesso: " + error.message); return null; }
+  if(error){ alert("Perfil no encontrado / sin acceso: " + error.message); return null; }
   return data;
 }
 
@@ -371,8 +358,8 @@ async function refreshCombos(){
 /* ===== Veículos ===== */
 async function loadVehicles(){
   const { data, error } = await supa.from('vehicles').select('*').eq('company_id', session.company_id).order('placa', {ascending:true});
-  if(error){ alert("Erro ao carregar veículos: " + error.message); return; }
-  const box=$("#frotaList"); box.innerHTML="";
+  if(error){ alert("Error al cargar vehículos: " + error.message); return; }
+  const box=$("#frotaList"); if(!box) return; box.innerHTML="";
   (data||[]).forEach(v=>{
     const line=document.createElement("div");
     line.className="grid rowline";
@@ -404,14 +391,14 @@ async function loadVehicles(){
       btn.onclick=async ()=>{
         if(!confirm("¿Eliminar vehículo (y NO automaticamente sus locaciones/finanzas)?")) return;
         const { error } = await supa.from('vehicles').delete().eq('company_id', session.company_id).eq('placa', placa);
-        if(error){ alert("Erro ao eliminar: " + error.message); return; }
+        if(error){ alert("Error al eliminar: " + error.message); return; }
         await supa.rpc('fn_audit', { p_action:'vehicle_delete', p_payload:{ placa }});
         await refreshCombos(); await loadVehicles(); await refreshKPIs();
       };
     }
   });
 }
-$("#btnAddVeiculo").onclick = async ()=>{
+$("#btnAddVeiculo") && ($("#btnAddVeiculo").onclick = async ()=>{
   const placa=$("#vPlaca").value.trim().toUpperCase();
   const modelo=$("#vModelo").value.trim();
   if(!placa||!modelo){ alert("Placa y Marca/Modelo son obligatorios."); return; }
@@ -421,11 +408,11 @@ $("#btnAddVeiculo").onclick = async ()=>{
     status:$("#vStatus").value,
     fecha_registro:$("#vFechaRegistro").value||null };
   const { error } = await supa.from('vehicles').upsert(payload, { onConflict:'placa' });
-  if(error){ alert("Erro ao salvar veículo: "+error.message); return; }
+  if(error){ alert("Error al guardar vehículo: "+error.message); return; }
   await supa.rpc('fn_audit', { p_action:'vehicle_upsert', p_payload:payload });
   $("#vPlaca").value=$("#vModelo").value=$("#vCor").value=$("#vKm").value=""; $("#vStatus").value="Disponible"; $("#vFechaRegistro").value="";
   await refreshCombos(); await loadVehicles(); await refreshKPIs();
-};
+});
 
 /* ===== Locações ===== */
 function isLate(prev){ return prev ? (new Date() > new Date(prev)) : false; }
@@ -434,7 +421,7 @@ async function loadRentals(){
     supa.from('rentals').select('*').eq('company_id', session.company_id).order('data_saida', {ascending:false}),
     supa.from('vehicles').select('placa,modelo,status').eq('company_id', session.company_id)
   ]);
-  const box=$("#list"); box.innerHTML="";
+  const box=$("#list"); if(!box) return; box.innerHTML="";
   const rows=(locs||[]).map(l=>({ kind:"loc", status: l.data_entrada ? "Disponible" : (isLate(l.prev_retorno)?"Atrasado":"En uso"), l }));
   (veics||[]).filter(v=>v.status==="Mantenimiento").forEach(v=>rows.push({kind:"maint", status:"Mantenimiento", v}));
 
@@ -477,7 +464,7 @@ async function loadRentals(){
       btn.onclick=async ()=>{ const id=btn.getAttribute("data-id");
         if(!confirm("¿Eliminar esta locación?")) return;
         const { error } = await supa.from('rentals').delete().eq('company_id', session.company_id).eq('id', id);
-        if(error){ alert("Erro ao eliminar: "+error.message); return; }
+        if(error){ alert("Error al eliminar: "+error.message); return; }
         await supa.rpc('fn_audit', { p_action:'rental_delete', p_payload:{ id }});
         await refreshCombos(); await loadRentals(); await refreshKPIs();
       };
@@ -497,7 +484,7 @@ async function loadRentals(){
   });
 }
 
-$("#btnRegistrarSaida").onclick = async ()=>{
+$("#btnRegistrarSaida") && ($("#btnRegistrarSaida").onclick = async ()=>{
   const placa=$("#outPlaca").value; const motorista=$("#outMotorista").value.trim(); const dataSaida=$("#outData").value;
   if(!placa||!motorista||!dataSaida){ alert("Placa, Conductor y Fecha/Hora de salida son obligatorios."); return; }
   const { data:v } = await supa.from('vehicles').select('*').eq('company_id', session.company_id).eq('placa', placa).single();
@@ -506,14 +493,14 @@ $("#btnRegistrarSaida").onclick = async ()=>{
     data_saida:toTZLocalValue(dataSaida), prev_retorno:toTZLocalValue($("#outPrev").value)||null,
     km_salida: $("#outKm").value?Number($("#outKm").value):(v.km??null), fuel_salida:$("#outFuel").value, obs_salida:$("#outObs").value.trim()||null };
   const { error } = await supa.from('rentals').insert(payload);
-  if(error){ alert("Erro ao registrar saída: "+error.message); return; }
+  if(error){ alert("Error al registrar salida: "+error.message); return; }
   await supa.from('vehicles').update({ status:'En uso' }).eq('company_id', session.company_id).eq('placa', placa);
   await supa.rpc('fn_audit', { p_action:'rental_create', p_payload:payload });
   $("#outMotorista").value=$("#outKm").value=$("#outObs").value=""; $("#outFuel").value="Lleno";
   await refreshCombos(); await loadRentals(); await loadVehicles(); await refreshKPIs();
-};
+});
 
-$("#btnRegistrarEntrada").onclick = async ()=>{
+$("#btnRegistrarEntrada") && ($("#btnRegistrarEntrada").onclick = async ()=>{
   const placa=$("#inPlaca").value; const data=$("#inData").value; const km=$("#inKm").value?Number($("#inKm").value):null;
   if(!placa||!data){ alert("Placa y Fecha/Hora de entrada son obligatorios."); return; }
   const { data:L } = await supa.from('rentals').select('*').eq('company_id', session.company_id).eq('placa', placa).is('data_entrada', null).single();
@@ -521,16 +508,16 @@ $("#btnRegistrarEntrada").onclick = async ()=>{
   if(km!=null && L.km_salida!=null && km<Number(L.km_salida)){ alert("KM entrada no puede ser menor que KM salida."); return; }
   const upd={ data_entrada:toTZLocalValue(data), km_entrada:km, fuel_entrada:$("#inFuel").value, obs_entrada:$("#inObs").value.trim()||null };
   const { error } = await supa.from('rentals').update(upd).eq('company_id', session.company_id).eq('id', L.id);
-  if(error){ alert("Erro ao dar entrada: "+error.message); return; }
+  if(error){ alert("Error al dar entrada: "+error.message); return; }
   const vUpd={ status:'Disponible' }; if(km!=null) vUpd.km=km;
   await supa.from('vehicles').update(vUpd).eq('company_id', session.company_id).eq('placa', placa);
   await supa.rpc('fn_audit', { p_action:'rental_close', p_payload:{ rental_id:L.id, ...upd }});
   $("#inKm").value=$("#inObs").value=""; $("#inFuel").value="Lleno";
   await refreshCombos(); await loadRentals(); await loadVehicles(); await refreshKPIs();
-};
+});
 
-/* Export CSV (locações + manutenção em uso) */
-$("#btnExport").onclick = async ()=>{
+/* Export CSV (Locações + veículos em manutenção) */
+$("#btnExport") && ($("#btnExport").onclick = async ()=>{
   const [{ data: locs }, { data: veics }] = await Promise.all([
     supa.from('rentals').select('*').eq('company_id', session.company_id),
     supa.from('vehicles').select('placa,modelo,status').eq('company_id', session.company_id)
@@ -543,16 +530,16 @@ $("#btnExport").onclick = async ()=>{
   (veics||[]).filter(v=>v.status==="Mantenimiento").forEach(v=>{ rows.push([v.placa,v.modelo||"","","","","","","","","","Mantenimiento","",""]); });
   const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
   const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="reporte.csv"; a.click();
-};
+});
 
 /* ===== Mantenimiento ===== */
-// thresholds alterados: 7 dias e 1000 km
+// thresholds: 7 días y 1000 km (como solicitado)
 const DAYS_THRESHOLD = 7;
 const KM_THRESHOLD = 1000;
 
 async function loadMaint(){
   const { data: ms, error } = await supa.from('maintenances').select('*').eq('company_id', session.company_id).order('fecha', { ascending:false });
-  if(error){ alert("Erro al cargar mantenimientos: " + error.message); return; }
+  if(error){ alert("Error al cargar mantenimientos: " + error.message); return; }
   let cntDays=0, cntKm=0;
   const { data: vs } = await supa.from('vehicles').select('placa,modelo,km').eq('company_id', session.company_id);
   const byPlaca=Object.fromEntries((vs||[]).map(v=>[v.placa,v]));
@@ -574,10 +561,10 @@ async function loadMaint(){
   });
   $("#ind15").textContent=cntDays; $("#ind5km").textContent=cntKm;
 
-  const q=($("#mq").value||"").toLowerCase();
-  const fs=$("#mfEstado").value||"";
-  const fvence=$("#mfVence").value||"";
-  const box=$("#mList"); box.innerHTML="";
+  const q=($("#mq")?.value||"").toLowerCase();
+  const fs=$("#mfEstado")?.value||"";
+  const fvence=$("#mfVence")?.value||"";
+  const box=$("#mList"); if(!box) return; box.innerHTML="";
 
   (ms||[]).filter(m=>{
     const v=byPlaca[m.placa];
@@ -602,22 +589,24 @@ async function loadMaint(){
     const v=byPlaca[m.placa];
     const dleft=m.prox_fecha?Math.ceil((new Date(m.prox_fecha+"T00:00:00") - new Date().setHours(0,0,0,0))/86400000):null;
     const diffKm=(m.prox_km!=null && v && typeof v.km==="number")?(Number(m.prox_km)-Number(v.km)):null;
-    let rowCls="grid-m rowline-m";
-    if(m.estado==="Hecho"){ rowCls+=" done"; }
-    else{
-      const imminent=(dleft!=null&&dleft<=Math.min(3,DAYS_THRESHOLD))||(diffKm!=null&&diffKm<=Math.min(1,KM_THRESHOLD));
-      const soon=!imminent&&((dleft!=null&&dleft<=DAYS_THRESHOLD)||(diffKm!=null&&diffKm<=KM_THRESHOLD));
-      if(imminent) rowCls+=" imminent"; else if(soon) rowCls+=" due";
-    }
+    let rowCls="grid rowline"; // usar grid simples para manter estilo
+    const imminent=(dleft!=null&&dleft<=Math.min(3,DAYS_THRESHOLD))||(diffKm!=null&&diffKm<=Math.min(100,KM_THRESHOLD));
+    const soon=!imminent&&((dleft!=null&&dleft<=DAYS_THRESHOLD)||(diffKm!=null&&diffKm<=KM_THRESHOLD));
+    if(imminent) rowCls+="";
+    else if(soon) rowCls+="";
+
+    const kmCol = `${m.km??"—"}${m.prox_km!=null?` <span class="kv">(→ ${m.prox_km})</span>`:""} ${m.estado==='Pendiente'&&diffKm!=null&&diffKm<=KM_THRESHOLD?`<span class="kv">(faltan ${Math.max(0,diffKm)} km)</span>`:''}`;
+
     const line=document.createElement("div");
     line.className=rowCls;
+    line.style.gridTemplateColumns="1fr .8fr 1.2fr .9fr .9fr .8fr .8fr 1.2fr 220px";
     line.innerHTML=`
       <div><strong>${esc(m.placa)}</strong> <span class="kv">— ${esc(v?.modelo||"—")}</span></div>
-      <div><span class="${m.tipo==='Preventivo'?'badge-p':'badge-c'} badge">${esc(m.tipo)}</span>${m.estado==='Hecho'?' <span class="pill-done">✅ Hecho</span>':''}</div>
+      <div><span class="${m.tipo==='Preventivo'?'badge b-ok':'badge b-warn'}">${esc(m.tipo)}</span>${m.estado==='Hecho'?' <span class="kv">✅ Hecho</span>':''}</div>
       <div>${esc(m.titulo)}</div>
       <div>${fmtYMD(m.fecha)}</div>
-      <div>${fmtYMD(m.prox_fecha)} ${m.estado==='Pendiente'&&dleft!=null&&dleft<=DAYS_THRESHOLD?`<span class="small-hint">(faltan ${dleft} d)</span>`:''}</div>
-      <div>${m.km??"—"}${m.prox_km!=null?` <span class="kv">(→ ${m.prox_km})</span>`:""} ${m.estado==='Pendiente'&&diffKm!=null&&diffKm<=KM_THRESHOLD?`<span class="small-hint">(faltan ${Math.max(0,diffKm)} km)</span>`:''}</div>
+      <div>${fmtYMD(m.prox_fecha)} ${m.estado==='Pendiente'&&dleft!=null&&dleft<=DAYS_THRESHOLD?`<span class="kv">(faltan ${dleft} d)</span>`:''}</div>
+      <div>${kmCol}</div>
       <div>${(m.costo!=null && !isNaN(m.costo)) ? Number(m.costo).toFixed(2) : "—"}</div>
       <div class="kv">${esc(m.obs||"—")}</div>
       <div class="t-right">
@@ -645,7 +634,7 @@ async function loadMaint(){
     }
     if(act==="doneMant"){
       btn.onclick=async ()=>{ const { error } = await supa.from('maintenances').update({ estado:'Hecho' }).eq('company_id', session.company_id).eq('id', id);
-        if(error){ alert("Erro ao marcar feito: "+error.message); return; }
+        if(error){ alert("Error al marcar hecho: "+error.message); return; }
         await supa.rpc('fn_audit', { p_action:'maintenance_done', p_payload:{ id }});
         await loadMaint();
       };
@@ -656,7 +645,7 @@ async function loadMaint(){
         const { data:M } = await supa.from('maintenances').select('*').eq('company_id', session.company_id).eq('id', id).single();
         if(M?.fin_id && session.role==='admin'){ await supa.from('finances').delete().eq('company_id', session.company_id).eq('id', M.fin_id); }
         const { error } = await supa.from('maintenances').delete().eq('company_id', session.company_id).eq('id', id);
-        if(error){ alert("Erro ao eliminar: "+error.message); return; }
+        if(error){ alert("Error al eliminar: "+error.message); return; }
         await supa.rpc('fn_audit', { p_action:'maintenance_delete', p_payload:{ id }});
         await loadMaint(); await loadFinances();
       };
@@ -664,7 +653,7 @@ async function loadMaint(){
   });
 }
 
-$("#btnAddMant").onclick = async ()=>{
+$("#btnAddMant") && ($("#btnAddMant").onclick = async ()=>{
   const payload={ company_id:session.company_id, placa:$("#mPlaca").value, tipo:$("#mTipo").value, titulo:$("#mTitulo").value.trim(),
     fecha:$("#mFecha").value||null, prox_fecha:$("#mProx").value||null, km:$("#mKm").value?Number($("#mKm").value):null,
     prox_km:$("#mProxKm").value?Number($("#mProxKm").value):null, estado:$("#mEstado").value, obs:$("#mObs").value.trim()||null,
@@ -673,12 +662,12 @@ $("#btnAddMant").onclick = async ()=>{
   const editing=$("#btnAddMant").getAttribute("data-editing");
   if(editing){
     const { error } = await supa.from('maintenances').update(payload).eq('company_id', session.company_id).eq('id', editing);
-    if(error){ alert("Erro ao atualizar: "+error.message); return; }
+    if(error){ alert("Error al actualizar: "+error.message); return; }
     await supa.rpc('fn_audit',{ p_action:'maintenance_update', p_payload:{ id:editing, ...payload }});
     $("#btnAddMant").removeAttribute("data-editing");
   }else{
     const { data, error } = await supa.from('maintenances').insert(payload).select('id').single();
-    if(error){ alert("Erro ao salvar: "+error.message); return; }
+    if(error){ alert("Error al guardar: "+error.message); return; }
     await supa.rpc('fn_audit',{ p_action:'maintenance_create', p_payload:{ id:data.id, ...payload }});
   }
   if(payload.costo && session.role==='admin'){
@@ -690,20 +679,20 @@ $("#btnAddMant").onclick = async ()=>{
   $("#mKm").value=""; $("#mProxKm").value=""; $("#mEstado").value="Pendiente";
   $("#mCosto").value=""; $("#mObs").value="";
   await loadMaint(); await loadFinances();
-};
+});
 
 /* ===== Finanzas ===== */
 function sumFin(items){ let inSum=0,outSum=0; (items||[]).forEach(x=>{ const v=Number(x.monto)||0; if(x.tipo==='Ingreso') inSum+=v; else outSum+=v; }); return { inSum, outSum, saldo: inSum-outSum }; }
 async function loadFinances(){
   if(session.role!=='admin'){
-    $("#finList").innerHTML=`<div class="muted" style="padding:10px 0">Sin permisos para ver finanzas (asesor).</div>`;
+    const list=$("#finList"); if(list) list.innerHTML=`<div class="muted" style="padding:10px 0">Sin permisos para ver finanzas (asesor).</div>`;
     $("#finSumIn").textContent="0.00"; $("#finSumOut").textContent="0.00"; $("#finSaldo").textContent="0.00";
     return;
   }
-  const q=($("#finQ").value||"").toLowerCase(); const t=$("#finFiltroTipo").value||""; const fPlaca=$("#finFiltroPlaca").value||"";
-  const d=$("#finDesde").value||""; const h=$("#finHasta").value||"";
+  const q=($("#finQ")?.value||"").toLowerCase(); const t=$("#finFiltroTipo")?.value||""; const fPlaca=$("#finFiltroPlaca")?.value||"";
+  const d=$("#finDesde")?.value||""; const h=$("#finHasta")?.value||"";
   let { data, error } = await supa.from('finances').select('*').eq('company_id', session.company_id).order('fecha',{ascending:false});
-  if(error){ alert("Erro al cargar finanzas: "+error.message); return; }
+  if(error){ alert("Error al cargar finanzas: "+error.message); return; }
   let items=(data||[]).filter(x=>{
     const okQ=q?((x.nota||"").toLowerCase().includes(q)||(x.categoria||"").toLowerCase().includes(q)||(x.placa||"").toLowerCase().includes(q)):true;
     const okT=t?(x.tipo===t):true; const okP=fPlaca?(x.placa===fPlaca):true;
@@ -713,9 +702,10 @@ async function loadFinances(){
   $("#finSumIn").textContent=sums.inSum.toFixed(2);
   $("#finSumOut").textContent=sums.outSum.toFixed(2);
   $("#finSaldo").textContent=sums.saldo.toFixed(2);
-  const box=$("#finList"); box.innerHTML="";
+  const box=$("#finList"); if(!box) return; box.innerHTML="";
   items.forEach(x=>{
-    const row=document.createElement("div"); row.className="grid-fin fin-row";
+    const row=document.createElement("div"); row.className="grid fin-row";
+    row.style.gridTemplateColumns=".9fr .8fr .8fr 1fr 1.6fr .8fr 160px";
     row.innerHTML=`
       <div>${x.fecha?x.fecha.split("-").reverse().join("/"):"—"}</div>
       <div>${x.tipo}</div>
@@ -730,7 +720,7 @@ async function loadFinances(){
     b.onclick=async ()=>{ const id=b.getAttribute("data-id"); await supa.from('finances').delete().eq('company_id', session.company_id).eq('id', id); await loadFinances(); };
   });
 }
-$("#btnFinGuardar").onclick = async ()=>{
+$("#btnFinGuardar") && ($("#btnFinGuardar").onclick = async ()=>{
   if(session.role!=='admin'){ alert("Solo admin puede registrar finanzas."); return; }
   const fecha=$("#finFecha").value||""; const tipo=$("#finTipo").value; const monto=$("#finMonto").value?Number($("#finMonto").value):0;
   const placa=$("#finPlaca").value||null; const cat=$("#finCat").value||"Otro"; const nota=$("#finNota").value.trim()||null;
@@ -738,17 +728,17 @@ $("#btnFinGuardar").onclick = async ()=>{
   if(!monto||monto<=0){ alert("El monto debe ser mayor que 0."); return; }
   const payload={ company_id:session.company_id, fecha, tipo, monto, placa, categoria:cat, nota };
   const { error } = await supa.from('finances').insert(payload);
-  if(error){ alert("Erro al guardar: "+error.message); return; }
+  if(error){ alert("Error al guardar: "+error.message); return; }
   $("#finMonto").value=""; $("#finNota").value=""; await loadFinances();
-};
-$("#btnFinExport").onclick = async ()=>{
+});
+$("#btnFinExport") && ($("#btnFinExport").onclick = async ()=>{
   if(session.role!=='admin'){ alert("Solo admin puede exportar finanzas."); return; }
   const { data } = await supa.from('finances').select('*').eq('company_id', session.company_id);
   const rows=[["fecha","tipo","monto","placa","categoria","nota"]];
   (data||[]).forEach(x=>{ rows.push([x.fecha||"",x.tipo||"",Number(x.monto||0).toFixed(2),x.placa||"",x.categoria||"",x.nota||""]); });
   const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
   const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="finanzas.csv"; a.click();
-};
+});
 
 /* ===== KPIs ===== */
 async function refreshKPIs(){
@@ -760,7 +750,7 @@ async function refreshKPIs(){
     $("#mMantenimiento").textContent=data.manut??0;
   }
   if(session.role==='admin'){
-    const desde=$("#repDesde").value||""; const hasta=$("#repHasta").value||"";
+    const desde=$("#repDesde")?.value||""; const hasta=$("#repHasta")?.value||"";
     const { data: fin } = await supa.from('finances').select('fecha,tipo,monto').eq('company_id', session.company_id);
     const items=(fin||[]).filter(x=>{ const okD=desde?((x.fecha||"")>=desde):true; const okH=hasta?((x.fecha||"")<=hasta):true; return okD&&okH; });
     const s=sumFin(items); $("#mIngTotal").textContent=s.inSum.toFixed(2); $("#mEgrTotal").textContent=s.outSum.toFixed(2);
@@ -771,7 +761,8 @@ async function refreshKPIs(){
 function activateTab(name){
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active", t.dataset.tab===name));
   ["locacoes","frota","mantenimiento","finanzas","relatorios"].forEach(n=>{
-    document.getElementById("tab-"+n).classList.toggle("hide", n!==name);
+    const el=document.getElementById("tab-"+n);
+    if(el) el.classList.toggle("hide", n!==name);
   });
   if(name==="relatorios") refreshKPIs();
   if(name==="mantenimiento") loadMaint();
@@ -779,63 +770,62 @@ function activateTab(name){
 }
 
 /* ===== Modal Observaciones ===== */
-$("#btnObsClose").onclick = ()=>{ $("#obsModal").style.display="none"; };
-document.addEventListener('keydown', (e)=>{ if(e.key==="Escape") $("#btnObsClose").click(); });
-$("#obsModal").addEventListener("click",(e)=>{ if(e.target.id==="obsModal") $("#btnObsClose").click(); });
+(() => {
+  const closeBtn = document.getElementById("btnObsClose");
+  const modal = document.getElementById("obsModal");
+  if(closeBtn) closeBtn.onclick = ()=>{ modal.style.display="none"; };
+  document.addEventListener('keydown', (e)=>{ if(e.key==="Escape") modal.style.display="none"; });
+  modal?.addEventListener("click",(e)=>{ if(e.target.id==="obsModal") modal.style.display="none"; });
+})();
 
-/* ===== Auth (sem auto-login) ===== */
-window.doLogin = async function doLogin(){
+/* ===== Auth ===== */
+async function doLogin(){
   try{
-    const email = $("#user").value.trim();
-    const pass  = $("#pass").value.trim();
-    if(!email || !pass){ alert("Informe usuario y contraseña."); return; }
-
+    const email=$("#user").value.trim(); const pass=$("#pass").value.trim();
+    if(!email||!pass){ alert("Informe usuario y contraseña."); return; }
     const { data, error } = await supa.auth.signInWithPassword({ email, password: pass });
     if(error) throw error;
-
-    const prof = await fetchProfile(data.user.id);
+    const prof=await fetchProfile(data.user.id);
     if(!prof){ await supa.auth.signOut(); return; }
-
-    session.user = email;
-    session.role = prof.role;
-    session.company_id = prof.company_id;
-
-    $("#login").classList.add("hide");
-    $("#app").classList.remove("hide");
-
+    session.user=email; session.role=prof.role; session.company_id=prof.company_id;
+    document.getElementById("login").classList.add("hide");
+    document.getElementById("app").classList.remove("hide");
     const d=$("#repDesde"); const h=$("#repHasta");
     if(d) d.value=(new Date()).toISOString().slice(0,10).replace(/-\d{2}$/,"-01");
     if(h) h.value=(new Date()).toISOString().slice(0,10);
-
     await refreshCombos();
     await Promise.all([loadVehicles(), loadRentals(), loadMaint(), loadFinances()]);
     await refreshKPIs();
   }catch(err){
     alert("Login inválido: " + (err?.message || err));
   }
-};
+}
+
 /* ===== Boot ===== */
 document.addEventListener('DOMContentLoaded', ()=>{
-  $("#btnLogin").onclick = doLogin;
-  $("#btnLogout").onclick = async ()=>{ await supa.auth.signOut(); location.reload(); };
+  const loginBtn=document.getElementById("btnLogin");
+  if(loginBtn){ loginBtn.addEventListener("click", doLogin); }
+  const logoutBtn=document.getElementById("btnLogout");
+  if(logoutBtn){ logoutBtn.addEventListener("click", async ()=>{ await supa.auth.signOut(); location.reload(); }); }
 
+  // Abas
   document.querySelectorAll(".tab").forEach(t=>{
     t.addEventListener("click", ()=> activateTab(t.dataset.tab));
   });
 
   // Filtros
-  $("#q")?.addEventListener("input", loadRentals);
-  $("#filtroStatus")?.addEventListener("change", loadRentals);
-  $("#mq")?.addEventListener("input", loadMaint);
-  $("#mfEstado")?.addEventListener("change", loadMaint);
-  $("#mfVence")?.addEventListener("change", loadMaint);
-  $("#finQ")?.addEventListener("input", loadFinances);
-  $("#finDesde")?.addEventListener("change", loadFinances);
-  $("#finHasta")?.addEventListener("change", loadFinances);
-  $("#finFiltroTipo")?.addEventListener("change", loadFinances);
-  $("#finFiltroPlaca")?.addEventListener("change", loadFinances);
+  const q=$("#q"); if(q) q.addEventListener("input", loadRentals);
+  const fs=$("#filtroStatus"); if(fs) fs.addEventListener("change", loadRentals);
+  const mq=$("#mq"); if(mq) mq.addEventListener("input", loadMaint);
+  const mfE=$("#mfEstado"); if(mfE) mfE.addEventListener("change", loadMaint);
+  const mfV=$("#mfVence"); if(mfV) mfV.addEventListener("change", loadMaint);
+  const finQ=$("#finQ"); if(finQ) finQ.addEventListener("input", loadFinances);
+  const finD=$("#finDesde"); if(finD) finD.addEventListener("change", loadFinances);
+  const finH=$("#finHasta"); if(finH) finH.addEventListener("change", loadFinances);
+  const finT=$("#finFiltroTipo"); if(finT) finT.addEventListener("change", loadFinances);
+  const finP=$("#finFiltroPlaca"); if(finP) finP.addEventListener("change", loadFinances);
 });
-</script>
+  </script>
 </body>
-</html>
-    
+  </html>
+
