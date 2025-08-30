@@ -356,6 +356,12 @@
   </div>
       <script>
 /* ===== Helpers ===== */
+function parseNumber(val){
+  if(!val) return null;
+  // remove espaços, troca vírgula por ponto e remove separador de milhar
+  return Number(String(val).trim().replace(/\./g,"").replace(",","."));
+}
+
 const $ = sel => document.querySelector(sel);
 function esc(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;") }
 function fmtDTISOToLocal(v){ if(!v) return "—"; const d=new Date(v); return d.toLocaleString(); }
@@ -447,7 +453,7 @@ $("#btnAddVeiculo") && ($("#btnAddVeiculo").onclick = async ()=>{
   if(!placa||!modelo){ alert("Placa y Marca/Modelo son obligatorios."); return; }
   const payload={ company_id:session.company_id, placa, modelo,
     cor:$("#vCor").value.trim()||null,
-    km:$("#vKm").value?Number($("#vKm").value):null,
+    km: parseNumber($("#vKm").value),
     status:$("#vStatus").value,
     fecha_registro:$("#vFechaRegistro").value||null };
   const { error } = await supa.from('vehicles').upsert(payload, { onConflict:'placa' });
@@ -674,7 +680,7 @@ document.getElementById("btnAddVeiculo").onclick = async ()=>{
 };
 
 $("#btnRegistrarEntrada") && ($("#btnRegistrarEntrada").onclick = async ()=>{
-  const placa=$("#inPlaca").value; const data=$("#inData").value; const km=$("#inKm").value?Number($("#inKm").value):null;
+  const placa=$("#inPlaca").value; const data=$("#inData").value; const km = parseNumber($("#inKm").value);
   if(!placa||!data){ alert("Placa y Fecha/Hora de entrada son obligatorios."); return; }
   const { data:L } = await supa.from('rentals').select('*').eq('company_id', session.company_id).eq('placa', placa).is('data_entrada', null).single();
   if(!L){ alert("No hay locación abierta para esta placa."); return; }
@@ -724,7 +730,7 @@ document.getElementById("btnRegistrarSaida")?.addEventListener("click", async ()
     motorista,
     data_saida: toTZLocalValue(dataSaida),
     prev_retorno: toTZLocalValue($("#outPrev").value) || null,
-    km_salida: $("#outKm").value ? Number($("#outKm").value) : (v.km ?? null),
+    km_salida: parseNumber($("#outKm").value) ?? (v.km ?? null),
     fuel_salida: $("#outFuel").value,
     obs_salida: $("#outObs").value.trim() || null
   };
@@ -898,9 +904,9 @@ async function loadMaint(){
 
 $("#btnAddMant") && ($("#btnAddMant").onclick = async ()=>{
   const payload={ company_id:session.company_id, placa:$("#mPlaca").value, tipo:$("#mTipo").value, titulo:$("#mTitulo").value.trim(),
-    fecha:$("#mFecha").value||null, prox_fecha:$("#mProx").value||null, km:$("#mKm").value?Number($("#mKm").value):null,
-    prox_km:$("#mProxKm").value?Number($("#mProxKm").value):null, estado:$("#mEstado").value, obs:$("#mObs").value.trim()||null,
-    costo:$("#mCosto").value?Number($("#mCosto").value):null };
+    fecha:$("#mFecha").value||null, prox_fecha:$("#mProx").value||null, km: parseNumber($("#mKm").value),
+    prox_km: parseNumber($("#mProxKm").value), estado:$("#mEstado").value, obs:$("#mObs").value.trim()||null,
+    costo: parseNumber($("#mCosto").value),
   if(!payload.placa||!payload.titulo){ alert("Placa y Servicio/Tarea son obligatorios."); return; }
   const editing=$("#btnAddMant").getAttribute("data-editing");
   if(editing){
@@ -965,7 +971,7 @@ async function loadFinances(){
 }
 $("#btnFinGuardar") && ($("#btnFinGuardar").onclick = async ()=>{
   if(session.role!=='admin'){ alert("Solo admin puede registrar finanzas."); return; }
-  const fecha=$("#finFecha").value||""; const tipo=$("#finTipo").value; const monto=$("#finMonto").value?Number($("#finMonto").value):0;
+  const fecha=$("#finFecha").value||""; const tipo=$("#finTipo").value; const monto=parseNumber($("#finMonto").value) || 0;
   const placa=$("#finPlaca").value||null; const cat=$("#finCat").value||"Otro"; const nota=$("#finNota").value.trim()||null;
   if(!fecha){ alert("La fecha es obligatoria."); return; }
   if(!monto||monto<=0){ alert("El monto debe ser mayor que 0."); return; }
