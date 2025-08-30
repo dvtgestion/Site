@@ -903,52 +903,124 @@ $("#btnAddMant") && ($("#btnAddMant").onclick = async ()=>{
 
   try {
     if (editing) {
-      // UPDATE
-      const { error } = await supa
+      // Buscar fin_id atual antes de alterar
+      const { data: before, error: e0 } = await supa
+        .from('maintenances')
+        .select('fin_id')
+        .eq('company_id', session.company_id)
+        .eq('id', editing)
+        .single();
+      if (e0) throw e0;
+      const prevFinId = before?.fin_id || null;
+
+      // UPDATE do mantenimiento
+      const { error: e1 } = await supa
         .from('maintenances')
         .update(payload)
         .eq('company_id', session.company_id)
         .eq('id', editing);
-
-      if (error) { throw error; }
+      if (e1) throw e1;
 
       await supa.rpc('fn_audit', {
         p_action: 'maintenance_update',
         p_payload: { id: editing, ...payload }
       });
 
+      // Sincronizar com FINANZAS (somente admin)
+      if (session.role === 'admin') {
+        if (payload.costo && !isNaN(payload.costo)) {
+          if (prevFinId) {
+            // já existe egreso -> atualizar
+            const finUpd = {
+              fecha: payload.fecha || todayYMD(),
+              tipo: 'Egreso',
+              monto: Number(payload.costo),
+              placa: payload.placa,
+              categoria: 'Mantenimiento',
+              nota: payload.titulo + (payload.obs ? ` — ${payload.obs}` : '')
+            };
+            await supa.from('finances')
+              .update(finUpd)
+              .eq('company_id', session.company_id)
+              .eq('id', prevFinId);
+          } else {
+            // não existia -> criar e vincular
+            const fin = {
+              company_id: session.company_id,
+              fecha: payload.fecha || todayYMD(),
+              tipo: 'Egreso',
+              monto: Number(payload.costo),
+              placa: payload.placa,
+              categoria: 'Mantenimiento',
+              nota: payload.titulo + (payload.obs ? ` — ${payload.obs}` : '')
+            };
+            const { data: f, error: e2 } = await supa
+              .from('finances')
+              .insert(fin)
+              .select('id')
+              .single();
+            if (e2) throw e2;
+
+            await supa
+              .from('maintenances')
+              .update({ fin_id: f.id })
+              .eq('company_id', session.company_id)
+              .eq('id', editing);
+          }
+        } else if (prevFinId) {
+          // custo removido -> apagar egreso e desvincular
+          await supa.from('finances')
+            .delete()
+            .eq('company_id', session.company_id)
+            .eq('id', prevFinId);
+          await supa.from('maintenances')
+            .update({ fin_id: null })
+            .eq('company_id', session.company_id)
+            .eq('id', editing);
+        }
+      }
+
       $("#btnAddMant").removeAttribute("data-editing");
     } else {
-      // INSERT
-      const { data, error } = await supa
+      // INSERT do mantenimiento
+      const { data: ins, error: e1 } = await supa
         .from('maintenances')
         .insert(payload)
         .select('id')
         .single();
-
-      if (error) { throw error; }
+      if (e1) throw e1;
 
       await supa.rpc('fn_audit', {
         p_action: 'maintenance_create',
-        p_payload: { id: data.id, ...payload }
+        p_payload: { id: ins.id, ...payload }
       });
+
+      // Criar FINANZAS e amarrar fin_id (somente admin e se houver costo)
+      if (payload.costo && session.role === 'admin') {
+        const fin = {
+          company_id: session.company_id,
+          fecha: payload.fecha || todayYMD(),
+          tipo: 'Egreso',
+          monto: Number(payload.costo),
+          placa: payload.placa,
+          categoria: 'Mantenimiento',
+          nota: payload.titulo + (payload.obs ? ` — ${payload.obs}` : '')
+        };
+        const { data: f, error: e2 } = await supa
+          .from('finances')
+          .insert(fin)
+          .select('id')
+          .single();
+        if (e2) throw e2;
+
+        await supa.from('maintenances')
+          .update({ fin_id: f.id })
+          .eq('company_id', session.company_id)
+          .eq('id', ins.id);
+      }
     }
 
-    // Se informou custo e é admin, registra em finanzas
-    if (payload.costo && session.role === 'admin') {
-      const fin = {
-        company_id: session.company_id,
-        fecha: payload.fecha || todayYMD(),
-        tipo: 'Egreso',
-        monto: Number(payload.costo),
-        placa: payload.placa,
-        categoria: 'Mantenimiento',
-        nota: payload.titulo + (payload.obs ? ` — ${payload.obs}` : '')
-      };
-      await supa.from('finances').insert(fin);
-    }
-
-    // Limpa formulário de manutenção
+    // Limpa formulário
     $("#mTitulo").value = "";
     $("#mFecha").value = "";
     $("#mProx").value = "";
