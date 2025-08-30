@@ -13,6 +13,14 @@
   const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: { persistSession: false, autoRefreshToken: false, storageKey: 'no-persist' }
   });
+
+  // Garantir estado inicial correto antes de qualquer outra lógica
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const login = document.getElementById('login');
+    const app = document.getElementById('app');
+    if (login) login.classList.remove('hide');
+    if (app) app.classList.add('hide');
+  });
 </script>
 
 <style>
@@ -25,7 +33,7 @@
   h1{font-size:24px;margin:0 0 8px}
   .muted{color:var(--muted);font-size:14px}
   label{display:block;font-size:13px;margin:14px 0 6px;color:#cbd5e1}
-  input,select,textarea{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--ring);background:var(--input);color:var(--white);outline:none}
+  input,select,textarea{width:100%;padding:12px 14px;border-radius:10px;border:1px solid #1f2937;background:var(--input);color:var(--white);outline:none}
   button{border:0;border-radius:10px;padding:10px 14px;color:#0b1220;background:#86efac;cursor:pointer;font-weight:600}
   button.secondary{background:#93c5fd}
   button.ghost{background:transparent;border:1px solid #334155;color:#e2e8f0}
@@ -45,7 +53,11 @@
   .b-warn{background:#3b2a06;color:#fbbf24;border:1px solid #4d3410}
   .b-bad{background:#3b0a0a;color:#fca5a5;border:1px solid #4c1111}
   .t-right{text-align:right}
-  /* Modal */
+
+  /* IMPORTANTE: garante que telas escondidas fiquem realmente invisíveis */
+  .hide{display:none !important}
+
+  /* Modal Observações */
   #obsModal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:9999}
   #obsModal .modal-content{background:var(--card);padding:20px;border-radius:12px;max-width:500px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,.4)}
   #obsModal h3{margin-top:0;color:#fff}
@@ -53,6 +65,7 @@
 </style>
 </head>
 <body>
+
   <!-- LOGIN -->
   <section id="login" class="login">
     <h1>Inicio de sesión</h1>
@@ -89,11 +102,38 @@
         <div class="row">
           <div class="col card">
             <h3>Registrar salida</h3>
-            <!-- campos de salida -->
+            <div class="row">
+              <div class="col"><label>Placa</label><select id="outPlaca"></select></div>
+              <div class="col"><label>Conductor / Cliente</label><input id="outMotorista" placeholder="Nombre del conductor" /></div>
+              <div class="col"><label>Fecha/Hora salida</label><input id="outData" type="datetime-local" /></div>
+              <div class="col"><label>Previsto retorno</label><input id="outPrev" type="datetime-local" /></div>
+              <div class="col"><label>KM salida</label><input id="outKm" type="number" min="0" step="1" /></div>
+              <div class="col"><label>Combustible (salida)</label>
+                <select id="outFuel"><option>Lleno</option><option>3/4</option><option>1/2</option><option>1/4</option></select>
+              </div>
+            </div>
+            <label>Observaciones</label>
+            <textarea id="outObs" rows="2" placeholder="Accesorios, daños, depósito..."></textarea>
+            <div class="row" style="margin-top:10px">
+              <button id="btnRegistrarSaida">Registrar salida</button>
+            </div>
           </div>
+
           <div class="col card">
             <h3>Registrar entrada</h3>
-            <!-- campos de entrada -->
+            <div class="row">
+              <div class="col"><label>Placa</label><select id="inPlaca"></select></div>
+              <div class="col"><label>Fecha/Hora entrada</label><input id="inData" type="datetime-local" /></div>
+              <div class="col"><label>KM entrada</label><input id="inKm" type="number" min="0" step="1" /></div>
+              <div class="col"><label>Combustible (entrada)</label>
+                <select id="inFuel"><option>Lleno</option><option>3/4</option><option>1/2</option><option>1/4</option></select>
+              </div>
+            </div>
+            <label>Observaciones de retorno</label>
+            <textarea id="inObs" rows="2" placeholder="Multas, daños, limpieza..."></textarea>
+            <div class="row" style="margin-top:10px">
+              <button class="secondary" id="btnRegistrarEntrada">Registrar entrada</button>
+            </div>
           </div>
         </div>
 
@@ -113,8 +153,21 @@
       <div class="wrap">
         <div class="card">
           <h3>Registro de vehículo</h3>
-          <!-- form vehiculo -->
+          <div class="row">
+            <div class="col"><label>Placa</label><input id="vPlaca" placeholder="ABC1D23" /></div>
+            <div class="col"><label>Marca / Modelo</label><input id="vModelo" placeholder="Toyota Corolla 2.0" /></div>
+            <div class="col"><label>Color</label><input id="vCor" placeholder="Plata" /></div>
+            <div class="col"><label>KM actual</label><input id="vKm" type="number" min="0" step="1" /></div>
+            <div class="col"><label>Estado</label>
+              <select id="vStatus"><option>Disponible</option><option>Atrasado</option><option>Mantenimiento</option></select>
+            </div>
+            <div class="col"><label>Fecha de registro</label><input id="vFechaRegistro" type="date" /></div>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <button id="btnAddVeiculo">Guardar/Actualizar vehículo</button>
+          </div>
         </div>
+
         <div class="card" style="margin-top:16px">
           <h3>Vehículos</h3>
           <div class="grid thead">
@@ -125,7 +178,6 @@
         </div>
       </div>
     </div>
-    
         <!-- MANTENIMIENTO -->
     <div id="tab-mantenimiento" class="pad hide">
       <div class="wrap">
@@ -133,8 +185,7 @@
           <h3 style="margin-top:0">Registrar mantenimiento</h3>
           <div class="row">
             <div class="col"><label>Placa</label><select id="mPlaca"></select></div>
-            <div class="col">
-              <label>Tipo</label>
+            <div class="col"><label>Tipo</label>
               <select id="mTipo"><option>Preventivo</option><option>Correctivo</option></select>
             </div>
             <div class="col"><label>Servicio / Tarea</label><input id="mTitulo" placeholder="Cambio de aceite, frenos, etc." /></div>
@@ -147,8 +198,7 @@
           </div>
           <label>Observación</label>
           <textarea id="mObs" rows="2" placeholder="Detalle del trabajo o nota."></textarea>
-          <div class="footer">
-            <span class="hint">Si informas Costo, se intentará crear/actualizar un Egreso en Finanzas (admin).</span>
+          <div class="row" style="margin-top:10px">
             <button id="btnAddMant">Guardar mantenimiento</button>
           </div>
         </div>
@@ -196,8 +246,7 @@
           </div>
           <label>Concepto / Nota</label>
           <input id="finNota" placeholder="Detalle del movimiento (ej. Alquiler Juan Pérez - 3 días)" />
-          <div class="footer">
-            <span class="hint">Solo <strong>admin</strong> puede escribir/leer finanzas (RLS).</span>
+          <div class="row" style="margin-top:10px">
             <button id="btnFinGuardar">Guardar movimiento</button>
           </div>
         </div>
@@ -220,7 +269,7 @@
           </div>
           <div id="finList"></div>
 
-          <div class="footer">
+          <div class="row" style="margin-top:10px">
             <div class="muted">
               Ingresos: <strong id="finSumIn">0.00</strong> • 
               Egresos: <strong id="finSumOut">0.00</strong> • 
@@ -230,8 +279,8 @@
         </div>
       </div>
     </div>
-    
-        <!-- REPORTES -->
+
+    <!-- REPORTES -->
     <div id="tab-relatorios" class="pad hide">
       <div class="wrap">
         <div class="card">
@@ -259,7 +308,7 @@
             </div>
           </div>
 
-          <div class="hint" style="margin-top:8px">Los totales arriba se calculan desde Supabase respetando tus filtros.</div>
+          <div class="muted" style="margin-top:8px">Los totales arriba se calculan desde Supabase respetando tus filtros.</div>
         </div>
       </div>
     </div>
@@ -416,7 +465,6 @@ async function loadRentals(){
     box.appendChild(div);
   });
 
-  // ações da lista
   box.querySelectorAll("button").forEach(btn=>{
     const act=btn.getAttribute("data-act");
     if(act==="entrada"){
@@ -762,7 +810,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   $("#btnLogin").onclick = doLogin;
   $("#btnLogout").onclick = async ()=>{ await supa.auth.signOut(); location.reload(); };
 
-  // clique nas abas
   document.querySelectorAll(".tab").forEach(t=>{
     t.addEventListener("click", ()=> activateTab(t.dataset.tab));
   });
@@ -782,9 +829,4 @@ document.addEventListener('DOMContentLoaded', ()=>{
 </script>
 </body>
 </html>
-    
-    
-    
-    
-    
     
