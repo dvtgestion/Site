@@ -469,7 +469,7 @@ async function loadRentals(){
         <div>${badge(r.status)}</div>
         <div class="t-right">
           ${!l.data_entrada?`<button class="secondary" data-act="entrada" data-id="${l.id}">Dar entrada</button>`:""}
-          <button class="ghost" data-act="obs" data-id="${l.id}">Observaciones</button>
+          <button class="btn-obs" data-act="obs" data-id="${l.id}">Observaciones</button>
           <button class="danger" data-act="delLoc" data-id="${l.id}">Eliminar</button>
         </div>`;
     }else{
@@ -578,6 +578,76 @@ $("#btnRegistrarEntrada") && ($("#btnRegistrarEntrada").onclick = async ()=>{
   await supa.rpc('fn_audit', { p_action:'rental_close', p_payload:{ rental_id:L.id, ...upd }});
   $("#inKm").value=$("#inObs").value=""; $("#inFuel").value="Lleno";
   await refreshCombos(); await loadRentals(); await loadVehicles(); await refreshKPIs();
+});
+
+// === Registrar salida ===
+document.getElementById("btnRegistrarSaida")?.addEventListener("click", async ()=>{
+  const placa = $("#outPlaca").value;
+  const motorista = $("#outMotorista").value.trim();
+  const dataSaida = $("#outData").value;
+
+  if (!placa || !motorista || !dataSaida) {
+    alert("Placa, Conductor y Fecha/Hora de salida son obligatorios.");
+    return;
+  }
+
+  // Verifica veículo disponível
+  const { data: v, error: ev } = await supa
+    .from('vehicles')
+    .select('*')
+    .eq('company_id', session.company_id)
+    .eq('placa', placa)
+    .single();
+
+  if (ev || !v) {
+    alert("Vehículo no encontrado.");
+    return;
+  }
+  if (v.status !== 'Disponible') {
+    alert("Vehículo no disponible.");
+    return;
+  }
+
+  const payload = {
+    company_id: session.company_id,
+    placa,
+    modelo: v.modelo || null,
+    motorista,
+    data_saida: toTZLocalValue(dataSaida),
+    prev_retorno: toTZLocalValue($("#outPrev").value) || null,
+    km_salida: $("#outKm").value ? Number($("#outKm").value) : (v.km ?? null),
+    fuel_salida: $("#outFuel").value,
+    obs_salida: $("#outObs").value.trim() || null
+  };
+
+  const { error } = await supa.from('rentals').insert(payload);
+  if (error) {
+    alert("Error al registrar salida: " + error.message);
+    return;
+  }
+
+  // Marca veículo "En uso"
+  await supa
+    .from('vehicles')
+    .update({ status: 'En uso' })
+    .eq('company_id', session.company_id)
+    .eq('placa', placa);
+
+  // Auditoria
+  await supa.rpc('fn_audit', { p_action:'rental_create', p_payload: payload });
+
+  // Limpa formulário
+  $("#outMotorista").value = "";
+  $("#outKm").value = "";
+  $("#outObs").value = "";
+  $("#outFuel").value = "Lleno";
+  $("#outPrev").value = "";
+
+  // Atualiza listas e KPIs
+  await refreshCombos();
+  await loadRentals();
+  await loadVehicles();
+  await refreshKPIs();
 });
 
 /* Export CSV (Locações + veículos em manutenção) */
