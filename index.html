@@ -49,11 +49,22 @@
   .t-right{text-align:right}
   .hide{display:none}
 
-  /* Modal Observaciones */
+  /* Toolbar (restaurada) */
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+  .toolbar input{max-width:280px}
+
+  /* Botão Observaciones (nova cor) */
+  .btn-obs{background:#fbbf24;color:#0b1220;border:0} /* âmbar combina com tema */
+  .btn-obs.ghost{border:1px solid #4d3410;background:transparent;color:#fbbf24}
+
+  /* Modal Observaciones (lado a lado) */
   #obsModal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:9999}
-  #obsModal .modal-content{background:var(--card);padding:20px;border-radius:12px;max-width:520px;width:92%;box-shadow:0 10px 40px rgba(0,0,0,.4)}
-  #obsModal h3{margin-top:0;color:#fff}
-  #obsModal p{white-space:pre-wrap;color:#e5e7eb;font-size:14px}
+  #obsModal .modal-content{background:var(--card);padding:20px;border-radius:12px;max-width:720px;width:92%;box-shadow:0 10px 40px rgba(0,0,0,.4);border:1px solid #1f2937}
+  #obsModal h3{margin:0 0 12px 0;color:#fff}
+  .notes-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .note-col h4{margin:0 0 8px 0;font-size:14px;color:#e5e7eb}
+  .note-box{background:#0b1220;border:1px solid #293042;border-radius:8px;padding:10px;min-height:120px;white-space:pre-wrap;word-break:break-word;color:#e5e7eb}
+  @media (max-width:800px){.notes-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -132,7 +143,20 @@
           </div>
         </div>
 
+        <!-- 🔁 Toolbar restaurada (busca + filtro + export) -->
         <div class="card" style="margin-top:16px">
+          <div class="toolbar">
+            <input id="q" placeholder="Buscar por placa, marca/modelo o conductor..." />
+            <select id="filtroStatus">
+              <option value="">Todos los estados</option>
+              <option>Disponible</option>
+              <option>En uso</option>
+              <option>Atrasado</option>
+              <option>Mantenimiento</option>
+            </select>
+            <button id="btnExport">Exportar CSV</button>
+          </div>
+
           <div class="grid thead">
             <div>Placa / Marca / Modelo</div><div>Conductor</div><div>Salida</div>
             <div>Previsto</div><div>Entrada</div><div>Estado</div><div class="t-right">Acciones</div>
@@ -141,8 +165,8 @@
         </div>
       </div>
     </div>
-
-    <!-- VEHÍCULOS -->
+    
+        <!-- VEHÍCULOS -->
     <div id="tab-frota" class="pad hide">
       <div class="wrap">
         <div class="card">
@@ -300,19 +324,26 @@
     </div>
   </section>
 
-  <!-- MODAL DE OBSERVACIONES -->
+  <!-- MODAL DE OBSERVACIONES (lado a lado) -->
   <div id="obsModal">
     <div class="modal-content">
       <h3>Observaciones</h3>
-      <p id="obsSalida"><strong>Salida:</strong> —</p>
-      <p id="obsEntrada" style="margin-top:8px"><strong>Entrada:</strong> —</p>
+      <div class="notes-grid">
+        <div class="note-col">
+          <h4>Salida</h4>
+          <div id="obsSalida" class="note-box">—</div>
+        </div>
+        <div class="note-col">
+          <h4>Entrada</h4>
+          <div id="obsEntrada" class="note-box">—</div>
+        </div>
+      </div>
       <div class="t-right" style="margin-top:12px">
         <button class="ghost" id="btnObsClose">Cerrar</button>
       </div>
     </div>
   </div>
-  
-    <script>
+      <script>
 /* ===== Helpers ===== */
 const $ = sel => document.querySelector(sel);
 function esc(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;") }
@@ -438,7 +469,7 @@ async function loadRentals(){
         <div>${badge(r.status)}</div>
         <div class="t-right">
           ${!l.data_entrada?`<button class="secondary" data-act="entrada" data-id="${l.id}">Dar entrada</button>`:""}
-          <button class="ghost" data-act="obs" data-id="${l.id}">Ver observaciones</button>
+          <button class="ghost" data-act="obs" data-id="${l.id}">Observaciones</button>
           <button class="danger" data-act="delLoc" data-id="${l.id}">Eliminar</button>
         </div>`;
     }else{
@@ -589,7 +620,7 @@ async function loadMaint(){
     const v=byPlaca[m.placa];
     const dleft=m.prox_fecha?Math.ceil((new Date(m.prox_fecha+"T00:00:00") - new Date().setHours(0,0,0,0))/86400000):null;
     const diffKm=(m.prox_km!=null && v && typeof v.km==="number")?(Number(m.prox_km)-Number(v.km)):null;
-    let rowCls="grid rowline"; // usar grid simples para manter estilo
+    let rowCls="grid rowline"; // manter estilo da lista
     const imminent=(dleft!=null&&dleft<=Math.min(3,DAYS_THRESHOLD))||(diffKm!=null&&diffKm<=Math.min(100,KM_THRESHOLD));
     const soon=!imminent&&((dleft!=null&&dleft<=DAYS_THRESHOLD)||(diffKm!=null&&diffKm<=KM_THRESHOLD));
     if(imminent) rowCls+="";
@@ -827,5 +858,5 @@ document.addEventListener('DOMContentLoaded', ()=>{
 });
   </script>
 </body>
-  </html>
-
+</html>
+  
