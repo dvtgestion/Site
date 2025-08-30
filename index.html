@@ -1122,6 +1122,19 @@ document.addEventListener('DOMContentLoaded', ()=>{
   const finH=$("#finHasta"); if(finH) finH.addEventListener("change", loadFinances);
   const finT=$("#finFiltroTipo"); if(finT) finT.addEventListener("change", loadFinances);
   const finP=$("#finFiltroPlaca"); if(finP) finP.addEventListener("change", loadFinances);
+  // Reportes: aplicar/limpar e recalcular
+document.getElementById('repAplicar')?.addEventListener('click', refreshKPIs);
+document.getElementById('repLimpiar')?.addEventListener('click', ()=>{
+  const d = document.getElementById('repDesde');
+  const h = document.getElementById('repHasta');
+  if (d) d.value = '';
+  if (h) h.value = '';
+  refreshKPIs(); // sem datas = soma tudo
+});
+
+// Também recalcular ao mudar as datas (sem precisar clicar em Aplicar)
+document.getElementById('repDesde')?.addEventListener('change', refreshKPIs);
+document.getElementById('repHasta')?.addEventListener('change', refreshKPIs);
 });
   </script>
 </body>
