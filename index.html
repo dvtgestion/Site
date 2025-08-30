@@ -70,6 +70,21 @@
   .note-col h4{margin:0 0 8px 0;font-size:14px;color:#e5e7eb}
   .note-box{background:#0b1220;border:1px solid #293042;border-radius:8px;padding:10px;min-height:120px;white-space:pre-wrap;word-break:break-word;color:#e5e7eb}
   @media (max-width:800px){.notes-grid{grid-template-columns:1fr}}
+  
+  /* Realce suave nas linhas de finanças */
+.fin-row.fin-ing-row{
+  background: linear-gradient(to right, rgba(34,197,94,.12), transparent 60%);
+  box-shadow: inset 0 0 0 1px rgba(34,197,94,.22);
+}
+.fin-row.fin-egr-row{
+  background: linear-gradient(to right, rgba(239,68,68,.12), transparent 60%);
+  box-shadow: inset 0 0 0 1px rgba(239,68,68,.22);
+}
+
+/* (opcional) cor do valor, caso ainda não tenha */
+.fin-ing{ color:#22c55e; }
+.fin-egr{ color:#ef4444; }
+  
 </style>
 </head>
 <body>
@@ -967,8 +982,9 @@ async function loadFinances(){
   $("#finSaldo").textContent=sums.saldo.toFixed(2);
   const box=$("#finList"); if(!box) return; box.innerHTML="";
   items.forEach(x=>{
-    const row=document.createElement("div"); row.className="grid fin-row";
-    row.style.gridTemplateColumns=".9fr .8fr .8fr 1fr 1.6fr .8fr 160px";
+    const row = document.createElement("div");
+row.className = "grid fin-row " + (x.tipo === 'Ingreso' ? 'fin-ing-row' : 'fin-egr-row');
+row.style.gridTemplateColumns = ".9fr .8fr .8fr 1fr 1.6fr .8fr 160px";
     row.innerHTML=`
       <div>${x.fecha?x.fecha.split("-").reverse().join("/"):"—"}</div>
       <div>${x.tipo}</div>
