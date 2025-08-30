@@ -53,9 +53,14 @@
   .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
   .toolbar input{max-width:280px}
 
-  /* Botão Observaciones (nova cor) */
-  .btn-obs{background:#fbbf24;color:#0b1220;border:0} /* âmbar combina com tema */
-  .btn-obs.ghost{border:1px solid #4d3410;background:transparent;color:#fbbf24}
+ /* Botão Observaciones – preenchido âmbar */
+.btn-obs{
+  background:#fbbf24;
+  color:#0b1220;
+  border:0;
+}
+.btn-obs:hover{ filter:brightness(0.95); }
+.btn-obs:active{ transform:translateY(1px); }
 
   /* Modal Observaciones (lado a lado) */
   #obsModal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:9999}
@@ -454,89 +459,136 @@ $("#btnAddVeiculo") && ($("#btnAddVeiculo").onclick = async ()=>{
 
 /* ===== Locações ===== */
 function isLate(prev){ return prev ? (new Date() > new Date(prev)) : false; }
+
 async function loadRentals(){
+  // lê filtros
+  const q = ($("#q")?.value || "").toLowerCase().trim();
+  const fStatus = $("#filtroStatus")?.value || "";
+
   const [{ data: locs }, { data: veics }] = await Promise.all([
-    supa.from('rentals').select('*').eq('company_id', session.company_id).order('data_saida', {ascending:false}),
+    supa.from('rentals').select('*').eq('company_id', session.company_id).order('data_saida', { ascending:false }),
     supa.from('vehicles').select('placa,modelo,status').eq('company_id', session.company_id)
   ]);
-  const box=$("#list"); if(!box) return; box.innerHTML="";
-  const rows=(locs||[]).map(l=>({
-  kind:"loc",
-  status: l.data_entrada ? "Entregado" : (isLate(l.prev_retorno) ? "Atrasado" : "En uso"),
-  l
-}));
-  (veics||[]).filter(v=>v.status==="Mantenimiento").forEach(v=>rows.push({kind:"maint", status:"Mantenimiento", v}));
 
-  rows.forEach(r=>{
-  const div = document.createElement("div");
-  div.className = "grid rowline";
+  const box = $("#list"); 
+  if(!box) return; 
+  box.innerHTML = "";
 
-  if (r.kind === "loc") {
-    const l = r.l;
+  // monta rows das locações com status calculado
+  let rows = (locs || []).map(l => {
+    const status = l.data_entrada ? "Entregado" : (isLate(l.prev_retorno) ? "Atrasado" : "En uso");
+    return { kind:"loc", status, l };
+  });
 
-    // 8 colunas (inclui a coluna de KM)
-    div.style.gridTemplateColumns = "1.2fr 1fr .9fr .9fr .9fr 1fr .7fr 260px";
+  // inclui veículos em manutenção como linhas "virtuais"
+  (veics || [])
+    .filter(v => v.status === "Mantenimiento")
+    .forEach(v => rows.push({ kind:"maint", status:"Mantenimiento", v }));
 
-    const sKm = (l.km_salida!=null && !isNaN(l.km_salida)) ? Number(l.km_salida) : null;
-    const eKm = (l.km_entrada!=null && !isNaN(l.km_entrada)) ? Number(l.km_entrada) : null;
-    const dKm = (sKm!=null && eKm!=null) ? (eKm - sKm) : null;
-    const kmInfo = (sKm==null && eKm==null) ? "—"
-                  : (sKm!=null && eKm==null) ? `${sKm} / —`
-                  : (sKm==null && eKm!=null) ? `— / ${eKm}`
-                  : `${sKm} / ${eKm} (${dKm>=0?'+':''}${dKm} km)`;
+  // aplica filtro de busca (q) e de status (fStatus)
+  rows = rows.filter(r => {
+    if(r.kind === "loc"){
+      const l = r.l;
+      const text = `${l.placa||""} ${l.modelo||""} ${l.motorista||""}`.toLowerCase();
+      const okQ = q ? text.includes(q) : true;
+      const okS = fStatus ? (r.status === fStatus) : true;
+      return okQ && okS;
+    }else{
+      // manutenção: busca por placa/modelo, e status precisa ser "Mantenimiento" se filtrado
+      const v = r.v;
+      const text = `${v.placa||""} ${v.modelo||""}`.toLowerCase();
+      const okQ = q ? text.includes(q) : true;
+      const okS = fStatus ? (fStatus === "Mantenimiento") : true;
+      return okQ && okS;
+    }
+  });
 
-    div.innerHTML = `
-      <div><strong>${esc(l.placa)}</strong> <span class="kv">— ${esc(l.modelo||"")}</span></div>
-      <div>${esc(l.motorista||"—")}</div>
-      <div>${fmtDTISOToLocal(l.data_saida)}</div>
-      <div>${fmtDTISOToLocal(l.prev_retorno)}</div>
-      <div>${fmtDTISOToLocal(l.data_entrada)}</div>
-      <div>${kmInfo}</div>
-      <div>${badge(r.status)}</div>
-      <div class="t-right">
-        ${!l.data_entrada ? `<button class="secondary" data-act="entrada" data-id="${l.id}">Dar entrada</button>` : ""}
-        <button class="ghost btn-obs" data-act="obs" data-id="${l.id}">Observaciones</button>
-        <button class="danger" data-act="delLoc" data-id="${l.id}">Eliminar</button>
-      </div>`;
-  } else {
-    const v = r.v;
-    div.innerHTML = `
-      <div><strong>${esc(v.placa)}</strong> <span class="kv">— ${esc(v.modelo||"")}</span></div>
-      <div>—</div><div>—</div><div>—</div><div>—</div>
-      <div>${badge("Mantenimiento")}</div>
-      <div class="t-right"><button class="ghost" data-act="goEdit" data-placa="${esc(v.placa)}">Editar</button></div>`;
-  }
+  // render
+  rows.forEach(r => {
+    const div = document.createElement("div");
+    div.className = "grid rowline";
 
-  box.appendChild(div);
-});
+    if (r.kind === "loc") {
+      const l = r.l;
 
+      // 8 colunas (inclui a coluna de KM)
+      div.style.gridTemplateColumns = "1.2fr 1fr .9fr .9fr .9fr 1fr .7fr 260px";
+
+      const sKm = (l.km_salida!=null && !isNaN(l.km_salida)) ? Number(l.km_salida) : null;
+      const eKm = (l.km_entrada!=null && !isNaN(l.km_entrada)) ? Number(l.km_entrada) : null;
+      const dKm = (sKm!=null && eKm!=null) ? (eKm - sKm) : null;
+      const kmInfo = (sKm==null && eKm==null) ? "—"
+                    : (sKm!=null && eKm==null) ? `${sKm} / —`
+                    : (sKm==null && eKm!=null) ? `— / ${eKm}`
+                    : `${sKm} / ${eKm} (${dKm>=0?'+':''}${dKm} km)`;
+
+      div.innerHTML = `
+        <div><strong>${esc(l.placa)}</strong> <span class="kv">— ${esc(l.modelo||"")}</span></div>
+        <div>${esc(l.motorista||"—")}</div>
+        <div>${fmtDTISOToLocal(l.data_saida)}</div>
+        <div>${fmtDTISOToLocal(l.prev_retorno)}</div>
+        <div>${fmtDTISOToLocal(l.data_entrada)}</div>
+        <div>${kmInfo}</div>
+        <div>${badge(r.status)}</div>
+        <div class="t-right">
+          ${!l.data_entrada ? `<button class="secondary" data-act="entrada" data-id="${l.id}">Dar entrada</button>` : ""}
+          <button class="btn-obs" data-act="obs" data-id="${l.id}">Observaciones</button>
+          <button class="danger" data-act="delLoc" data-id="${l.id}">Eliminar</button>
+        </div>`;
+    } else {
+      const v = r.v;
+      // linha "virtual" de manutenção
+      div.style.gridTemplateColumns = "1.2fr 1fr .9fr .9fr .9fr 1fr .7fr 260px";
+      div.innerHTML = `
+        <div><strong>${esc(v.placa)}</strong> <span class="kv">— ${esc(v.modelo||"")}</span></div>
+        <div>—</div><div>—</div><div>—</div><div>—</div>
+        <div>—</div>
+        <div>${badge("Mantenimiento")}</div>
+        <div class="t-right"><button class="ghost" data-act="goEdit" data-placa="${esc(v.placa)}">Editar</button></div>`;
+    }
+
+    box.appendChild(div);
+  });
+
+  // ações dos botões
   box.querySelectorAll("button").forEach(btn=>{
-    const act=btn.getAttribute("data-act");
-    if(act==="entrada"){
-      btn.onclick=async ()=>{ const id=btn.getAttribute("data-id");
-        const { data:l } = await supa.from('rentals').select('*').eq('company_id', session.company_id).eq('id', id).single();
-        if(l){ $("#inPlaca").value=l.placa; document.getElementById("tab-locacoes").scrollIntoView({behavior:"smooth"}); }
+    const act = btn.getAttribute("data-act");
+    if(act === "entrada"){
+      btn.onclick = async ()=>{ 
+        const id = btn.getAttribute("data-id");
+        const { data:l } = await supa.from('rentals').select('*')
+          .eq('company_id', session.company_id).eq('id', id).single();
+        if(l){ $("#inPlaca").value = l.placa; document.getElementById("tab-locacoes").scrollIntoView({behavior:"smooth"}); }
       };
     }
-    if(act==="delLoc"){
-      btn.onclick=async ()=>{ const id=btn.getAttribute("data-id");
+    if(act === "delLoc"){
+      btn.onclick = async ()=>{ 
+        const id = btn.getAttribute("data-id");
         if(!confirm("¿Eliminar esta locación?")) return;
-        const { error } = await supa.from('rentals').delete().eq('company_id', session.company_id).eq('id', id);
+        const { error } = await supa.from('rentals').delete()
+          .eq('company_id', session.company_id).eq('id', id);
         if(error){ alert("Error al eliminar: "+error.message); return; }
         await supa.rpc('fn_audit', { p_action:'rental_delete', p_payload:{ id }});
         await refreshCombos(); await loadRentals(); await refreshKPIs();
       };
     }
-    if(act==="goEdit"){
-      btn.onclick=()=>{ const placa=btn.getAttribute("data-placa"); $("#vPlaca").value=placa; activateTab("frota"); };
+    if(act === "goEdit"){
+      btn.onclick = ()=>{ 
+        const placa = btn.getAttribute("data-placa"); 
+        $("#vPlaca").value = placa; 
+        activateTab("frota"); 
+      };
     }
-    if(act==="obs"){
-      btn.onclick=async ()=>{
-        const id=btn.getAttribute("data-id");
-        const { data:l } = await supa.from('rentals').select('obs_salida,obs_entrada').eq('company_id', session.company_id).eq('id', id).single();
-        $("#obsSalida").innerHTML = `<strong>Salida:</strong> ${esc(l?.obs_salida || "—")}`;
-        $("#obsEntrada").innerHTML = `<strong>Entrada:</strong> ${esc(l?.obs_entrada || "—")}`;
-        $("#obsModal").style.display="flex";
+    if(act === "obs"){
+      btn.onclick = async ()=>{
+        const id = btn.getAttribute("data-id");
+        const { data:l } = await supa.from('rentals')
+          .select('obs_salida,obs_entrada')
+          .eq('company_id', session.company_id)
+          .eq('id', id).single();
+        $("#obsSalida").textContent  = l?.obs_salida  || "—";
+        $("#obsEntrada").textContent = l?.obs_entrada || "—";
+        $("#obsModal").style.display = "flex";
       };
     }
   });
