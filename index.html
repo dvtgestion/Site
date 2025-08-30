@@ -71,17 +71,24 @@
   .note-box{background:#0b1220;border:1px solid #293042;border-radius:8px;padding:10px;min-height:120px;white-space:pre-wrap;word-break:break-word;color:#e5e7eb}
   @media (max-width:800px){.notes-grid{grid-template-columns:1fr}}
   
-  /* Realce suave nas linhas de finanças */
-.fin-row.fin-ing-row{
-  background: linear-gradient(to right, rgba(34,197,94,.12), transparent 60%);
-  box-shadow: inset 0 0 0 1px rgba(34,197,94,.22);
-}
-.fin-row.fin-egr-row{
-  background: linear-gradient(to right, rgba(239,68,68,.12), transparent 60%);
-  box-shadow: inset 0 0 0 1px rgba(239,68,68,.22);
+ /* Linhas da tabela de finanças: remover “furos” do gap e dar um leve acolchoamento */
+.fin-row{
+  gap: 0;                 /* evita os “buracos” entre colunas */
+  padding: 6px 8px;       /* espaço interno para respirar */
+  border-radius: 8px;     /* cantos suaves */
 }
 
-/* (opcional) cor do valor, caso ainda não tenha */
+/* Realce suave para Ingreso e Egreso */
+.fin-ing-row{
+  background: linear-gradient(to right, rgba(34,197,94,.14), transparent 60%);
+  box-shadow: inset 0 0 0 1px rgba(34,197,94,.25);
+}
+.fin-egr-row{
+  background: linear-gradient(to right, rgba(239,68,68,.14), transparent 60%);
+  box-shadow: inset 0 0 0 1px rgba(239,68,68,.25);
+}
+
+/* Cor do valor na coluna de Monto */
 .fin-ing{ color:#22c55e; }
 .fin-egr{ color:#ef4444; }
   
