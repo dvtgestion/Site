@@ -157,7 +157,7 @@
             <button id="btnExport">Exportar CSV</button>
           </div>
 
-          <<div class="grid thead" style="grid-template-columns:1.2fr 1fr .9fr .9fr .9fr 1fr .7fr 260px">
+          <div class="grid thead" style="grid-template-columns:1.2fr 1fr .9fr .9fr .9fr 1fr .7fr 260px">
   <div>Placa / Marca / Modelo</div>
   <div>Conductor</div>
   <div>Salida</div>
@@ -468,45 +468,47 @@ async function loadRentals(){
   (veics||[]).filter(v=>v.status==="Mantenimiento").forEach(v=>rows.push({kind:"maint", status:"Mantenimiento", v}));
 
   rows.forEach(r=>{
-    const div=document.createElement("div"); div.className="grid rowline";
-   if (r.kind === "loc") {
-  const l = r.l;
+  const div = document.createElement("div");
+  div.className = "grid rowline";
 
-  // 8 colunas (inclui a coluna de KM)
-  div.style.gridTemplateColumns = "1.2fr 1fr .9fr .9fr .9fr 1fr .7fr 260px";
+  if (r.kind === "loc") {
+    const l = r.l;
 
-  const sKm = (l.km_salida!=null && !isNaN(l.km_salida)) ? Number(l.km_salida) : null;
-  const eKm = (l.km_entrada!=null && !isNaN(l.km_entrada)) ? Number(l.km_entrada) : null;
-  const dKm = (sKm!=null && eKm!=null) ? (eKm - sKm) : null;
-  const kmInfo = (sKm==null && eKm==null) ? "—"
-                : (sKm!=null && eKm==null) ? `${sKm} / —`
-                : (sKm==null && eKm!=null) ? `— / ${eKm}`
-                : `${sKm} / ${eKm} (${dKm>=0?'+':''}${dKm} km)`;
+    // 8 colunas (inclui a coluna de KM)
+    div.style.gridTemplateColumns = "1.2fr 1fr .9fr .9fr .9fr 1fr .7fr 260px";
 
-  div.innerHTML = `
-    <div><strong>${esc(l.placa)}</strong> <span class="kv">— ${esc(l.modelo||"")}</span></div>
-    <div>${esc(l.motorista||"—")}</div>
-    <div>${fmtDTISOToLocal(l.data_saida)}</div>
-    <div>${fmtDTISOToLocal(l.prev_retorno)}</div>
-    <div>${fmtDTISOToLocal(l.data_entrada)}</div>
-    <div>${kmInfo}</div>
-    <div>${badge(r.status)}</div>
-    <div class="t-right">
-      ${!l.data_entrada ? `<button class="secondary" data-act="entrada" data-id="${l.id}">Dar entrada</button>` : ""}
-      <button class="ghost btn-obs" data-act="obs" data-id="${l.id}">Observaciones</button>
-      <button class="danger" data-act="delLoc" data-id="${l.id}">Eliminar</button>
-    </div>`;
-} 
-      }else{
-      const v=r.v;
-      div.innerHTML=`
-        <div><strong>${esc(v.placa)}</strong> <span class="kv">— ${esc(v.modelo||"")}</span></div>
-        <div>—</div><div>—</div><div>—</div><div>—</div>
-        <div>${badge("Mantenimiento")}</div>
-        <div class="t-right"><button class="ghost" data-act="goEdit" data-placa="${esc(v.placa)}">Editar</button></div>`;
-    }
-    box.appendChild(div);
-  });
+    const sKm = (l.km_salida!=null && !isNaN(l.km_salida)) ? Number(l.km_salida) : null;
+    const eKm = (l.km_entrada!=null && !isNaN(l.km_entrada)) ? Number(l.km_entrada) : null;
+    const dKm = (sKm!=null && eKm!=null) ? (eKm - sKm) : null;
+    const kmInfo = (sKm==null && eKm==null) ? "—"
+                  : (sKm!=null && eKm==null) ? `${sKm} / —`
+                  : (sKm==null && eKm!=null) ? `— / ${eKm}`
+                  : `${sKm} / ${eKm} (${dKm>=0?'+':''}${dKm} km)`;
+
+    div.innerHTML = `
+      <div><strong>${esc(l.placa)}</strong> <span class="kv">— ${esc(l.modelo||"")}</span></div>
+      <div>${esc(l.motorista||"—")}</div>
+      <div>${fmtDTISOToLocal(l.data_saida)}</div>
+      <div>${fmtDTISOToLocal(l.prev_retorno)}</div>
+      <div>${fmtDTISOToLocal(l.data_entrada)}</div>
+      <div>${kmInfo}</div>
+      <div>${badge(r.status)}</div>
+      <div class="t-right">
+        ${!l.data_entrada ? `<button class="secondary" data-act="entrada" data-id="${l.id}">Dar entrada</button>` : ""}
+        <button class="ghost btn-obs" data-act="obs" data-id="${l.id}">Observaciones</button>
+        <button class="danger" data-act="delLoc" data-id="${l.id}">Eliminar</button>
+      </div>`;
+  } else {
+    const v = r.v;
+    div.innerHTML = `
+      <div><strong>${esc(v.placa)}</strong> <span class="kv">— ${esc(v.modelo||"")}</span></div>
+      <div>—</div><div>—</div><div>—</div><div>—</div>
+      <div>${badge("Mantenimiento")}</div>
+      <div class="t-right"><button class="ghost" data-act="goEdit" data-placa="${esc(v.placa)}">Editar</button></div>`;
+  }
+
+  box.appendChild(div);
+});
 
   box.querySelectorAll("button").forEach(btn=>{
     const act=btn.getAttribute("data-act");
