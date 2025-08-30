@@ -515,21 +515,54 @@ async function loadRentals(){
   });
 }
 
-$("#btnRegistrarSaida") && ($("#btnRegistrarSaida").onclick = async ()=>{
-  const placa=$("#outPlaca").value; const motorista=$("#outMotorista").value.trim(); const dataSaida=$("#outData").value;
-  if(!placa||!motorista||!dataSaida){ alert("Placa, Conductor y Fecha/Hora de salida son obligatorios."); return; }
-  const { data:v } = await supa.from('vehicles').select('*').eq('company_id', session.company_id).eq('placa', placa).single();
-  if(!v||v.status!=="Disponible"){ alert("Vehículo no disponible."); return; }
-  const payload={ company_id:session.company_id, placa, modelo:v.modelo||null, motorista,
-    data_saida:toTZLocalValue(dataSaida), prev_retorno:toTZLocalValue($("#outPrev").value)||null,
-    km_salida: $("#outKm").value?Number($("#outKm").value):(v.km??null), fuel_salida:$("#outFuel").value, obs_salida:$("#outObs").value.trim()||null };
-  const { error } = await supa.from('rentals').insert(payload);
-  if(error){ alert("Error al registrar salida: "+error.message); return; }
-  await supa.from('vehicles').update({ status:'En uso' }).eq('company_id', session.company_id).eq('placa', placa);
-  await supa.rpc('fn_audit', { p_action:'rental_create', p_payload:payload });
-  $("#outMotorista").value=$("#outKm").value=$("#outObs").value=""; $("#outFuel").value="Lleno";
-  await refreshCombos(); await loadRentals(); await loadVehicles(); await refreshKPIs();
-});
+// === Guardar/Actualizar vehículo (placa globalmente única) ===
+document.getElementById("btnAddVeiculo").onclick = async ()=>{
+  const placa = $("#vPlaca").value.trim().toUpperCase();
+  const modelo = $("#vModelo").value.trim();
+  if(!placa || !modelo){
+    alert("Placa y Marca/Modelo son obligatorios.");
+    return;
+  }
+
+  const payload = {
+    company_id: session.company_id,
+    placa,
+    modelo,
+    cor: $("#vCor").value.trim() || null,
+    km: $("#vKm").value ? Number($("#vKm").value) : null,
+    status: $("#vStatus").value,
+    fecha_registro: $("#vFechaRegistro").value || null
+  };
+
+  // IMPORTANTE: onConflict pela coluna 'placa' (unicidade global)
+  const { error } = await supa
+    .from('vehicles')
+    .upsert(payload, { onConflict: 'placa' });
+
+  if (error) {
+    // 23505 = unique_violation (Postgres)
+    if (error.code === '23505') {
+      alert("Este vehículo ya está cadastrado (placa existente). Use una placa única.");
+    } else {
+      alert("Error al guardar vehículo: " + error.message);
+    }
+    return;
+  }
+
+  await supa.rpc('fn_audit', { p_action:'vehicle_upsert', p_payload: payload });
+
+  // limpar formulário
+  $("#vPlaca").value = "";
+  $("#vModelo").value = "";
+  $("#vCor").value = "";
+  $("#vKm").value = "";
+  $("#vStatus").value = "Disponible";
+  $("#vFechaRegistro").value = "";
+
+  await refreshCombos();
+  await loadVehicles();
+  await refreshKPIs();
+};
 
 $("#btnRegistrarEntrada") && ($("#btnRegistrarEntrada").onclick = async ()=>{
   const placa=$("#inPlaca").value; const data=$("#inData").value; const km=$("#inKm").value?Number($("#inKm").value):null;
