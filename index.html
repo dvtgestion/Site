@@ -499,7 +499,7 @@ async function loadVehicles(){
     }
     if(act==="del"){
       btn.onclick=async ()=>{
-        if(!confirm("¿Eliminar vehículo (y NO automaticamente sus locaciones/finanzas)?")) return;
+        if(!confirm("¿Eliminar vehículo?")) return;
         const { error } = await supa
           .from('vehicles')
           .delete()
