@@ -1265,12 +1265,12 @@ async function doLogin(){
 function boot(){
   console.log('[BOOT] inicializando');
   // Botões login/logout
-  const loginBtn=document.getElementById("btnLogin");
-  if(loginBtn){ 
-    loginBtn.addEventListener("click", doLogin);
-  } else {
-    console.warn('[BOOT] btnLogin não encontrado');
-  }
+  //const loginBtn=document.getElementById("btnLogin");
+  //if(loginBtn){ 
+   // loginBtn.addEventListener("click", doLogin);
+  //} else {
+   // console.warn('[BOOT] btnLogin não encontrado');
+ // }
   const logoutBtn=document.getElementById("btnLogout");
   if(logoutBtn){
     logoutBtn.addEventListener("click", async ()=>{ await supa.auth.signOut(); location.reload(); });
@@ -1320,6 +1320,53 @@ window.addEventListener('error', (e)=>{
   console.error('[GLOBAL ERROR]', e.message, e.filename, e.lineno, e.colno);
 });
   </script>
+  <script>
+  // Mostra logs na tela (se houver <div id="debug">) ou via alert()
+  function dbg(msg){
+    var el = document.getElementById('debug');
+    if(el){ el.textContent += msg + '\n'; }
+    else { alert(msg); }
+  }
+
+  // Smoke test: substitui o clique do botão por um teste mínimo
+  (function(){
+    dbg('SMOKE: script ativo.');
+    var btn = document.getElementById('btnLogin');
+    if(!btn){ dbg('SMOKE: botão #btnLogin não encontrado'); return; }
+
+    // Força um handler simples, ignorando o resto do app por enquanto
+    btn.onclick = async function(){
+      dbg('SMOKE: clique no botão');
+
+      try{
+        if(!window.supabase){
+          dbg('ERRO: biblioteca supabase-js não carregou.');
+          return;
+        }
+        dbg('OK: supabase-js carregou.');
+
+        if(!window.supa){
+          dbg('ERRO: cliente supa não foi criado.');
+          return;
+        }
+        dbg('OK: cliente supa existe.');
+
+        var email = (document.getElementById('user')?.value || '').trim();
+        var pass  = (document.getElementById('pass')?.value || '').trim();
+        if(!email || !pass){ dbg('Informe usuario y contraseña.'); return; }
+
+        dbg('Tentando login para: ' + email);
+        const { data, error } = await supa.auth.signInWithPassword({ email, password: pass });
+        dbg('Retorno login: ' + JSON.stringify({ hasUser: !!data?.user, error: error?.message }));
+
+        if(error){ dbg('Falhou: ' + error.message); return; }
+        dbg('SUCESSO! user.id = ' + data.user.id);
+      }catch(e){
+        dbg('CATCH: ' + (e?.message || e));
+      }
+    };
+  })();
+</script>
 </body>
 </html>
   
