@@ -91,6 +91,23 @@
 /* Cor do valor na coluna de Monto */
 .fin-ing{ color:#22c55e; }
 .fin-egr{ color:#ef4444; }
+
+/* === ESTILOS DO PAPEL DO USUÁRIO === */
+.role-admin,
+.role-asesor {
+  display:inline-block;
+  font-size:12px;
+  font-weight:700;
+  padding:4px 8px;
+  border-radius:999px;
+  margin-top:6px;
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.25);
+}
+
+.role-admin { color:#22c55e; }
+.role-asesor { color:#3b82f6; }
+
   
 </style>
 </head>
@@ -114,6 +131,7 @@
       <div>
         <h1 style="margin:0">Panel — Alquiler de Autos</h1>
         <div class="muted">Control de vehículos, salidas, entradas, mantenimiento y finanzas</div>
+         <div id="userRole" class="role-admin">Admin</div>
       </div>
       <div class="tabs">
         <div class="tab active" data-tab="locacoes">Locaciones</div>
@@ -1223,6 +1241,12 @@ async function doLogin(){
     session.role=prof.role; 
     session.company_id=prof.company_id; 
     session.user_id = data.user.id;
+    // Atualiza papel visível na tela
+const roleBox = document.getElementById("userRole");
+if (roleBox) {
+  roleBox.textContent = (session.role === "admin") ? "Admin" : "Asesor";
+  roleBox.className = (session.role === "admin") ? "role-admin" : "role-asesor";
+}
     document.getElementById("login").classList.add("hide");
     document.getElementById("app").classList.remove("hide");
     const d=$("#repDesde"); const h=$("#repHasta");
