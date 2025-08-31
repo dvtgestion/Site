@@ -914,9 +914,7 @@ async function loadMaint(){
         if(!confirm("¿Eliminar mantenimiento?")) return;
         const { data:M } = await supa.from('maintenances').select('*').eq('company_id', session.company_id).eq('id', id).single();
         if (M?.fin_id) {
-  // Admin pode apagar qualquer; asesor pode apagar se foi ele quem criou (RLS garante)
-  await supa.from('finances')
-    .delete()
+  await supa.from('finances').delete()
     .eq('company_id', session.company_id)
     .eq('id', M.fin_id);
 }
