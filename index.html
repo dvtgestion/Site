@@ -1263,12 +1263,20 @@ async function doLogin(){
     alert("Login inválido: " + (err?.message || err));
   }
 }
-/* ===== Boot ===== */
-document.addEventListener('DOMContentLoaded', ()=>{
+/* ===== Boot (robusto) ===== */
+function boot(){
+  console.log('[BOOT] inicializando');
+  // Botões login/logout
   const loginBtn=document.getElementById("btnLogin");
-  if(loginBtn){ loginBtn.addEventListener("click", doLogin); }
+  if(loginBtn){ 
+    loginBtn.addEventListener("click", doLogin);
+  } else {
+    console.warn('[BOOT] btnLogin não encontrado');
+  }
   const logoutBtn=document.getElementById("btnLogout");
-  if(logoutBtn){ logoutBtn.addEventListener("click", async ()=>{ await supa.auth.signOut(); location.reload(); }); }
+  if(logoutBtn){
+    logoutBtn.addEventListener("click", async ()=>{ await supa.auth.signOut(); location.reload(); });
+  }
 
   // Abas
   document.querySelectorAll(".tab").forEach(t=>{
@@ -1287,20 +1295,31 @@ document.addEventListener('DOMContentLoaded', ()=>{
   const finT=$("#finFiltroTipo"); if(finT) finT.addEventListener("change", loadFinances);
   const finP=$("#finFiltroPlaca"); if(finP) finP.addEventListener("change", loadFinances);
   const vQ = document.getElementById("vQ");
-if (vQ) vQ.addEventListener("input", loadVehicles);
-  // Reportes: aplicar/limpar e recalcular
-document.getElementById('repAplicar')?.addEventListener('click', refreshKPIs);
-document.getElementById('repLimpiar')?.addEventListener('click', ()=>{
-  const d = document.getElementById('repDesde');
-  const h = document.getElementById('repHasta');
-  if (d) d.value = '';
-  if (h) h.value = '';
-  refreshKPIs(); // sem datas = soma tudo
-});
+  if (vQ) vQ.addEventListener("input", loadVehicles);
 
-// Também recalcular ao mudar as datas (sem precisar clicar em Aplicar)
-document.getElementById('repDesde')?.addEventListener('change', refreshKPIs);
-document.getElementById('repHasta')?.addEventListener('change', refreshKPIs);
+  // Reportes
+  document.getElementById('repAplicar')?.addEventListener('click', refreshKPIs);
+  document.getElementById('repLimpiar')?.addEventListener('click', ()=>{
+    const d = document.getElementById('repDesde');
+    const h = document.getElementById('repHasta');
+    if (d) d.value = '';
+    if (h) h.value = '';
+    refreshKPIs();
+  });
+  document.getElementById('repDesde')?.addEventListener('change', refreshKPIs);
+  document.getElementById('repHasta')?.addEventListener('change', refreshKPIs);
+}
+
+// roda já, ou espera DOM se necessário
+if (document.readyState !== 'loading') {
+  boot();
+} else {
+  document.addEventListener('DOMContentLoaded', boot);
+}
+
+// (opcional) capturar erros globais para debug rápido
+window.addEventListener('error', (e)=>{
+  console.error('[GLOBAL ERROR]', e.message, e.filename, e.lineno, e.colno);
 });
   </script>
 </body>
