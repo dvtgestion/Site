@@ -18,8 +18,6 @@
   console.log('[SUPABASE] lib=', typeof supabase, 'client ok?', !!supa);
 </script>
   
-</script>
-
 <style>
   :root{--bg:#0f172a;--card:#111827;--muted:#94a3b8;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--ring:#1f2937;--input:#0b1220;--white:#e5e7eb}
   *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial}
@@ -387,6 +385,12 @@
   </div>
       <script>
 /* ===== Helpers ===== */
+function parseNumber(val){
+  if(!val) return null;
+  // remove espaços, tira separador de milhar (.) e troca vírgula por ponto
+  return Number(String(val).trim().replace(/\./g,"").replace(",","."));
+}
+
 const $ = sel => document.querySelector(sel);
 function esc(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;") }
 function fmtDTISOToLocal(v){ if(!v) return "—"; const d=new Date(v); return d.toLocaleString(); }
@@ -1264,7 +1268,7 @@ async function doLogin(){
 /* ===== Boot (robusto) ===== */
 function boot(){
   console.log('[BOOT] inicializando');
-   Botões login/logout
+   //Botões login/logout
   const loginBtn=document.getElementById("btnLogin");
   if(loginBtn){ 
     loginBtn.addEventListener("click", doLogin);
