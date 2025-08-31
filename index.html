@@ -14,9 +14,8 @@
   const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: { persistSession: false, autoRefreshToken: false, storageKey: 'no-persist' }
   });
-  console.log('[SUPABASE] lib=', typeof supabase, 'client ok?', !!supa);
 </script>
-  
+
 <style>
   :root{--bg:#0f172a;--card:#111827;--muted:#94a3b8;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--ring:#1f2937;--input:#0b1220;--white:#e5e7eb}
   *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial}
@@ -105,7 +104,7 @@
     <label>Contraseña</label>
     <input id="pass" type="password" autocomplete="current-password" placeholder="••••••••" />
     <div class="row" style="margin-top:16px">
-      <button id="btnLogin" type="button" onclick="doLogin()">Entrar</button>>
+      <button id="btnLogin">Entrar</button>
     </div>
   </section>
 
@@ -386,7 +385,7 @@
 /* ===== Helpers ===== */
 function parseNumber(val){
   if(!val) return null;
-  // remove espaços, tira separador de milhar (.) e troca vírgula por ponto
+  // remove espaços, troca vírgula por ponto e remove separador de milhar
   return Number(String(val).trim().replace(/\./g,"").replace(",","."));
 }
 
@@ -971,12 +970,11 @@ $("#btnAddMant") && ($("#btnAddMant").onclick = async ()=>{
         p_payload: { id: editing, ...payload }
       });
 
-      // Sincronizar com FINANZAS (somente admin)
-     if (session.role === 'admin' || session.role === 'asesor') {
-  // Sincronizar com FINANZAS quando houver costo
+      // Sincronizar com FINANZAS (admin OU asesor), sempre guardando created_by no INSERT
+if (session.role === 'admin' || session.role === 'asesor') {
   if (payload.costo && !isNaN(payload.costo)) {
     if (prevFinId) {
-      // atualizar o egreso existente
+      // Atualizar egreso existente
       const finUpd = {
         fecha: payload.fecha || todayYMD(),
         tipo: 'Egreso',
@@ -984,14 +982,13 @@ $("#btnAddMant") && ($("#btnAddMant").onclick = async ()=>{
         placa: payload.placa,
         categoria: 'Mantenimiento',
         nota: payload.titulo + (payload.obs ? ` — ${payload.obs}` : '')
-        // (created_by não muda em UPDATE)
       };
       await supa.from('finances')
         .update(finUpd)
         .eq('company_id', session.company_id)
         .eq('id', prevFinId);
     } else {
-      // não existia -> criar e vincular
+      // Criar novo egreso e vincular
       const fin = {
         company_id: session.company_id,
         fecha: payload.fecha || todayYMD(),
@@ -1015,7 +1012,7 @@ $("#btnAddMant") && ($("#btnAddMant").onclick = async ()=>{
         .eq('id', editing);
     }
   } else if (prevFinId) {
-    // costo removido -> apagar egreso e desvincular
+    // Custo removido -> apagar egreso e desvincular
     await supa.from('finances')
       .delete()
       .eq('company_id', session.company_id)
@@ -1026,6 +1023,7 @@ $("#btnAddMant") && ($("#btnAddMant").onclick = async ()=>{
       .eq('id', editing);
   }
 }
+
       $("#btnAddMant").removeAttribute("data-editing");
     } else {
       // INSERT do mantenimiento
@@ -1041,9 +1039,8 @@ $("#btnAddMant") && ($("#btnAddMant").onclick = async ()=>{
         p_payload: { id: ins.id, ...payload }
       });
 
-      // Criar FINANZAS e amarrar fin_id (se houver costo)
-/* ANTES: if (payload.costo && session.role === 'admin') { ... } */
-if (payload.costo && !isNaN(payload.costo)) {
+      // Criar FINANZAS e amarrar fin_id (admin OU asesor) quando houver custo
+if (payload.costo && !isNaN(payload.costo) && (session.role === 'admin' || session.role === 'asesor')) {
   const fin = {
     company_id: session.company_id,
     fecha: payload.fecha || todayYMD(),
@@ -1052,7 +1049,7 @@ if (payload.costo && !isNaN(payload.costo)) {
     placa: payload.placa,
     categoria: 'Mantenimiento',
     nota: payload.titulo + (payload.obs ? ` — ${payload.obs}` : ''),
-    created_by: session.user_id   // << importantíssimo para RLS do asesor
+    created_by: session.user_id
   };
   const { data: f, error: e2 } = await supa
     .from('finances')
@@ -1066,6 +1063,7 @@ if (payload.costo && !isNaN(payload.costo)) {
     .eq('company_id', session.company_id)
     .eq('id', ins.id);
 }
+    
 
     // Limpa formulário
     $("#mTitulo").value = "";
@@ -1228,69 +1226,37 @@ function activateTab(name){
 })();
 
 /* ===== Auth ===== */
-// === SUBSTITUA sua doLogin por esta versão com logs ===
 async function doLogin(){
   try{
-    console.log('[LOGIN] cliquei');
-    const email=$("#user").value.trim(); 
-    const pass=$("#pass").value.trim();
+    const email=$("#user").value.trim(); const pass=$("#pass").value.trim();
     if(!email||!pass){ alert("Informe usuario y contraseña."); return; }
-
     const { data, error } = await supa.auth.signInWithPassword({ email, password: pass });
-    console.log('[LOGIN] retorno supa:', {data, error});
     if(error) throw error;
-
     const prof=await fetchProfile(data.user.id);
-    console.log('[LOGIN] perfil:', prof);
     if(!prof){ await supa.auth.signOut(); return; }
-
     session.user=email; 
     session.role=prof.role; 
     session.company_id=prof.company_id; 
     session.user_id = data.user.id;
-
     document.getElementById("login").classList.add("hide");
     document.getElementById("app").classList.remove("hide");
-
     const d=$("#repDesde"); const h=$("#repHasta");
     if(d) d.value=(new Date()).toISOString().slice(0,10).replace(/-\d{2}$/,"-01");
     if(h) h.value=(new Date()).toISOString().slice(0,10);
-
     await refreshCombos();
     await Promise.all([loadVehicles(), loadRentals(), loadMaint(), loadFinances()]);
     await refreshKPIs();
   }catch(err){
-    console.error('[LOGIN] erro:', err);
     alert("Login inválido: " + (err?.message || err));
   }
 }
-(function(){
-  const oldLog = console.log;
-  console.log = function(...args){
-    oldLog.apply(console, args);
-    const el = document.getElementById("debug");
-    if(el) el.textContent += args.map(a => 
-      (typeof a==="object" ? JSON.stringify(a) : String(a))
-    ).join(" ") + "\n";
-  };
-})();
 
-window.doLogin = doLogin;
-/* ===== Boot (robusto) ===== */
-function boot(){
-  console.log('[BOOT] inicializando');
-   //Botões login/logout
+/* ===== Boot ===== */
+document.addEventListener('DOMContentLoaded', ()=>{
   const loginBtn=document.getElementById("btnLogin");
-if(loginBtn){ 
-  loginBtn.onclick = doLogin;            // fallback redundante
-  loginBtn.addEventListener("click", doLogin);
-} else {
-  console.warn('[BOOT] btnLogin não encontrado');
-}
+  if(loginBtn){ loginBtn.addEventListener("click", doLogin); }
   const logoutBtn=document.getElementById("btnLogout");
-  if(logoutBtn){
-    logoutBtn.addEventListener("click", async ()=>{ await supa.auth.signOut(); location.reload(); });
-  }
+  if(logoutBtn){ logoutBtn.addEventListener("click", async ()=>{ await supa.auth.signOut(); location.reload(); }); }
 
   // Abas
   document.querySelectorAll(".tab").forEach(t=>{
@@ -1309,35 +1275,22 @@ if(loginBtn){
   const finT=$("#finFiltroTipo"); if(finT) finT.addEventListener("change", loadFinances);
   const finP=$("#finFiltroPlaca"); if(finP) finP.addEventListener("change", loadFinances);
   const vQ = document.getElementById("vQ");
-  if (vQ) vQ.addEventListener("input", loadVehicles);
+if (vQ) vQ.addEventListener("input", loadVehicles);
+  // Reportes: aplicar/limpar e recalcular
+document.getElementById('repAplicar')?.addEventListener('click', refreshKPIs);
+document.getElementById('repLimpiar')?.addEventListener('click', ()=>{
+  const d = document.getElementById('repDesde');
+  const h = document.getElementById('repHasta');
+  if (d) d.value = '';
+  if (h) h.value = '';
+  refreshKPIs(); // sem datas = soma tudo
+});
 
-  // Reportes
-  document.getElementById('repAplicar')?.addEventListener('click', refreshKPIs);
-  document.getElementById('repLimpiar')?.addEventListener('click', ()=>{
-    const d = document.getElementById('repDesde');
-    const h = document.getElementById('repHasta');
-    if (d) d.value = '';
-    if (h) h.value = '';
-    refreshKPIs();
-  });
-  document.getElementById('repDesde')?.addEventListener('change', refreshKPIs);
-  document.getElementById('repHasta')?.addEventListener('change', refreshKPIs);
-}
-
-// roda já, ou espera DOM se necessário
-if (document.readyState !== 'loading') {
-  boot();
-} else {
-  document.addEventListener('DOMContentLoaded', boot);
-}
-
-// (opcional) capturar erros globais para debug rápido
-window.addEventListener('error', (e)=>{
-  console.error('[GLOBAL ERROR]', e.message, e.filename, e.lineno, e.colno);
+// Também recalcular ao mudar as datas (sem precisar clicar em Aplicar)
+document.getElementById('repDesde')?.addEventListener('change', refreshKPIs);
+document.getElementById('repHasta')?.addEventListener('change', refreshKPIs);
 });
   </script>
-  <pre id="debug" style="background:#000;color:#0f0;padding:10px;
-font-size:12px;white-space:pre-wrap;max-height:200px;overflow:auto"></pre>
 </body>
 </html>
   
