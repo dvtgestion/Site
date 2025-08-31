@@ -927,46 +927,22 @@ async function loadMaint(){
         await loadMaint();
       };
     }
-    if (act === "delMant") {
-  btn.onclick = async () => {
-    try {
-      if (!confirm("¿Eliminar mantenimiento?")) return;
-
-      // 1) Buscar o fin_id do mantenimiento
-      const { data: M, error: e0 } = await supa
-        .from('maintenances')
-        .select('fin_id')
-        .eq('company_id', session.company_id)
-        .eq('id', id)
-        .single();
-      if (e0) throw e0;
-
-      // 2) Se houver egreso vinculado, apagar apenas se foi criado por este usuário (RLS amigável)
-      if (M && M.fin_id) {
-        await supa
-          .from('finances')
-          .delete()
-          .eq('company_id', session.company_id)
-          .eq('id', M.fin_id)
-          .eq('created_by', session.user_id);
-        // Se 0 linhas forem afetadas (porque não é do usuário), tudo bem: seguimos.
-      }
-
-      // 3) Apagar o mantenimiento
-      const { error: eDel } = await supa
-        .from('maintenances')
-        .delete()
-        .eq('company_id', session.company_id)
-        .eq('id', id);
-      if (eDel) throw eDel;
-
-      await supa.rpc('fn_audit', { p_action: 'maintenance_delete', p_payload: { id } });
-      await loadMaint();
-      await loadFinances();
-    } catch (err) {
-      alert("Error al eliminar mantenimiento: " + (err?.message || err));
+    if(act==="delMant"){
+      btn.onclick=async ()=>{
+        if(!confirm("¿Eliminar mantenimiento?")) return;
+        const { data:M } = await supa.from('maintenances').select('*').eq('company_id', session.company_id).eq('id', id).single();
+        if (M?.fin_id) {
+  await supa.from('finances').delete()
+    .eq('company_id', session.company_id)
+    .eq('id', M.fin_id);
+}
+        const { error } = await supa.from('maintenances').delete().eq('company_id', session.company_id).eq('id', id);
+        if(error){ alert("Error al eliminar: "+error.message); return; }
+        await supa.rpc('fn_audit', { p_action:'maintenance_delete', p_payload:{ id }});
+        await loadMaint(); await loadFinances();
+      };
     }
-  };
+  });
 }
 
 $("#btnAddMant") && ($("#btnAddMant").onclick = async ()=>{
@@ -1332,4 +1308,5 @@ document.getElementById('repDesde')?.addEventListener('change', refreshKPIs);
 document.getElementById('repHasta')?.addEventListener('change', refreshKPIs);
 });
   </script>
-</body
+</body>
+</html>
