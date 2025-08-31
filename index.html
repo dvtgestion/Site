@@ -1227,31 +1227,42 @@ function activateTab(name){
 })();
 
 /* ===== Auth ===== */
+// === SUBSTITUA sua doLogin por esta versão com logs ===
 async function doLogin(){
   try{
-    const email=$("#user").value.trim(); const pass=$("#pass").value.trim();
+    console.log('[LOGIN] cliquei');
+    const email=$("#user").value.trim(); 
+    const pass=$("#pass").value.trim();
     if(!email||!pass){ alert("Informe usuario y contraseña."); return; }
+
     const { data, error } = await supa.auth.signInWithPassword({ email, password: pass });
+    console.log('[LOGIN] retorno supa:', {data, error});
     if(error) throw error;
+
     const prof=await fetchProfile(data.user.id);
+    console.log('[LOGIN] perfil:', prof);
     if(!prof){ await supa.auth.signOut(); return; }
+
     session.user=email; 
     session.role=prof.role; 
     session.company_id=prof.company_id; 
     session.user_id = data.user.id;
+
     document.getElementById("login").classList.add("hide");
     document.getElementById("app").classList.remove("hide");
+
     const d=$("#repDesde"); const h=$("#repHasta");
     if(d) d.value=(new Date()).toISOString().slice(0,10).replace(/-\d{2}$/,"-01");
     if(h) h.value=(new Date()).toISOString().slice(0,10);
+
     await refreshCombos();
     await Promise.all([loadVehicles(), loadRentals(), loadMaint(), loadFinances()]);
     await refreshKPIs();
   }catch(err){
+    console.error('[LOGIN] erro:', err);
     alert("Login inválido: " + (err?.message || err));
   }
 }
-
 /* ===== Boot ===== */
 document.addEventListener('DOMContentLoaded', ()=>{
   const loginBtn=document.getElementById("btnLogin");
