@@ -927,13 +927,13 @@ async function loadMaint(){
         await loadMaint();
       };
     }
+    
     if (act === "delMant") {
   btn.onclick = async () => {
     try {
       if (!confirm("¿Eliminar mantenimiento?")) return;
 
-      // 1) Buscar fin_id vinculado
-      const { data: M, error: e0 } = await supa
+      const { data:M, error:e0 } = await supa
         .from('maintenances')
         .select('fin_id')
         .eq('company_id', session.company_id)
@@ -941,25 +941,26 @@ async function loadMaint(){
         .single();
       if (e0) throw e0;
 
-      // 2) Se houver finanza, apagar somente se foi criada por este usuário
-      if (M && M.fin_id) {
-        await supa
+      // Apaga a finanza vinculada.
+      // Admin apaga qualquer; assistente apaga somente se ele criou (RLS cuida disso).
+      if (M?.fin_id) {
+        const del = supa
           .from('finances')
           .delete()
           .eq('company_id', session.company_id)
-          .eq('id', M.fin_id)
-          .eq('created_by', session.user_id);
+          .eq('id', M.fin_id);
+        if (session.role !== 'admin') del.eq('created_by', session.user_id);
+        await del;
       }
 
-      // 3) Apagar o mantenimiento
-      const { error: eDel } = await supa
+      const { error:eDel } = await supa
         .from('maintenances')
         .delete()
         .eq('company_id', session.company_id)
         .eq('id', id);
       if (eDel) throw eDel;
 
-      await supa.rpc('fn_audit', { p_action: 'maintenance_delete', p_payload: { id } });
+      await supa.rpc('fn_audit', { p_action:'maintenance_delete', p_payload:{ id }});
       await loadMaint();
       await loadFinances();
     } catch (err) {
