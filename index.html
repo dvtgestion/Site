@@ -1244,8 +1244,16 @@ async function doLogin(){
     // Atualiza papel visível na tela
 const roleBox = document.getElementById("userRole");
 if (roleBox) {
-  roleBox.textContent = (session.role === "admin") ? "Admin" : "Asesor";
-  roleBox.className = (session.role === "admin") ? "role-admin" : "role-asesor";
+  if (session.role === "admin") {
+    roleBox.textContent = "Admin";
+    roleBox.className = "role-admin";
+  } else if (session.role === "asesor") {
+    roleBox.textContent = "Asistente";   // 👈 só muda visualmente
+    roleBox.className = "role-asesor";
+  } else {
+    roleBox.textContent = session.role || "—";
+    roleBox.className = "";
+  }
 }
     document.getElementById("login").classList.add("hide");
     document.getElementById("app").classList.remove("hide");
