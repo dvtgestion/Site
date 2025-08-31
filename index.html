@@ -222,6 +222,10 @@
 
         <div class="card" style="margin-top:16px">
           <h3 style="margin-top:0">Vehículos</h3>
+          <!-- 🔎 BUSCADOR DE VEHÍCULOS -->
+					<div class="toolbar">
+  				<input id="vQ" placeholder="Buscar por placa, marca o modelo..." />
+				</div
           <div class="grid thead">
             <div>Placa / Marca / Modelo</div><div>Color</div><div>KM</div><div>Fecha registro</div><div>—</div><div>Estado</div><div class="t-right">Acciones</div>
           </div>
@@ -429,10 +433,32 @@ async function refreshCombos(){
 
 /* ===== Veículos ===== */
 async function loadVehicles(){
-  const { data, error } = await supa.from('vehicles').select('*').eq('company_id', session.company_id).order('placa', {ascending:true});
-  if(error){ alert("Error al cargar vehículos: " + error.message); return; }
-  const box=$("#frotaList"); if(!box) return; box.innerHTML="";
-  (data||[]).forEach(v=>{
+  const { data, error } = await supa
+    .from('vehicles')
+    .select('*')
+    .eq('company_id', session.company_id)
+    .order('placa', {ascending:true});
+
+  if(error){
+    alert("Error al cargar vehículos: " + error.message);
+    return;
+  }
+
+  // texto do buscador
+  const vq = (document.getElementById("vQ")?.value || "").toLowerCase().trim();
+
+  // aplica filtro local (placa, modelo e cor)
+  const filtered = (data || []).filter(v=>{
+    if(!vq) return true;
+    const hay = `${v.placa||""} ${v.modelo||""} ${v.cor||""}`.toLowerCase();
+    return hay.includes(vq);
+  });
+
+  const box = document.getElementById("frotaList");
+  if(!box) return;
+  box.innerHTML = "";
+
+  filtered.forEach(v=>{
     const line=document.createElement("div");
     line.className="grid rowline";
     line.innerHTML=`
@@ -448,24 +474,42 @@ async function loadVehicles(){
       </div>`;
     box.appendChild(line);
   });
+
+  // ações dos botões
   box.querySelectorAll("button").forEach(btn=>{
-    const act=btn.getAttribute("data-act"); const placa=btn.getAttribute("data-placa");
+    const act=btn.getAttribute("data-act");
+    const placa=btn.getAttribute("data-placa");
     if(act==="edit"){
       btn.onclick=async ()=>{
-        const { data } = await supa.from('vehicles').select('*').eq('company_id', session.company_id).eq('placa', placa).single();
+        const { data } = await supa
+          .from('vehicles')
+          .select('*')
+          .eq('company_id', session.company_id)
+          .eq('placa', placa)
+          .single();
         if(!data) return;
-        $("#vPlaca").value=data.placa; $("#vModelo").value=data.modelo||""; $("#vCor").value=data.cor||"";
-        $("#vKm").value=data.km||""; $("#vStatus").value=data.status||"Disponible"; $("#vFechaRegistro").value=data.fecha_registro||"";
+        document.getElementById("vPlaca").value=data.placa;
+        document.getElementById("vModelo").value=data.modelo||"";
+        document.getElementById("vCor").value=data.cor||"";
+        document.getElementById("vKm").value=data.km||"";
+        document.getElementById("vStatus").value=data.status||"Disponible";
+        document.getElementById("vFechaRegistro").value=data.fecha_registro||"";
         activateTab("frota");
       };
     }
     if(act==="del"){
       btn.onclick=async ()=>{
         if(!confirm("¿Eliminar vehículo (y NO automaticamente sus locaciones/finanzas)?")) return;
-        const { error } = await supa.from('vehicles').delete().eq('company_id', session.company_id).eq('placa', placa);
+        const { error } = await supa
+          .from('vehicles')
+          .delete()
+          .eq('company_id', session.company_id)
+          .eq('placa', placa);
         if(error){ alert("Error al eliminar: " + error.message); return; }
         await supa.rpc('fn_audit', { p_action:'vehicle_delete', p_payload:{ placa }});
-        await refreshCombos(); await loadVehicles(); await refreshKPIs();
+        await refreshCombos();
+        await loadVehicles();
+        await refreshKPIs();
       };
     }
   });
@@ -1194,6 +1238,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
   const finH=$("#finHasta"); if(finH) finH.addEventListener("change", loadFinances);
   const finT=$("#finFiltroTipo"); if(finT) finT.addEventListener("change", loadFinances);
   const finP=$("#finFiltroPlaca"); if(finP) finP.addEventListener("change", loadFinances);
+  const vQ = document.getElementById("vQ");
+if (vQ) vQ.addEventListener("input", loadVehicles);
   // Reportes: aplicar/limpar e recalcular
 document.getElementById('repAplicar')?.addEventListener('click', refreshKPIs);
 document.getElementById('repLimpiar')?.addEventListener('click', ()=>{
