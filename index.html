@@ -1124,12 +1124,16 @@ row.style.gridTemplateColumns = ".9fr .8fr .8fr 1fr 1.6fr .8fr 160px";
   });
 }
 $("#btnFinGuardar") && ($("#btnFinGuardar").onclick = async ()=>{
-  if(session.role!=='admin'){ alert("Solo admin puede registrar finanzas."); return; }
+  if(session.role!=='admin' && session.role!=='asesor'){ 
+  alert("No tienes permisos para registrar finanzas."); 
+  return; 
+}
   const fecha=$("#finFecha").value||""; const tipo=$("#finTipo").value; const monto=parseNumber($("#finMonto").value) || 0;
   const placa=$("#finPlaca").value||null; const cat=$("#finCat").value||"Otro"; const nota=$("#finNota").value.trim()||null;
   if(!fecha){ alert("La fecha es obligatoria."); return; }
   if(!monto||monto<=0){ alert("El monto debe ser mayor que 0."); return; }
-  const payload={ company_id:session.company_id, fecha, tipo, monto, placa, categoria:cat, nota };
+  const payload={ company_id:session.company_id, fecha, tipo, monto, placa, categoria:cat, nota, created_by: session.user_id   // <= NOVO
+  };
   const { error } = await supa.from('finances').insert(payload);
   if(error){ alert("Error al guardar: "+error.message); return; }
   $("#finMonto").value=""; $("#finNota").value=""; await loadFinances();
@@ -1201,7 +1205,7 @@ async function doLogin(){
     if(error) throw error;
     const prof=await fetchProfile(data.user.id);
     if(!prof){ await supa.auth.signOut(); return; }
-    session.user=email; session.role=prof.role; session.company_id=prof.company_id;
+    session.user=email; session.role=prof.role; ses(sion.company_id=prof.company_id; session.user_id = data.user.id;
     document.getElementById("login").classList.add("hide");
     document.getElementById("app").classList.remove("hide");
     const d=$("#repDesde"); const h=$("#repHasta");
