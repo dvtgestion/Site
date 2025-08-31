@@ -930,7 +930,13 @@ async function loadMaint(){
     if(act==="delMant"){
       btn.onclick=async ()=>{
         if(!confirm("¿Eliminar mantenimiento?")) return;
-        const { data:M } = await supa.from('maintenances').select('*').eq('company_id', session.company_id).eq('id', id).single();
+        const { data: M } = await supa
+      .from('maintenances')
+      .select('fin_id') // opcional: antes era '*'
+      .eq('company_id', session.company_id)
+      .eq('id', id)
+      .single();
+
         if (M?.fin_id) {
   let del = supa.from('finances').delete()
     .eq('company_id', session.company_id)
