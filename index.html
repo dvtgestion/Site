@@ -932,9 +932,16 @@ async function loadMaint(){
         if(!confirm("¿Eliminar mantenimiento?")) return;
         const { data:M } = await supa.from('maintenances').select('*').eq('company_id', session.company_id).eq('id', id).single();
         if (M?.fin_id) {
-  await supa.from('finances').delete()
+  let del = supa.from('finances').delete()
     .eq('company_id', session.company_id)
     .eq('id', M.fin_id);
+
+  // Se NÃO for admin, só apaga se a finanza foi criada por este usuário
+  if (session.role !== 'admin') {
+    del = del.eq('created_by', session.user_id);
+  }
+
+  await del;
 }
         const { error } = await supa.from('maintenances').delete().eq('company_id', session.company_id).eq('id', id);
         if(error){ alert("Error al eliminar: "+error.message); return; }
