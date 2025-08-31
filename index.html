@@ -387,6 +387,16 @@
   </div>
       <script>
 /* ===== Helpers ===== */
+function debugLog(msg, data){
+  const dbg = document.getElementById("debug");
+  if(dbg){
+    const line = document.createElement("div");
+    line.textContent = msg + (data ? " " + JSON.stringify(data) : "");
+    dbg.appendChild(line);
+  }
+  console.log(msg, data || "");
+}
+
 function parseNumber(val){
   if(!val) return null;
   // remove espaços, troca vírgula por ponto e remove separador de milhar
@@ -1326,6 +1336,7 @@ window.addEventListener('error', (e)=>{
   console.error('[GLOBAL ERROR]', e.message, e.filename, e.lineno, e.colno);
 });
   </script>
+  <div id="debug" style="background:#111; color:#0f0; padding:8px; font-size:12px; max-height:200px; overflow:auto"></div>
 </body>
 </html>
   
