@@ -405,7 +405,7 @@ function badge(status){
 function toTZLocalValue(dtLocalInput){ if(!dtLocalInput) return null; const d=new Date(dtLocalInput); return d.toISOString(); }
 
 /* ===== Sessão / Perfil ===== */
-const session = { user: null, role: null, company_id: null };
+const session = { user: null, role: null, company_id: null, user_id: null };
 
 async function fetchProfile(userId){
   const { data, error } = await supa
@@ -1205,7 +1205,10 @@ async function doLogin(){
     if(error) throw error;
     const prof=await fetchProfile(data.user.id);
     if(!prof){ await supa.auth.signOut(); return; }
-    session.user=email; session.role=prof.role; ses(sion.company_id=prof.company_id; session.user_id = data.user.id;
+    session.user=email; 
+    session.role=prof.role; 
+    session.company_id=prof.company_id; 
+    session.user_id = data.user.id;
     document.getElementById("login").classList.add("hide");
     document.getElementById("app").classList.remove("hide");
     const d=$("#repDesde"); const h=$("#repHasta");
