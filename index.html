@@ -541,7 +541,7 @@ $("#btnAddVeiculo") && ($("#btnAddVeiculo").onclick = async ()=>{
     km: parseNumber($("#vKm").value),
     status:$("#vStatus").value,
     fecha_registro:$("#vFechaRegistro").value||null };
-  const { error } = await supa.from('vehicles').upsert(payload, { onConflict:'placa' });
+  const { error } = await supa.from('vehicles').upsert(payload, { onConflict: 'company_id,placa' });
   if(error){ alert("Error al guardar vehículo: "+error.message); return; }
   await supa.rpc('fn_audit', { p_action:'vehicle_upsert', p_payload:payload });
   $("#vPlaca").value=$("#vModelo").value=$("#vCor").value=$("#vKm").value=""; $("#vStatus").value="Disponible"; $("#vFechaRegistro").value="";
