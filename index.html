@@ -108,6 +108,14 @@
 .role-admin { color:#22c55e; }
 .role-asesor { color:#3b82f6; }
 
+/* === Imágenes (vehículos) === */
+.btn-img{ background:#93c5fd } /* parecido com .secondary */
+
+.thumb{ background:#0b1220;border:1px solid #293042;border-radius:10px;padding:8px }
+.thumb img{ width:100%; height:120px; object-fit:cover; border-radius:8px; display:block }
+.thumb .meta{ font-size:12px; color:var(--muted); margin-top:6px; word-break:break-all }
+.thumb .actions{ display:flex; justify-content:space-between; gap:6px; margin-top:8px }
+
 /* =========================
    MOBILE PACK (cole no fim)
    ========================= */
@@ -515,6 +523,31 @@
       </div>
     </div>
   </div>
+  <!-- MODAL DE FOTOS DO VEÍCULO -->
+<div id="photosModal" style="position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:9999">
+  <div class="card" style="max-width:920px;width:94%;border:1px solid #1f2937;border-radius:12px;padding:16px;background:var(--card)">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <h3 style="margin:0">Imágenes del vehículo — <span id="pmPlaca">—</span></h3>
+      <button class="ghost" id="pmClose">Cerrar</button>
+    </div>
+
+    <div class="row" style="margin-top:12px">
+      <div class="col">
+        <label>Seleccionar imágenes (JPG/PNG, máx. 20MB cada)</label>
+        <input id="pmFiles" type="file" accept="image/*" multiple />
+      </div>
+      <div class="col t-right" style="align-self:flex-end">
+        <button id="pmUpload" class="secondary">Subir imágenes</button>
+      </div>
+    </div>
+
+    <div class="muted" id="pmHint" style="margin-top:8px">
+      Admin puede eliminar imágenes. Asistente puede subir y ver.
+    </div>
+
+    <div id="pmGrid" class="thumb-grid" style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px"></div>
+  </div>
+</div>
       <script>
 /* ===== Helpers ===== */
 function parseNumber(val){
@@ -596,58 +629,67 @@ async function loadVehicles(){
     const line=document.createElement("div");
     line.className="grid rowline";
     line.innerHTML=`
-      <div><strong>${esc(v.placa)}</strong> <span class="kv">— ${esc(v.modelo||"")}</span></div>
-      <div class="kv">${esc(v.cor||"—")}</div>
-      <div class="kv">${v.km ?? "—"}</div>
-      <div class="kv">${fmtYMD(v.fecha_registro)}</div>
-      <div class="kv">—</div>
-      <div>${badge(v.status==="En uso"?"En uso":v.status)}</div>
-      <div class="t-right">
-        <button class="ghost" data-act="edit" data-placa="${esc(v.placa)}">Editar</button>
-        <button class="danger" data-act="del" data-placa="${esc(v.placa)}">Eliminar</button>
-      </div>`;
+  <div><strong>${esc(v.placa)}</strong> <span class="kv">— ${esc(v.modelo||"")}</span></div>
+  <div class="kv">${esc(v.cor||"—")}</div>
+  <div class="kv">${v.km ?? "—"}</div>
+  <div class="kv">${fmtYMD(v.fecha_registro)}</div>
+  <div class="kv">—</div>
+  <div>${badge(v.status==="En uso"?"En uso":v.status)}</div>
+  <div class="t-right">
+    <button class="ghost" data-act="edit" data-placa="${esc(v.placa)}">Editar</button>
+    <button class="secondary btn-img" data-act="photos" data-placa="${esc(v.placa)}">Imágenes</button>
+    <button class="danger" data-act="del" data-placa="${esc(v.placa)}">Eliminar</button>
+  </div>`;
     box.appendChild(line);
   });
 
   // ações dos botões
-  box.querySelectorAll("button").forEach(btn=>{
-    const act=btn.getAttribute("data-act");
-    const placa=btn.getAttribute("data-placa");
-    if(act==="edit"){
-      btn.onclick=async ()=>{
-        const { data } = await supa
-          .from('vehicles')
-          .select('*')
-          .eq('company_id', session.company_id)
-          .eq('placa', placa)
-          .single();
-        if(!data) return;
-        document.getElementById("vPlaca").value=data.placa;
-        document.getElementById("vModelo").value=data.modelo||"";
-        document.getElementById("vCor").value=data.cor||"";
-        document.getElementById("vKm").value=data.km||"";
-        document.getElementById("vStatus").value=data.status||"Disponible";
-        document.getElementById("vFechaRegistro").value=data.fecha_registro||"";
-        activateTab("frota");
-      };
-    }
-    if(act==="del"){
-      btn.onclick=async ()=>{
-        if(!confirm("¿Eliminar vehículo?")) return;
-        const { error } = await supa
-          .from('vehicles')
-          .delete()
-          .eq('company_id', session.company_id)
-          .eq('placa', placa);
-        if(error){ alert("Error al eliminar: " + error.message); return; }
-        await supa.rpc('fn_audit', { p_action:'vehicle_delete', p_payload:{ placa }});
-        await refreshCombos();
-        await loadVehicles();
-        await refreshKPIs();
-      };
-    }
-  });
-}
+box.querySelectorAll("button").forEach((btn) => {
+  const act = btn.getAttribute("data-act");
+  const placa = btn.getAttribute("data-placa");
+
+  if (act === "edit") {
+    btn.onclick = async () => {
+      const { data } = await supa
+        .from('vehicles')
+        .select('*')
+        .eq('company_id', session.company_id)
+        .eq('placa', placa)
+        .single();
+      if (!data) return;
+      document.getElementById("vPlaca").value = data.placa;
+      document.getElementById("vModelo").value = data.modelo || "";
+      document.getElementById("vCor").value = data.cor || "";
+      document.getElementById("vKm").value = data.km || "";
+      document.getElementById("vStatus").value = data.status || "Disponible";
+      document.getElementById("vFechaRegistro").value = data.fecha_registro || "";
+      activateTab("frota");
+    };
+  }
+
+  if (act === "photos") {
+    btn.onclick = () => { openVehicleImages(placa); };
+  }
+
+  if (act === "del") {
+    btn.onclick = async () => {
+      if (!confirm("¿Eliminar vehículo?")) return;
+      const { error } = await supa
+        .from('vehicles')
+        .delete()
+        .eq('company_id', session.company_id)
+        .eq('placa', placa);
+      if (error) { alert("Error al eliminar: " + error.message); return; }
+     await supa.rpc('fn_audit', { p_action: 'vehicle_delete', p_payload: { placa } });
+      await refreshCombos();
+      await loadVehicles();
+      await refreshKPIs();
+    }; // ← fecha o handler do clique
+  }   // ← fecha o if (act === "del")
+});    // ← fecha o forEach
+
+} // ← fecha a função loadVehicles()
+
 $("#btnAddVeiculo") && ($("#btnAddVeiculo").onclick = async ()=>{
   const placa=$("#vPlaca").value.trim().toUpperCase();
   const modelo=$("#vModelo").value.trim();
@@ -1356,6 +1398,130 @@ function activateTab(name){
   document.addEventListener('keydown', (e)=>{ if(e.key==="Escape") modal.style.display="none"; });
   modal?.addEventListener("click",(e)=>{ if(e.target.id==="obsModal") modal.style.display="none"; });
 })();
+
+// ====== Fotos de veículo (Supabase Storage) ======
+const PHOTO_BUCKET = 'vehicle-photos';
+let currentPhotosPlaca = null; // placa aberta no modal
+
+function photoPrefix(placa){
+  // Pasta: company_id/PLACA/
+  return `${session.company_id}/${placa}/`;
+}
+
+async function listVehicleImages(placa){
+  const prefix = photoPrefix(placa);
+  const { data: files, error } = await supa.storage
+    .from(PHOTO_BUCKET)
+    .list(prefix, { limit: 100, sortBy: { column: 'updated_at', order: 'desc' } });
+  if(error){ alert('No se pudo listar imágenes: ' + error.message); return []; }
+  return files || [];
+}
+
+async function signedUrl(path){
+  const { data, error } = await supa.storage.from(PHOTO_BUCKET).createSignedUrl(path, 3600);
+  if(error) return null;
+  return data?.signedUrl || null;
+}
+
+async function renderPhotosGrid(placa){
+  const grid = document.getElementById('pmGrid');
+  grid.innerHTML = '<div class="muted">Cargando...</div>';
+  const files = await listVehicleImages(placa);
+  if(!files.length){ grid.innerHTML = '<div class="muted">Sin imágenes todavía.</div>'; return; }
+
+  grid.innerHTML = '';
+  for (const f of files){
+    const path = photoPrefix(placa) + f.name;
+    const url = await signedUrl(path);
+    const card = document.createElement('div');
+    card.className = 'thumb';
+    card.innerHTML = `
+      <img src="${esc(url || '')}" alt="${esc(f.name)}" />
+      <div class="meta">${esc(f.name)}</div>
+      <div class="actions">
+        <a href="${esc(url || '#')}" target="_blank" class="ghost" style="text-decoration:none;padding:6px 8px;border:1px solid #334155;border-radius:8px">Abrir</a>
+        ${session.role==='admin' ? `<button class="danger" data-del="${esc(path)}">Eliminar</button>` : ``}
+      </div>
+    `;
+    grid.appendChild(card);
+  }
+
+  // deletar (só admin)
+  if(session.role === 'admin'){
+    grid.querySelectorAll('button[data-del]').forEach(btn=>{
+      btn.onclick = async ()=>{
+        const path = btn.getAttribute('data-del');
+        if(!confirm('¿Eliminar imagen?')) return;
+        const { error } = await supa.storage.from(PHOTO_BUCKET).remove([path]);
+        if(error){ alert('No se pudo eliminar: ' + error.message); return; }
+        await renderPhotosGrid(placa);
+      };
+    });
+  }
+}
+
+function openVehicleImages(placa){
+  currentPhotosPlaca = placa;
+  document.getElementById('pmPlaca').textContent = placa;
+  document.getElementById('photosModal').style.display = 'flex';
+  renderPhotosGrid(placa);
+}
+
+function closeVehicleImages(){
+  document.getElementById('photosModal').style.display = 'none';
+  currentPhotosPlaca = null;
+  const inp = document.getElementById('pmFiles');
+  if(inp) inp.value = ''; // limpa seleção
+}
+
+// Substitua sua função atual por esta:
+async function uploadVehicleImages(){
+  const inp = document.getElementById('pmFiles');
+  if(!currentPhotosPlaca){ alert('Placa no válida.'); return; }
+  if(!inp?.files?.length){ alert('Seleccione una o más imágenes.'); return; }
+
+  // ✅ Validação: apenas imagens e até 20 MB cada
+  const MAX = 20 * 1024 * 1024; // 20MB
+  for (const f of inp.files) {
+    if (!/^image\//.test(f.type)) {
+      alert(`Archivo no es imagen: ${f.name}`);
+      return;
+    }
+    if (f.size > MAX) {
+      alert(`Imagen supera 20MB: ${f.name}`);
+      return;
+    }
+  }
+
+  const prefix = photoPrefix(currentPhotosPlaca);
+  for (const file of inp.files){
+    const ts = new Date().toISOString().replace(/[-:T.Z]/g,'').slice(0,14);
+    const safe = file.name.replace(/[^\w.\-]+/g,'_');
+    const path = `${prefix}${ts}-${safe}`;
+    const { error } = await supa.storage.from(PHOTO_BUCKET).upload(path, file, {
+      upsert: false,
+      contentType: file.type || 'image/jpeg',
+      cacheControl: '3600'
+    });
+    if(error){
+      alert(`Fallo al subir ${file.name}: ` + error.message);
+      return;
+    }
+  }
+
+  await renderPhotosGrid(currentPhotosPlaca);
+  inp.value = ''; // limpa seleção
+}
+
+// eventos do modal
+document.getElementById('pmClose')?.addEventListener('click', closeVehicleImages);
+document.getElementById('pmUpload')?.addEventListener('click', uploadVehicleImages);
+document.addEventListener('keydown', (e)=>{ 
+  if(e.key==='Escape' && document.getElementById('photosModal').style.display==='flex') closeVehicleImages();
+});
+document.getElementById('photosModal')?.addEventListener('click',(e)=>{
+  if(e.target && e.target.id==='photosModal') closeVehicleImages();
+});
 
 /* ===== Auth ===== */
 async function doLogin(){
