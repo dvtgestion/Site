@@ -108,6 +108,122 @@
 .role-admin { color:#22c55e; }
 .role-asesor { color:#3b82f6; }
 
+/* =========================
+   MOBILE PACK (cole no fim)
+   ========================= */
+@media (max-width: 920px){
+  .wrap{ padding:0 12px }
+  .header{ position:sticky; top:0; z-index:30; background:rgba(0,0,0,.55); backdrop-filter: blur(6px) }
+  .tabs{ gap:6px; overflow-x:auto; -webkit-overflow-scrolling:touch }
+  .tabs::-webkit-scrollbar{ display:none }
+  .tab{ flex:0 0 auto }
+  .toolbar{ display:flex; flex-wrap:wrap; gap:8px }
+  .toolbar > *{ flex:1 1 180px } /* inputs, selects e botões ocupam linha inteira quando precisar */
+  button{ min-height:44px }      /* área de toque confortável */
+}
+
+/* ===== Locaciones -> cards ===== */
+@media (max-width: 760px){
+  #tab-locacoes .thead{ display:none }
+  #tab-locacoes .grid.rowline{
+    grid-template-columns: 1fr !important;
+    gap:8px; padding:12px; border:1px solid #293042; border-radius:12px; background:rgba(17,24,39,.6)
+  }
+  #tab-locacoes .grid.rowline > div{
+    display:flex; justify-content:space-between; gap:10px; align-items:flex-start
+  }
+  #tab-locacoes .grid.rowline > div::before{
+    content: attr(data-label);
+    color: var(--muted); font-size:12px; margin-right:10px; flex:0 0 auto
+  }
+  /* Marcar os labels por posição (1..8) */
+  #tab-locacoes .grid.rowline > div:nth-child(1){ --lbl:"Vehículo" }
+  #tab-locacoes .grid.rowline > div:nth-child(2){ --lbl:"Conductor" }
+  #tab-locacoes .grid.rowline > div:nth-child(3){ --lbl:"Salida" }
+  #tab-locacoes .grid.rowline > div:nth-child(4){ --lbl:"Previsto" }
+  #tab-locacoes .grid.rowline > div:nth-child(5){ --lbl:"Entrada" }
+  #tab-locacoes .grid.rowline > div:nth-child(6){ --lbl:"KM" }
+  #tab-locacoes .grid.rowline > div:nth-child(7){ --lbl:"Estado" }
+  #tab-locacoes .grid.rowline > div:nth-child(8){ --lbl:"" ; justify-content:flex-end }
+  #tab-locacoes .grid.rowline > div{ position:relative }
+  #tab-locacoes .grid.rowline > div::before{ content: var(--lbl) }
+  /* Ações ocupam a linha toda quando quebrar */
+  #tab-locacoes .grid.rowline > div:nth-child(8) button{ margin-left:8px; margin-top:6px }
+}
+
+/* ===== Vehículos -> cards ===== */
+@media (max-width: 760px){
+  #tab-frota .thead{ display:none }
+  #tab-frota .grid.rowline{
+    grid-template-columns:1fr !important;
+    gap:8px; padding:12px; border:1px solid #293042; border-radius:12px; background:rgba(17,24,39,.6)
+  }
+  #tab-frota .grid.rowline > div{ display:flex; justify-content:space-between; gap:10px }
+  #tab-frota .grid.rowline > div::before{
+    color:var(--muted); font-size:12px; margin-right:10px
+  }
+  #tab-frota .grid.rowline > div:nth-child(1)::before{ content:"Vehículo" }
+  #tab-frota .grid.rowline > div:nth-child(2)::before{ content:"Color" }
+  #tab-frota .grid.rowline > div:nth-child(3)::before{ content:"KM" }
+  #tab-frota .grid.rowline > div:nth-child(4)::before{ content:"Fecha registro" }
+  #tab-frota .grid.rowline > div:nth-child(5){ display:none } /* coluna “—” some no mobile */
+  #tab-frota .grid.rowline > div:nth-child(6)::before{ content:"Estado" }
+  #tab-frota .grid.rowline > div:nth-child(7){ justify-content:flex-end }
+}
+
+/* ===== Mantenimiento -> cards ===== */
+@media (max-width: 800px){
+  #tab-mantenimiento .thead{ display:none }
+  #tab-mantenimiento .grid.rowline{
+    grid-template-columns:1fr !important;
+    gap:8px; padding:12px; border:1px solid #293042; border-radius:12px; background:rgba(17,24,39,.6)
+  }
+  #tab-mantenimiento .grid.rowline > div{ display:flex; justify-content:space-between; gap:10px; align-items:flex-start }
+  #tab-mantenimiento .grid.rowline > div::before{ color:var(--muted); font-size:12px; margin-right:10px }
+  #tab-mantenimiento .grid.rowline > div:nth-child(1)::before{ content:"Vehículo" }
+  #tab-mantenimiento .grid.rowline > div:nth-child(2)::before{ content:"Tipo" }
+  #tab-mantenimiento .grid.rowline > div:nth-child(3)::before{ content:"Servicio" }
+  #tab-mantenimiento .grid.rowline > div:nth-child(4)::before{ content:"Fecha" }
+  #tab-mantenimiento .grid.rowline > div:nth-child(5)::before{ content:"Próxima" }
+  #tab-mantenimiento .grid.rowline > div:nth-child(6)::before{ content:"KM" }
+  #tab-mantenimiento .grid.rowline > div:nth-child(7)::before{ content:"Costo" }
+  #tab-mantenimiento .grid.rowline > div:nth-child(8)::before{ content:"Observación" }
+  #tab-mantenimiento .grid.rowline > div:nth-child(9){ justify-content:flex-end }
+}
+
+/* ===== Finanzas -> cards ===== */
+@media (max-width: 760px){
+  #tab-finanzas .thead{ display:none }
+  #tab-finanzas .grid.fin-row{
+    grid-template-columns:1fr !important;
+    gap:8px; padding:12px; border:1px solid #293042; border-radius:12px
+  }
+  #tab-finanzas .grid.fin-row > div{ display:flex; justify-content:space-between; gap:10px }
+  #tab-finanzas .grid.fin-row > div::before{ color:var(--muted); font-size:12px; margin-right:10px }
+  #tab-finanzas .grid.fin-row > div:nth-child(1)::before{ content:"Fecha" }
+  #tab-finanzas .grid.fin-row > div:nth-child(2)::before{ content:"Tipo" }
+  #tab-finanzas .grid.fin-row > div:nth-child(3)::before{ content:"Placa" }
+  #tab-finanzas .grid.fin-row > div:nth-child(4)::before{ content:"Categoría" }
+  #tab-finanzas .grid.fin-row > div:nth-child(5)::before{ content:"Concepto" }
+  #tab-finanzas .grid.fin-row > div:nth-child(6){ justify-content:flex-end }
+  #tab-finanzas .grid.fin-row > div:nth-child(6)::before{ content:"Monto" }
+  #tab-finanzas .grid.fin-row > div:nth-child(7){ justify-content:flex-end }
+}
+
+/* ===== Formulários: inputs e selects bem fluidos ===== */
+@media (max-width: 760px){
+  .row{ gap:10px }
+  .col{ flex:1 1 100% }           /* cada campo vira linha */
+  label{ margin:12px 0 6px }
+  .t-right{ text-align:right }
+}
+
+/* ===== Modal Observaciones: já é responsivo, só ajusta espaçamento ===== */
+@media (max-width: 520px){
+  #obsModal .modal-content{ padding:16px }
+  .note-box{ min-height:96px }
+}
+
   
 </style>
 </head>
