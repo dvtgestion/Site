@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -14,87 +15,6 @@
   const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: { persistSession: false, autoRefreshToken: false, storageKey: 'no-persist' }
   });
-
-  /* ===== I18N (ES ⇄ PT) — leve e rápido ===== */
-  window.appLang = localStorage.getItem('appLang') || 'es';
-  const I18N = {
-    es:{ "Locaciones":"Locaciones","Vehículos":"Vehículos","Mantenimiento":"Mantenimiento","Finanzas":"Finanzas","Reportes":"Reportes","Salir":"Salir",
-      "Panel — Alquiler de Autos":"Panel — Alquiler de Autos","Inicio de sesión":"Inicio de sesión","Acceso interno de la empresa":"Acceso interno de la empresa",
-      "Usuario":"Usuario","Contraseña":"Contraseña","Entrar":"Entrar",
-      "Placa":"Placa","Conductor / Cliente":"Conductor / Cliente","Fecha/Hora salida":"Fecha/Hora salida","Previsto retorno":"Previsto retorno","KM salida":"KM salida",
-      "Combustible (salida)":"Combustible (salida)","Observaciones":"Observaciones","Registrar salida":"Registrar salida",
-      "Fecha/Hora entrada":"Fecha/Hora entrada","KM entrada":"KM entrada","Combustible (entrada)":"Combustible (entrada)","Observaciones de retorno":"Observaciones de retorno","Registrar entrada":"Registrar entrada",
-      "Solo aparecen autos “Disponible”.":"Solo aparecen autos “Disponible”.","Solo aparecen autos “En uso”.":"Solo aparecen autos “En uso”.",
-      "Buscar por placa, marca/modelo o conductor...":"Buscar por placa, marca/modelo o conductor...","Todos los estados":"Todos los estados",
-      "Disponible":"Disponible","En uso":"En uso","Atrasado":"Atrasado","Mantenimiento":"Mantenimiento","Exportar CSV":"Exportar CSV",
-      "Placa / Marca / Modelo":"Placa / Marca / Modelo","Conductor":"Conductor","Salida":"Salida","Previsto":"Previsto","Entrada":"Entrada","KM":"KM","Estado":"Estado","Acciones":"Acciones",
-      "Registro de vehículo":"Registro de vehículo","Marca / Modelo":"Marca / Modelo","Color":"Color","KM actual":"KM actual","Fecha de registro":"Fecha de registro",
-      "Placa y Marca/Modelo son obligatorios.":"Placa y Marca/Modelo son obligatorios.","Guardar/Actualizar vehículo":"Guardar/Actualizar vehículo","Vehículos":"Vehículos",
-      "Buscar por placa, marca o modelo...":"Buscar por placa, marca o modelo...","Fecha registro":"Fecha registro",
-      "Registrar mantenimiento":"Registrar mantenimiento","Tipo":"Tipo","Preventivo":"Preventivo","Correctivo":"Correctivo","Servicio / Tarea":"Servicio / Tarea",
-      "Fecha":"Fecha","Próxima fecha (opcional)":"Próxima fecha (opcional)","KM (realizado / referencia)":"KM (realizado / referencia)","Próximo KM (opcional)":"Próximo KM (opcional)",
-      "Pendiente":"Pendiente","Hecho":"Hecho","Costo (opcional)":"Costo (opcional)","Observación":"Observación",
-      "Al informar un Costo, se crea/actualiza un Egreso en Finanzas.":"Al informar un Costo, se crea/actualiza un Egreso en Finanzas.","Guardar mantenimiento":"Guardar mantenimiento",
-      "Historial y próximos":"Historial y próximos","Vencen ≤7 días:":"Vencen ≤7 días:","Vencen ≤1.000 km:":"Vencen ≤1.000 km:",
-      "Todos":"Todos","Todos los vencimientos":"Todos los vencimientos","Próximos 7 días":"Próximos 7 días","Próximos 1.000 km":"Próximos 1.000 km",
-      "Servicio":"Servicio","Próxima":"Próxima","Costo":"Costo",
-      "Registrar movimiento":"Registrar movimiento","Tipo":"Tipo","Ingreso":"Ingreso","Egreso":"Egreso","Monto":"Monto","Placa (opcional)":"Placa (opcional)",
-      "Categoría":"Categoría","Alquiler":"Alquiler","Combustible":"Combustible","Multa":"Multa","Peaje":"Peaje","Compra":"Compra","Otro":"Otro","Concepto / Nota":"Concepto / Nota",
-      "El Asistente no puede ver el historial completo; solo sus propios registros.":"El Asistente no puede ver el historial completo; solo sus propios registros.",
-      "Guardar movimiento":"Guardar movimiento","Resumen y listado":"Resumen y listado","Ingresos + Egresos":"Ingresos + Egresos","Todas las placas":"Todas las placas",
-      "Indicadores rápidos":"Indicadores rápidos","Autos disponibles":"Autos disponibles","En uso":"En uso","Atrasados":"Atrasados","En mantenimiento":"En mantenimiento",
-      "Desde":"Desde","Hasta":"Hasta","Aplicar":"Aplicar","Limpiar":"Limpiar",
-      "Ingresos totales (filtrado)":"Ingresos totales (filtrado)","Egresos totales (filtrado)":"Egresos totales (filtrado)","Ganancia líquida":"Ganancia líquida",
-      "Editar":"Editar","Imágenes":"Imágenes","Eliminar":"Eliminar","Dar entrada":"Dar entrada","Observaciones":"Observaciones","Marcar hecho":"Marcar hecho","Cerrar":"Cerrar","Subir imágenes":"Subir imágenes","Abrir":"Abrir",
-      "Entregado":"Entregado","Lleno":"Lleno","Saldo:":"Saldo:","Ingresos:":"Ingresos:","Egresos:":"Egresos:"
-    },
-    pt:{ "Locaciones":"Locações","Vehículos":"Veículos","Mantenimiento":"Manutenção","Finanzas":"Finanças","Reportes":"Relatórios","Salir":"Sair",
-      "Panel — Alquiler de Autos":"Painel — Aluguel de Carros","Inicio de sesión":"Início de sessão","Acceso interno de la empresa":"Acesso interno da empresa",
-      "Usuario":"Usuário","Contraseña":"Senha","Entrar":"Entrar",
-      "Placa":"Placa","Conductor / Cliente":"Condutor / Cliente","Fecha/Hora salida":"Data/Hora saída","Previsto retorno":"Previsão de retorno","KM salida":"KM saída",
-      "Combustible (salida)":"Combustível (saída)","Observaciones":"Observações","Registrar salida":"Registrar saída",
-      "Fecha/Hora entrada":"Data/Hora entrada","KM entrada":"KM entrada","Combustible (entrada)":"Combustível (entrada)","Observaciones de retorno":"Observações de retorno","Registrar entrada":"Registrar entrada",
-      "Solo aparecen autos “Disponible”.":"Apenas carros “Disponível”.","Solo aparecen autos “En uso”.":"Apenas carros “Em uso”.",
-      "Buscar por placa, marca/modelo o conductor...":"Buscar por placa, marca/modelo ou condutor...","Todos los estados":"Todos os estados",
-      "Disponible":"Disponível","En uso":"Em uso","Atrasado":"Atrasado","Mantenimiento":"Manutenção","Exportar CSV":"Exportar CSV",
-      "Placa / Marca / Modelo":"Placa / Marca / Modelo","Conductor":"Condutor","Salida":"Saída","Previsto":"Previsto","Entrada":"Entrada","KM":"KM","Estado":"Status","Acciones":"Ações",
-      "Registro de vehículo":"Registro de veículo","Marca / Modelo":"Marca / Modelo","Color":"Cor","KM actual":"KM atual","Fecha de registro":"Data de registro",
-      "Placa y Marca/Modelo son obligatorios.":"Placa e Marca/Modelo são obrigatórios.","Guardar/Actualizar vehículo":"Salvar/Atualizar veículo","Vehículos":"Veículos",
-      "Buscar por placa, marca o modelo...":"Buscar por placa, marca ou modelo...","Fecha registro":"Data registro",
-      "Registrar mantenimiento":"Registrar manutenção","Tipo":"Tipo","Preventivo":"Preventivo","Correctivo":"Corretivo","Servicio / Tarea":"Serviço / Tarefa",
-      "Fecha":"Data","Próxima fecha (opcional)":"Próxima data (opcional)","KM (realizado / referencia)":"KM (realizado / referência)","Próximo KM (opcional)":"Próximo KM (opcional)",
-      "Pendiente":"Pendente","Hecho":"Feito","Costo (opcional)":"Custo (opcional)","Observación":"Observação",
-      "Al informar un Costo, se crea/actualiza un Egreso en Finanzas.":"Ao informar um Custo, cria/atualiza uma Saída em Finanças.","Guardar mantenimiento":"Salvar manutenção",
-      "Historial y próximos":"Histórico e próximos","Vencen ≤7 días:":"Vencem ≤7 dias:","Vencen ≤1.000 km:":"Vencem ≤1.000 km:",
-      "Todos":"Todos","Todos los vencimientos":"Todos os vencimentos","Próximos 7 días":"Próximos 7 dias","Próximos 1.000 km":"Próximos 1.000 km",
-      "Servicio":"Serviço","Próxima":"Próxima","Costo":"Custo",
-      "Registrar movimiento":"Registrar movimento","Tipo":"Tipo","Ingreso":"Entrada","Egreso":"Saída","Monto":"Valor","Placa (opcional)":"Placa (opcional)",
-      "Categoría":"Categoria","Alquiler":"Aluguel","Combustible":"Combustível","Multa":"Multa","Peaje":"Pedágio","Compra":"Compra","Otro":"Outro","Concepto / Nota":"Descrição / Nota",
-      "El Asistente no puede ver el historial completo; solo sus propios registros.":"O Assistente não pode ver o histórico completo; apenas seus próprios registros.",
-      "Guardar movimiento":"Salvar movimento","Resumen y listado":"Resumo e lista","Ingresos + Egresos":"Entradas + Saídas","Todas las placas":"Todas as placas",
-      "Indicadores rápidos":"Indicadores rápidos","Autos disponibles":"Carros disponíveis","En uso":"Em uso","Atrasados":"Atrasados","En mantenimiento":"Em manutenção",
-      "Desde":"De","Hasta":"Até","Aplicar":"Aplicar","Limpiar":"Limpar",
-      "Ingresos totales (filtrado)":"Entradas totais (filtro)","Egresos totales (filtrado)":"Saídas totais (filtro)","Ganancia líquida":"Lucro líquido",
-      "Editar":"Editar","Imágenes":"Imagens","Eliminar":"Excluir","Dar entrada":"Dar entrada","Observaciones":"Observações","Marcar hecho":"Marcar feito","Cerrar":"Fechar","Subir imágenes":"Enviar imagens","Abrir":"Abrir",
-      "Entregado":"Entregue","Lleno":"Cheio","Saldo:":"Saldo:","Ingresos:":"Entradas:","Egresos:":"Saídas:"
-    }
-  };
-  const $ = sel => document.querySelector(sel);
-  function t(s){ const d=I18N[window.appLang]||I18N.es; return d[s]||s; }
-  function applyStaticI18N(){
-    document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent=t(el.textContent.trim()); });
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{ const ph=el.getAttribute('placeholder'); if(ph) el.setAttribute('placeholder',t(ph)); });
-    const lo=$("#btnLogout"); if(lo) lo.title=t("Salir");
-    applyDataLabels();
-  }
-  function applyDataLabels(){
-    document.querySelectorAll('#list .grid.rowline').forEach(r=>{const c=r.children;if(c.length>=8){c[0].dataset.label=t('Placa / Marca / Modelo');c[1].dataset.label=t('Conductor');c[2].dataset.label=t('Salida');c[3].dataset.label=t('Previsto');c[4].dataset.label=t('Entrada');c[5].dataset.label=t('KM');c[6].dataset.label=t('Estado');c[7].dataset.label=t('Acciones');}});
-    document.querySelectorAll('#frotaList .grid.rowline').forEach(r=>{const c=r.children;if(c.length>=7){c[0].dataset.label=t('Placa / Marca / Modelo');c[1].dataset.label=t('Color');c[2].dataset.label=t('KM');c[3].dataset.label=t('Fecha registro');c[4].dataset.label='—';c[5].dataset.label=t('Estado');c[6].dataset.label=t('Acciones');}});
-    document.querySelectorAll('#mList .grid.rowline').forEach(r=>{const c=r.children;if(c.length>=9){c[0].dataset.label=t('Placa / Marca / Modelo');c[1].dataset.label=t('Tipo');c[2].dataset.label=t('Servicio');c[3].dataset.label=t('Fecha');c[4].dataset.label=t('Próxima');c[5].dataset.label=t('KM');c[6].dataset.label=t('Costo');c[7].dataset.label=t('Observación');c[8].dataset.label=t('Acciones');}});
-    document.querySelectorAll('#finList .grid.fin-row').forEach(r=>{const c=r.children;if(c.length>=7){c[0].dataset.label=t('Fecha');c[1].dataset.label=t('Tipo');c[2].dataset.label=t('Placa');c[3].dataset.label=t('Categoría');c[4].dataset.label=t('Concepto');c[5].dataset.label=t('Monto');c[6].dataset.label=t('Acciones');}});
-  }
-  function setLang(lang){ window.appLang=(lang==='pt')?'pt':'es'; localStorage.setItem('appLang',window.appLang); applyStaticI18N(); }
-  document.addEventListener('DOMContentLoaded',()=>{ const sel=$("#langSwitch"); if(sel){ sel.value=window.appLang; sel.onchange=()=>setLang(sel.value);} applyStaticI18N(); });
 </script>
 
 <style>
@@ -129,77 +49,204 @@
   .b-bad{background:#3b0a0a;color:#fca5a5;border:1px solid #4c1111}
   .t-right{text-align:right}
   .hide{display:none}
+
+  /* Toolbar (restaurada) */
   .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
   .toolbar input{max-width:280px}
-  .btn-obs{background:#fbbf24;color:#0b1220;border:0}
-  .btn-obs:hover{filter:brightness(0.95)} .btn-obs:active{transform:translateY(1px)}
+
+ /* Botão Observaciones – preenchido âmbar */
+.btn-obs{
+  background:#fbbf24;
+  color:#0b1220;
+  border:0;
+}
+.btn-obs:hover{ filter:brightness(0.95); }
+.btn-obs:active{ transform:translateY(1px); }
+
+  /* Modal Observaciones (lado a lado) */
   #obsModal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:9999}
   #obsModal .modal-content{background:var(--card);padding:20px;border-radius:12px;max-width:720px;width:92%;box-shadow:0 10px 40px rgba(0,0,0,.4);border:1px solid #1f2937}
   #obsModal h3{margin:0 0 12px 0;color:#fff}
   .notes-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .note-col h4{margin:0 0 8px 0;font-size:14px;color:#e5e7eb}
   .note-box{background:#0b1220;border:1px solid #293042;border-radius:8px;padding:10px;min-height:120px;white-space:pre-wrap;word-break:break-word;color:#e5e7eb}
-  .fin-row{gap:0;padding:6px 8px;border-radius:8px}
-  .fin-ing-row{background:linear-gradient(to right,rgba(34,197,94,.14),transparent 60%);box-shadow:inset 0 0 0 1px rgba(34,197,94,.25)}
-  .fin-egr-row{background:linear-gradient(to right,rgba(239,68,68,.14),transparent 60%);box-shadow:inset 0 0 0 1px rgba(239,68,68,.25)}
-  .fin-ing{color:#22c55e}.fin-egr{color:#ef4444}
-  .role-admin,.role-asesor{display:inline-block;font-size:12px;font-weight:700;padding:4px 8px;border-radius:999px;margin-top:6px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.25)}
-  .role-admin{color:#22c55e}.role-asesor{color:#3b82f6}
-  .btn-img{background:#93c5fd}
-  .thumb{background:#0b1220;border:1px solid #293042;border-radius:10px;padding:8px}
-  .thumb img{width:100%;height:120px;object-fit:cover;border-radius:8px;display:block}
-  .thumb .meta{font-size:12px;color:var(--muted);margin-top:6px;word-break:break-all}
-  .thumb .actions{display:flex;justify-content:space-between;gap:6px;margin-top:8px}
-  @media (max-width:920px){
-    .wrap{padding:0 12px}
-    .header{position:sticky;top:0;z-index:30;background:rgba(0,0,0,.55);backdrop-filter:blur(6px)}
-    .tabs{gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
-    .tabs::-webkit-scrollbar{display:none}
-    .tab{flex:0 0 auto}
-    .toolbar{display:flex;flex-wrap:wrap;gap:8px}
-    .toolbar > *{flex:1 1 180px}
-    button{min-height:44px}
+  @media (max-width:800px){.notes-grid{grid-template-columns:1fr}}
+  
+ /* Linhas da tabela de finanças: remover “furos” do gap e dar um leve acolchoamento */
+.fin-row{
+  gap: 0;                 /* evita os “buracos” entre colunas */
+  padding: 6px 8px;       /* espaço interno para respirar */
+  border-radius: 8px;     /* cantos suaves */
+}
+
+/* Realce suave para Ingreso e Egreso */
+.fin-ing-row{
+  background: linear-gradient(to right, rgba(34,197,94,.14), transparent 60%);
+  box-shadow: inset 0 0 0 1px rgba(34,197,94,.25);
+}
+.fin-egr-row{
+  background: linear-gradient(to right, rgba(239,68,68,.14), transparent 60%);
+  box-shadow: inset 0 0 0 1px rgba(239,68,68,.25);
+}
+
+/* Cor do valor na coluna de Monto */
+.fin-ing{ color:#22c55e; }
+.fin-egr{ color:#ef4444; }
+
+/* === ESTILOS DO PAPEL DO USUÁRIO === */
+.role-admin,
+.role-asesor {
+  display:inline-block;
+  font-size:12px;
+  font-weight:700;
+  padding:4px 8px;
+  border-radius:999px;
+  margin-top:6px;
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.25);
+}
+
+.role-admin { color:#22c55e; }
+.role-asesor { color:#3b82f6; }
+
+/* === Imágenes (vehículos) === */
+.btn-img{ background:#93c5fd } /* parecido com .secondary */
+
+.thumb{ background:#0b1220;border:1px solid #293042;border-radius:10px;padding:8px }
+.thumb img{ width:100%; height:120px; object-fit:cover; border-radius:8px; display:block }
+.thumb .meta{ font-size:12px; color:var(--muted); margin-top:6px; word-break:break-all }
+.thumb .actions{ display:flex; justify-content:space-between; gap:6px; margin-top:8px }
+
+/* =========================
+   MOBILE PACK (cole no fim)
+   ========================= */
+@media (max-width: 920px){
+  .wrap{ padding:0 12px }
+  .header{ position:sticky; top:0; z-index:30; background:rgba(0,0,0,.55); backdrop-filter: blur(6px) }
+  .tabs{ gap:6px; overflow-x:auto; -webkit-overflow-scrolling:touch }
+  .tabs::-webkit-scrollbar{ display:none }
+  .tab{ flex:0 0 auto }
+  .toolbar{ display:flex; flex-wrap:wrap; gap:8px }
+  .toolbar > *{ flex:1 1 180px } /* inputs, selects e botões ocupam linha inteira quando precisar */
+  button{ min-height:44px }      /* área de toque confortável */
+}
+
+/* ===== Locaciones -> cards ===== */
+@media (max-width: 760px){
+  #tab-locacoes .thead{ display:none }
+  #tab-locacoes .grid.rowline{
+    grid-template-columns: 1fr !important;
+    gap:8px; padding:12px; border:1px solid #293042; border-radius:12px; background:rgba(17,24,39,.6)
   }
-  /* Cards mobile usando data-label (sem repetir palavras no conteúdo) */
-  @media (max-width:760px){
-    #tab-locacoes .thead{display:none}
-    #tab-locacoes .grid.rowline{grid-template-columns:1fr !important;gap:8px;padding:12px;border:1px solid #293042;border-radius:12px;background:rgba(17,24,39,.6)}
-    #tab-locacoes .grid.rowline > div{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;position:relative}
-    #tab-locacoes .grid.rowline > div::before{content:attr(data-label);color:var(--muted);font-size:12px;margin-right:10px;flex:0 0 auto}
-    #tab-locacoes .grid.rowline > div:nth-child(8) button{margin-left:8px;margin-top:6px}
+  #tab-locacoes .grid.rowline > div{
+    display:flex; justify-content:space-between; gap:10px; align-items:flex-start
   }
-  @media (max-width:760px){
-    #tab-frota .thead{display:none}
-    #tab-frota .grid.rowline{grid-template-columns:1fr !important;gap:8px;padding:12px;border:1px solid #293042;border-radius:12px;background:rgba(17,24,39,.6)}
-    #tab-frota .grid.rowline > div{display:flex;justify-content:space-between;gap:10px;position:relative}
-    #tab-frota .grid.rowline > div::before{content:attr(data-label);color:var(--muted);font-size:12px;margin-right:10px}
+  #tab-locacoes .grid.rowline > div::before{
+    content: attr(data-label);
+    color: var(--muted); font-size:12px; margin-right:10px; flex:0 0 auto
   }
-  @media (max-width:800px){
-    #tab-mantenimiento .thead{display:none}
-    #tab-mantenimiento .grid.rowline{grid-template-columns:1fr !important;gap:8px;padding:12px;border:1px solid #293042;border-radius:12px;background:rgba(17,24,39,.6)}
-    #tab-mantenimiento .grid.rowline > div{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;position:relative}
-    #tab-mantenimiento .grid.rowline > div::before{content:attr(data-label);color:var(--muted);font-size:12px;margin-right:10px}
+  /* Marcar os labels por posição (1..8) */
+  #tab-locacoes .grid.rowline > div:nth-child(1){ --lbl:"Vehículo" }
+  #tab-locacoes .grid.rowline > div:nth-child(2){ --lbl:"Conductor" }
+  #tab-locacoes .grid.rowline > div:nth-child(3){ --lbl:"Salida" }
+  #tab-locacoes .grid.rowline > div:nth-child(4){ --lbl:"Previsto" }
+  #tab-locacoes .grid.rowline > div:nth-child(5){ --lbl:"Entrada" }
+  #tab-locacoes .grid.rowline > div:nth-child(6){ --lbl:"KM" }
+  #tab-locacoes .grid.rowline > div:nth-child(7){ --lbl:"Estado" }
+  #tab-locacoes .grid.rowline > div:nth-child(8){ --lbl:"" ; justify-content:flex-end }
+  #tab-locacoes .grid.rowline > div{ position:relative }
+  #tab-locacoes .grid.rowline > div::before{ content: var(--lbl) }
+  /* Ações ocupam a linha toda quando quebrar */
+  #tab-locacoes .grid.rowline > div:nth-child(8) button{ margin-left:8px; margin-top:6px }
+}
+
+/* ===== Vehículos -> cards ===== */
+@media (max-width: 760px){
+  #tab-frota .thead{ display:none }
+  #tab-frota .grid.rowline{
+    grid-template-columns:1fr !important;
+    gap:8px; padding:12px; border:1px solid #293042; border-radius:12px; background:rgba(17,24,39,.6)
   }
-  @media (max-width:760px){
-    #tab-finanzas .thead{display:none}
-    #tab-finanzas .grid.fin-row{grid-template-columns:1fr !important;gap:8px;padding:12px;border:1px solid #293042;border-radius:12px}
-    #tab-finanzas .grid.fin-row > div{display:flex;justify-content:space-between;gap:10px;position:relative}
-    #tab-finanzas .grid.fin-row > div::before{content:attr(data-label);color:var(--muted);font-size:12px;margin-right:10px}
+  #tab-frota .grid.rowline > div{ display:flex; justify-content:space-between; gap:10px }
+  #tab-frota .grid.rowline > div::before{
+    color:var(--muted); font-size:12px; margin-right:10px
   }
+  #tab-frota .grid.rowline > div:nth-child(1)::before{ content:"Vehículo" }
+  #tab-frota .grid.rowline > div:nth-child(2)::before{ content:"Color" }
+  #tab-frota .grid.rowline > div:nth-child(3)::before{ content:"KM" }
+  #tab-frota .grid.rowline > div:nth-child(4)::before{ content:"Fecha registro" }
+  #tab-frota .grid.rowline > div:nth-child(5){ display:none } /* coluna “—” some no mobile */
+  #tab-frota .grid.rowline > div:nth-child(6)::before{ content:"Estado" }
+  #tab-frota .grid.rowline > div:nth-child(7){ justify-content:flex-end }
+}
+
+/* ===== Mantenimiento -> cards ===== */
+@media (max-width: 800px){
+  #tab-mantenimiento .thead{ display:none }
+  #tab-mantenimiento .grid.rowline{
+    grid-template-columns:1fr !important;
+    gap:8px; padding:12px; border:1px solid #293042; border-radius:12px; background:rgba(17,24,39,.6)
+  }
+  #tab-mantenimiento .grid.rowline > div{ display:flex; justify-content:space-between; gap:10px; align-items:flex-start }
+  #tab-mantenimiento .grid.rowline > div::before{ color:var(--muted); font-size:12px; margin-right:10px }
+  #tab-mantenimiento .grid.rowline > div:nth-child(1)::before{ content:"Vehículo" }
+  #tab-mantenimiento .grid.rowline > div:nth-child(2)::before{ content:"Tipo" }
+  #tab-mantenimiento .grid.rowline > div:nth-child(3)::before{ content:"Servicio" }
+  #tab-mantenimiento .grid.rowline > div:nth-child(4)::before{ content:"Fecha" }
+  #tab-mantenimiento .grid.rowline > div:nth-child(5)::before{ content:"Próxima" }
+  #tab-mantenimiento .grid.rowline > div:nth-child(6)::before{ content:"KM" }
+  #tab-mantenimiento .grid.rowline > div:nth-child(7)::before{ content:"Costo" }
+  #tab-mantenimiento .grid.rowline > div:nth-child(8)::before{ content:"Observación" }
+  #tab-mantenimiento .grid.rowline > div:nth-child(9){ justify-content:flex-end }
+}
+
+/* ===== Finanzas -> cards ===== */
+@media (max-width: 760px){
+  #tab-finanzas .thead{ display:none }
+  #tab-finanzas .grid.fin-row{
+    grid-template-columns:1fr !important;
+    gap:8px; padding:12px; border:1px solid #293042; border-radius:12px
+  }
+  #tab-finanzas .grid.fin-row > div{ display:flex; justify-content:space-between; gap:10px }
+  #tab-finanzas .grid.fin-row > div::before{ color:var(--muted); font-size:12px; margin-right:10px }
+  #tab-finanzas .grid.fin-row > div:nth-child(1)::before{ content:"Fecha" }
+  #tab-finanzas .grid.fin-row > div:nth-child(2)::before{ content:"Tipo" }
+  #tab-finanzas .grid.fin-row > div:nth-child(3)::before{ content:"Placa" }
+  #tab-finanzas .grid.fin-row > div:nth-child(4)::before{ content:"Categoría" }
+  #tab-finanzas .grid.fin-row > div:nth-child(5)::before{ content:"Concepto" }
+  #tab-finanzas .grid.fin-row > div:nth-child(6){ justify-content:flex-end }
+  #tab-finanzas .grid.fin-row > div:nth-child(6)::before{ content:"Monto" }
+  #tab-finanzas .grid.fin-row > div:nth-child(7){ justify-content:flex-end }
+}
+
+/* ===== Formulários: inputs e selects bem fluidos ===== */
+@media (max-width: 760px){
+  .row{ gap:10px }
+  .col{ flex:1 1 100% }           /* cada campo vira linha */
+  label{ margin:12px 0 6px }
+  .t-right{ text-align:right }
+}
+
+/* ===== Modal Observaciones: já é responsivo, só ajusta espaçamento ===== */
+@media (max-width: 520px){
+  #obsModal .modal-content{ padding:16px }
+  .note-box{ min-height:96px }
+}
+
+  
 </style>
 </head>
-
 <body>
   <!-- LOGIN -->
   <section id="login" class="login">
-    <h1 data-i18n>Inicio de sesión</h1>
-    <div class="muted" data-i18n>Acceso interno de la empresa</div>
-    <label data-i18n>Usuario</label>
+    <h1>Inicio de sesión</h1>
+    <div class="muted">Acceso interno de la empresa</div>
+    <label>Usuario</label>
     <input id="user" autocomplete="username" placeholder="usuario@empresa.com" autocapitalize="none" autocorrect="off" spellcheck="false" />
-    <label data-i18n>Contraseña</label>
+    <label>Contraseña</label>
     <input id="pass" type="password" autocomplete="current-password" placeholder="••••••••" />
     <div class="row" style="margin-top:16px">
-      <button id="btnLogin" data-i18n>Entrar</button>
+      <button id="btnLogin">Entrar</button>
     </div>
   </section>
 
@@ -207,95 +254,89 @@
   <section id="app" class="app hide">
     <div class="header">
       <div>
-        <h1 style="margin:0" data-i18n>Panel — Alquiler de Autos</h1>
-        <div class="muted" data-i18n>Control de vehículos, salidas, entradas, mantenimiento y finanzas</div>
-        <div id="userRole" class="role-admin">Admin</div>
+        <h1 style="margin:0">Panel — Alquiler de Autos</h1>
+        <div class="muted">Control de vehículos, salidas, entradas, mantenimiento y finanzas</div>
+         <div id="userRole" class="role-admin">Admin</div>
       </div>
       <div class="tabs">
-        <div class="tab active" data-tab="locacoes" data-i18n>Locaciones</div>
-        <div class="tab" data-tab="frota" data-i18n>Vehículos</div>
-        <div class="tab" data-tab="mantenimiento" data-i18n>Mantenimiento</div>
-        <div class="tab" data-tab="finanzas" data-i18n>Finanzas</div>
-        <div class="tab" data-tab="relatorios" data-i18n>Reportes</div>
-
-        <!-- seletor de idioma -->
-        <select id="langSwitch" class="ghost" title="Idioma" style="margin-left:8px">
-          <option value="es">ES</option>
-          <option value="pt">PT</option>
-        </select>
-
-        <button class="ghost" id="btnLogout" title="Salir" data-i18n>Salir</button>
+        <div class="tab active" data-tab="locacoes">Locaciones</div>
+        <div class="tab" data-tab="frota">Vehículos</div>
+        <div class="tab" data-tab="mantenimiento">Mantenimiento</div>
+        <div class="tab" data-tab="finanzas">Finanzas</div>
+        <div class="tab" data-tab="relatorios">Reportes</div>
+        <button class="ghost" id="btnLogout" title="Salir">Salir</button>
       </div>
     </div>
-    
-        <!-- LOCAÇÕES -->
+
+    <!-- LOCAÇÕES -->
     <div id="tab-locacoes" class="pad">
       <div class="wrap">
         <div class="row">
           <div class="col card">
-            <h3 style="margin-top:0" data-i18n>Registrar salida</h3>
+            <h3 style="margin-top:0">Registrar salida</h3>
             <div class="row">
-              <div class="col"><label data-i18n>Placa</label><select id="outPlaca"></select></div>
-              <div class="col"><label data-i18n>Conductor / Cliente</label><input id="outMotorista" placeholder="Nombre del conductor" data-i18n-placeholder="Conductor / Cliente" /></div>
-              <div class="col"><label data-i18n>Fecha/Hora salida</label><input id="outData" type="datetime-local" /></div>
-              <div class="col"><label data-i18n>Previsto retorno</label><input id="outPrev" type="datetime-local" /></div>
-              <div class="col"><label data-i18n>KM salida</label><input id="outKm" type="number" min="0" step="1" /></div>
+              <div class="col"><label>Placa</label><select id="outPlaca"></select></div>
+              <div class="col"><label>Conductor / Cliente</label><input id="outMotorista" placeholder="Nombre del conductor" /></div>
+              <div class="col"><label>Fecha/Hora salida</label><input id="outData" type="datetime-local" /></div>
+              <div class="col"><label>Previsto retorno</label><input id="outPrev" type="datetime-local" /></div>
+              <div class="col"><label>KM salida</label><input id="outKm" type="number" min="0" step="1" /></div>
               <div class="col">
-                <label data-i18n>Combustible (salida)</label>
-                <select id="outFuel"><option data-i18n>Lleno</option><option>3/4</option><option>1/2</option><option>1/4</option></select>
+                <label>Combustible (salida)</label>
+                <select id="outFuel"><option>Lleno</option><option>3/4</option><option>1/2</option><option>1/4</option></select>
               </div>
             </div>
-            <label data-i18n>Observaciones</label>
-            <textarea id="outObs" rows="2" placeholder="Accesorios, daños, depósito..." data-i18n-placeholder="Observaciones"></textarea>
+            <label>Observaciones</label>
+            <textarea id="outObs" rows="2" placeholder="Accesorios, daños, depósito..."></textarea>
             <div class="t-right" style="margin-top:8px">
-              <span class="muted" style="float:left" data-i18n>Solo aparecen autos “Disponible”.</span>
-              <button id="btnRegistrarSaida" data-i18n>Registrar salida</button>
+              <span class="muted" style="float:left">Solo aparecen autos “Disponible”.</span>
+              <button id="btnRegistrarSaida">Registrar salida</button>
             </div>
           </div>
 
           <div class="col card">
-            <h3 style="margin-top:0" data-i18n>Registrar entrada</h3>
+            <h3 style="margin-top:0">Registrar entrada</h3>
             <div class="row">
-              <div class="col"><label data-i18n>Placa</label><select id="inPlaca"></select></div>
-              <div class="col"><label data-i18n>Fecha/Hora entrada</label><input id="inData" type="datetime-local" /></div>
-              <div class="col"><label data-i18n>KM entrada</label><input id="inKm" type="number" min="0" step="1" /></div>
+              <div class="col"><label>Placa</label><select id="inPlaca"></select></div>
+              <div class="col"><label>Fecha/Hora entrada</label><input id="inData" type="datetime-local" /></div>
+              <div class="col"><label>KM entrada</label><input id="inKm" type="number" min="0" step="1" /></div>
               <div class="col">
-                <label data-i18n>Combustible (entrada)</label>
-                <select id="inFuel"><option data-i18n>Lleno</option><option>3/4</option><option>1/2</option><option>1/4</option></select>
+                <label>Combustible (entrada)</label>
+                <select id="inFuel"><option>Lleno</option><option>3/4</option><option>1/2</option><option>1/4</option></select>
               </div>
             </div>
-            <label data-i18n>Observaciones de retorno</label>
-            <textarea id="inObs" rows="2" placeholder="Multas, daños, limpieza..." data-i18n-placeholder="Observaciones de retorno"></textarea>
+            <label>Observaciones de retorno</label>
+            <textarea id="inObs" rows="2" placeholder="Multas, daños, limpieza..."></textarea>
             <div class="t-right" style="margin-top:8px">
-              <span class="muted" style="float:left" data-i18n>Solo aparecen autos “En uso”.</span>
-              <button class="secondary" id="btnRegistrarEntrada" data-i18n>Registrar entrada</button>
+              <span class="muted" style="float:left">Solo aparecen autos “En uso”.</span>
+              <button class="secondary" id="btnRegistrarEntrada">Registrar entrada</button>
             </div>
           </div>
         </div>
 
+        <!-- 🔁 Toolbar restaurada (busca + filtro + export) -->
         <div class="card" style="margin-top:16px">
           <div class="toolbar">
-            <input id="q" placeholder="Buscar por placa, marca/modelo o conductor..." data-i18n-placeholder="Buscar por placa, marca/modelo o conductor..." />
+            <input id="q" placeholder="Buscar por placa, marca/modelo o conductor..." />
             <select id="filtroStatus">
-              <option value="" data-i18n>Todos los estados</option>
-              <option data-i18n>Disponible</option>
-              <option data-i18n>En uso</option>
-              <option data-i18n>Atrasado</option>
-              <option data-i18n>Mantenimiento</option>
+              <option value="">Todos los estados</option>
+              <option>Disponible</option>
+              <option>En uso</option>
+              <option>Atrasado</option>
+              <option>Mantenimiento</option>
             </select>
-            <button id="btnExport" data-i18n>Exportar CSV</button>
+            <button id="btnExport">Exportar CSV</button>
           </div>
 
           <div class="grid thead" style="grid-template-columns:1.2fr 1fr .9fr .9fr .9fr 1fr .7fr 260px">
-            <div data-i18n>Placa / Marca / Modelo</div>
-            <div data-i18n>Conductor</div>
-            <div data-i18n>Salida</div>
-            <div data-i18n>Previsto</div>
-            <div data-i18n>Entrada</div>
-            <div data-i18n>KM</div>
-            <div data-i18n>Estado</div>
-            <div class="t-right" data-i18n>Acciones</div>
-          </div>
+  <div>Placa / Marca / Modelo</div>
+  <div>Conductor</div>
+  <div>Salida</div>
+  <div>Previsto</div>
+  <div>Entrada</div>
+  <div>KM</div>
+  <div>Estado</div>
+  <div class="t-right">Acciones</div>
+</div>
           <div id="list"></div>
         </div>
       </div>
@@ -305,30 +346,31 @@
     <div id="tab-frota" class="pad hide">
       <div class="wrap">
         <div class="card">
-          <h3 style="margin-top:0" data-i18n>Registro de vehículo</h3>
+          <h3 style="margin-top:0">Registro de vehículo</h3>
           <div class="row">
-            <div class="col"><label data-i18n>Placa</label><input id="vPlaca" placeholder="ABC1D23" /></div>
-            <div class="col"><label data-i18n>Marca / Modelo</label><input id="vModelo" placeholder="Toyota Corolla 2.0" /></div>
-            <div class="col"><label data-i18n>Color</label><input id="vCor" placeholder="Plata" /></div>
-            <div class="col"><label data-i18n>KM actual</label><input id="vKm" type="number" min="0" step="1" /></div>
-            <div class="col"><label data-i18n>Estado</label>
-              <select id="vStatus"><option data-i18n>Disponible</option><option data-i18n>Atrasado</option><option data-i18n>Mantenimiento</option></select>
+            <div class="col"><label>Placa</label><input id="vPlaca" placeholder="ABC1D23" /></div>
+            <div class="col"><label>Marca / Modelo</label><input id="vModelo" placeholder="Toyota Corolla 2.0" /></div>
+            <div class="col"><label>Color</label><input id="vCor" placeholder="Plata" /></div>
+            <div class="col"><label>KM actual</label><input id="vKm" type="number" min="0" step="1" /></div>
+            <div class="col"><label>Estado</label>
+              <select id="vStatus"><option>Disponible</option><option>Atrasado</option><option>Mantenimiento</option></select>
             </div>
-            <div class="col"><label data-i18n>Fecha de registro</label><input id="vFechaRegistro" type="date" /></div>
+            <div class="col"><label>Fecha de registro</label><input id="vFechaRegistro" type="date" /></div>
           </div>
           <div class="t-right" style="margin-top:8px">
-            <span class="muted" style="float:left" data-i18n>Placa y Marca/Modelo son obligatorios.</span>
-            <button id="btnAddVeiculo" data-i18n>Guardar/Actualizar vehículo</button>
+            <span class="muted" style="float:left">Placa y Marca/Modelo son obligatorios.</span>
+            <button id="btnAddVeiculo">Guardar/Actualizar vehículo</button>
           </div>
         </div>
 
         <div class="card" style="margin-top:16px">
-          <h3 style="margin-top:0" data-i18n>Vehículos</h3>
-          <div class="toolbar">
-            <input id="vQ" placeholder="Buscar por placa, marca o modelo..." data-i18n-placeholder="Buscar por placa, marca o modelo..." />
-          </div>
+          <h3 style="margin-top:0">Vehículos</h3>
+          <!-- 🔎 BUSCADOR DE VEHÍCULOS -->
+					<div class="toolbar">
+  				<input id="vQ" placeholder="Buscar por placa, marca o modelo..." />
+				</div>
           <div class="grid thead">
-            <div data-i18n>Placa / Marca / Modelo</div><div data-i18n>Color</div><div data-i18n>KM</div><div data-i18n>Fecha registro</div><div>—</div><div data-i18n>Estado</div><div class="t-right" data-i18n>Acciones</div>
+            <div>Placa / Marca / Modelo</div><div>Color</div><div>KM</div><div>Fecha registro</div><div>—</div><div>Estado</div><div class="t-right">Acciones</div>
           </div>
           <div id="frotaList"></div>
         </div>
@@ -339,94 +381,94 @@
     <div id="tab-mantenimiento" class="pad hide">
       <div class="wrap">
         <div class="card">
-          <h3 style="margin-top:0" data-i18n>Registrar mantenimiento</h3>
+          <h3 style="margin-top:0">Registrar mantenimiento</h3>
           <div class="row">
-            <div class="col"><label data-i18n>Placa</label><select id="mPlaca"></select></div>
-            <div class="col"><label data-i18n>Tipo</label><select id="mTipo"><option data-i18n>Preventivo</option><option data-i18n>Correctivo</option></select></div>
-            <div class="col"><label data-i18n>Servicio / Tarea</label><input id="mTitulo" placeholder="Cambio de aceite, frenos, etc." data-i18n-placeholder="Servicio / Tarea" /></div>
-            <div class="col"><label data-i18n>Fecha</label><input id="mFecha" type="date" /></div>
-            <div class="col"><label data-i18n>Próxima fecha (opcional)</label><input id="mProx" type="date" /></div>
-            <div class="col"><label data-i18n>KM (realizado / referencia)</label><input id="mKm" type="number" min="0" step="1" /></div>
-            <div class="col"><label data-i18n>Próximo KM (opcional)</label><input id="mProxKm" type="number" min="0" step="1" /></div>
-            <div class="col"><label data-i18n>Estado</label><select id="mEstado"><option data-i18n>Pendiente</option><option data-i18n>Hecho</option></select></div>
-            <div class="col"><label data-i18n>Costo (opcional)</label><input id="mCosto" type="number" step="0.01" min="0" placeholder="0.00" /></div>
+            <div class="col"><label>Placa</label><select id="mPlaca"></select></div>
+            <div class="col"><label>Tipo</label><select id="mTipo"><option>Preventivo</option><option>Correctivo</option></select></div>
+            <div class="col"><label>Servicio / Tarea</label><input id="mTitulo" placeholder="Cambio de aceite, frenos, etc." /></div>
+            <div class="col"><label>Fecha</label><input id="mFecha" type="date" /></div>
+            <div class="col"><label>Próxima fecha (opcional)</label><input id="mProx" type="date" /></div>
+            <div class="col"><label>KM (realizado / referencia)</label><input id="mKm" type="number" min="0" step="1" /></div>
+            <div class="col"><label>Próximo KM (opcional)</label><input id="mProxKm" type="number" min="0" step="1" /></div>
+            <div class="col"><label>Estado</label><select id="mEstado"><option>Pendiente</option><option>Hecho</option></select></div>
+            <div class="col"><label>Costo (opcional)</label><input id="mCosto" type="number" step="0.01" min="0" placeholder="0.00" /></div>
           </div>
-          <label data-i18n>Observación</label>
-          <textarea id="mObs" rows="2" placeholder="Detalle del trabajo o nota." data-i18n-placeholder="Observación"></textarea>
+          <label>Observación</label>
+          <textarea id="mObs" rows="2" placeholder="Detalle del trabajo o nota."></textarea>
           <div class="t-right" style="margin-top:8px">
-            <span class="muted" style="float:left" data-i18n>Al informar un Costo, se crea/actualiza un Egreso en Finanzas.</span>
-            <button id="btnAddMant" data-i18n>Guardar mantenimiento</button>
+            <span class="muted" style="float:left">Al informar un Costo, se crea/actualiza un Egreso en Finanzas.</span>
+            <button id="btnAddMant">Guardar mantenimiento</button>
           </div>
         </div>
 
         <div class="card" style="margin-top:16px">
-          <h3 style="margin-top:0" data-i18n>Historial y próximos</h3>
+          <h3 style="margin-top:0">Historial y próximos</h3>
           <div id="mantIndicators" class="muted" style="margin:6px 0 10px 0">
-            <span class="pill" data-i18n>Vencen ≤7 días: <strong id="ind15">0</strong></span>
-            <span class="pill" data-i18n>Vencen ≤1.000 km: <strong id="ind5km">0</strong></span>
+            <span class="pill">Vencen ≤7 días: <strong id="ind15">0</strong></span>
+            <span class="pill">Vencen ≤1.000 km: <strong id="ind5km">0</strong></span>
           </div>
           <div class="toolbar">
-            <input id="mq" placeholder="Buscar por placa, marca/modelo, servicio..." data-i18n-placeholder="Buscar por placa, marca/modelo, servicio..." />
-            <select id="mfEstado"><option value="" data-i18n>Todos</option><option data-i18n>Pendiente</option><option data-i18n>Hecho</option></select>
+            <input id="mq" placeholder="Buscar por placa, marca/modelo, servicio..." />
+            <select id="mfEstado"><option value="">Todos</option><option>Pendiente</option><option>Hecho</option></select>
             <select id="mfVence" title="Filtrar vencimientos">
-              <option value="" data-i18n>Todos los vencimientos</option>
-              <option value="7d" data-i18n>Próximos 7 días</option>
-              <option value="1000km" data-i18n>Próximos 1.000 km</option>
+              <option value="">Todos los vencimientos</option>
+              <option value="7d">Próximos 7 días</option>
+              <option value="1000km">Próximos 1.000 km</option>
             </select>
           </div>
           <div class="grid thead" style="grid-template-columns:1fr .8fr 1.2fr .9fr .9fr .8fr .8fr 1.2fr 220px">
-            <div data-i18n>Placa / Marca / Modelo</div><div data-i18n>Tipo</div><div data-i18n>Servicio</div><div data-i18n>Fecha</div><div data-i18n>Próxima</div><div data-i18n>KM</div><div data-i18n>Costo</div><div data-i18n>Observación</div><div class="t-right" data-i18n>Acciones</div>
+            <div>Placa / Marca / Modelo</div><div>Tipo</div><div>Servicio</div><div>Fecha</div><div>Próxima</div><div>KM</div><div>Costo</div><div>Observación</div><div class="t-right">Acciones</div>
           </div>
           <div id="mList"></div>
         </div>
       </div>
     </div>
-    
-        <!-- FINANZAS -->
+
+    <!-- FINANZAS -->
     <div id="tab-finanzas" class="pad hide">
       <div class="wrap">
         <div class="card">
-          <h3 style="margin-top:0" data-i18n>Registrar movimiento</h3>
+          <h3 style="margin-top:0">Registrar movimiento</h3>
           <div class="row">
-            <div class="col"><label data-i18n>Fecha</label><input id="finFecha" type="date" /></div>
-            <div class="col"><label data-i18n>Tipo</label><select id="finTipo"><option data-i18n>Ingreso</option><option data-i18n>Egreso</option></select></div>
-            <div class="col"><label data-i18n>Monto</label><input id="finMonto" type="number" step="0.01" min="0" placeholder="0.00" /></div>
-            <div class="col"><label data-i18n>Placa (opcional)</label><select id="finPlaca"></select></div>
-            <div class="col"><label data-i18n>Categoría</label>
+            <div class="col"><label>Fecha</label><input id="finFecha" type="date" /></div>
+            <div class="col"><label>Tipo</label><select id="finTipo"><option>Ingreso</option><option>Egreso</option></select></div>
+            <div class="col"><label>Monto</label><input id="finMonto" type="number" step="0.01" min="0" placeholder="0.00" /></div>
+            <div class="col"><label>Placa (opcional)</label><select id="finPlaca"></select></div>
+            <div class="col"><label>Categoría</label>
               <select id="finCat">
-                <option data-i18n>Alquiler</option><option data-i18n>Mantenimiento</option><option data-i18n>Combustible</option>
-                <option data-i18n>Multa</option><option data-i18n>Peaje</option><option data-i18n>Compra</option><option data-i18n>Otro</option>
+                <option>Alquiler</option><option>Mantenimiento</option><option>Combustible</option>
+                <option>Multa</option><option>Peaje</option><option>Compra</option><option>Otro</option>
               </select>
             </div>
           </div>
-          <label data-i18n>Concepto / Nota</label>
-          <input id="finNota" placeholder="Detalle del movimiento (ej. Alquiler Juan Pérez - 3 días)" data-i18n-placeholder="Concepto / Nota" />
+          <label>Concepto / Nota</label>
+          <input id="finNota" placeholder="Detalle del movimiento (ej. Alquiler Juan Pérez - 3 días)" />
           <div class="t-right" style="margin-top:8px">
-            <span class="muted" style="float:left" data-i18n>El Asistente no puede ver el historial completo; solo sus propios registros.</span>
-            <button id="btnFinGuardar" data-i18n>Guardar movimiento</button>
+            <span class="muted" style="float:left">El Asistente no puede ver el historial completo; solo sus propios registros.</span>
+            <button id="btnFinGuardar">Guardar movimiento</button>
           </div>
         </div>
 
         <div class="card" style="margin-top:16px">
-          <h3 style="margin-top:0" data-i18n>Resumen y listado</h3>
+          <h3 style="margin-top:0">Resumen y listado</h3>
           <div class="toolbar">
-            <input id="finQ" placeholder="Buscar por placa, concepto o categoría..." data-i18n-placeholder="Buscar por placa, concepto o categoría..." />
+            <input id="finQ" placeholder="Buscar por placa, concepto o categoría..." />
             <input id="finDesde" type="date" title="Desde" />
             <input id="finHasta" type="date" title="Hasta" />
-            <select id="finFiltroTipo" title="Tipo"><option value="" data-i18n>Ingresos + Egresos</option><option data-i18n>Ingreso</option><option data-i18n>Egreso</option></select>
-            <select id="finFiltroPlaca" title="Placa"><option value="" data-i18n>Todas las placas</option></select>
-            <button id="btnFinExport" data-i18n>Exportar CSV</button>
+            <select id="finFiltroTipo" title="Tipo"><option value="">Ingresos + Egresos</option><option>Ingreso</option><option>Egreso</option></select>
+            <select id="finFiltroPlaca" title="Placa"><option value="">Todas las placas</option></select>
+            <button id="btnFinExport">Exportar CSV</button>
           </div>
 
           <div class="grid thead" style="grid-template-columns:.9fr .8fr .8fr 1fr 1.6fr .8fr 160px">
-            <div data-i18n>Fecha</div><div data-i18n>Tipo</div><div data-i18n>Placa</div><div data-i18n>Categoría</div><div data-i18n>Concepto</div><div class="t-right" data-i18n>Monto</div><div class="t-right" data-i18n>Acciones</div>
+            <div>Fecha</div><div>Tipo</div><div>Placa</div><div>Categoría</div><div>Concepto</div><div class="t-right">Monto</div><div class="t-right">Acciones</div>
           </div>
           <div id="finList"></div>
 
           <div class="muted" style="margin-top:12px">
-            <span data-i18n>Ingresos:</span> <strong id="finSumIn">0.00</strong> • 
-            <span data-i18n>Egresos:</span> <strong id="finSumOut">0.00</strong> • 
-            <span data-i18n>Saldo:</span> <strong id="finSaldo">0.00</strong>
+            Ingresos: <strong id="finSumIn">0.00</strong> • 
+            Egresos: <strong id="finSumOut">0.00</strong> • 
+            Saldo: <strong id="finSaldo">0.00</strong>
           </div>
         </div>
       </div>
@@ -436,80 +478,85 @@
     <div id="tab-relatorios" class="pad hide">
       <div class="wrap">
         <div class="card">
-          <h3 style="margin-top:0" data-i18n>Indicadores rápidos</h3>
+          <h3 style="margin-top:0">Indicadores rápidos</h3>
           <div class="row">
-            <div class="col"><div class="card"><div class="muted" data-i18n>Autos disponibles</div><div id="mDisponiveis" style="font-size:28px;font-weight:700">0</div></div></div>
-            <div class="col"><div class="card"><div class="muted" data-i18n>En uso</div><div id="mEmUso" style="font-size:28px;font-weight:700">0</div></div></div>
-            <div class="col"><div class="card"><div class="muted" data-i18n>Atrasados</div><div id="mAtrasados" style="font-size:28px;font-weight:700">0</div></div></div>
-            <div class="col"><div class="card"><div class="muted" data-i18n>En mantenimiento</div><div id="mMantenimiento" style="font-size:28px;font-weight:700">0</div></div></div>
+            <div class="col"><div class="card"><div class="muted">Autos disponibles</div><div id="mDisponiveis" style="font-size:28px;font-weight:700">0</div></div></div>
+            <div class="col"><div class="card"><div class="muted">En uso</div><div id="mEmUso" style="font-size:28px;font-weight:700">0</div></div></div>
+            <div class="col"><div class="card"><div class="muted">Atrasados</div><div id="mAtrasados" style="font-size:28px;font-weight:700">0</div></div></div>
+            <div class="col"><div class="card"><div class="muted">En mantenimiento</div><div id="mMantenimiento" style="font-size:28px;font-weight:700">0</div></div></div>
           </div>
 
           <div class="toolbar" style="margin-top:12px">
             <input id="repDesde" type="date" title="Desde" />
             <input id="repHasta" type="date" title="Hasta" />
-            <button id="repAplicar" data-i18n>Aplicar</button>
-            <button class="ghost" id="repLimpiar" data-i18n>Limpiar</button>
+            <button id="repAplicar">Aplicar</button>
+            <button class="ghost" id="repLimpiar">Limpiar</button>
           </div>
 
           <div class="row" style="margin-top:12px">
-            <div class="col"><div class="card"><div class="muted" data-i18n>Ingresos totales (filtrado)</div><div id="mIngTotal" style="font-size:28px;font-weight:700">0.00</div></div></div>
-            <div class="col"><div class="card"><div class="muted" data-i18n>Egresos totales (filtrado)</div><div id="mEgrTotal" style="font-size:28px;font-weight:700">0.00</div></div></div>
-            <div class="col"><div class="card"><div class="muted" data-i18n>Ganancia líquida</div><div id="mGanancia" style="font-size:28px;font-weight:700">0.00</div></div></div>
-          </div>
+  <div class="col"><div class="card"><div class="muted">Ingresos totales (filtrado)</div><div id="mIngTotal" style="font-size:28px;font-weight:700">0.00</div></div></div>
+  <div class="col"><div class="card"><div class="muted">Egresos totales (filtrado)</div><div id="mEgrTotal" style="font-size:28px;font-weight:700">0.00</div></div></div>
+  <div class="col"><div class="card"><div class="muted">Ganancia líquida</div><div id="mGanancia" style="font-size:28px;font-weight:700">0.00</div></div></div>
+</div>
+
+        
         </div>
       </div>
     </div>
   </section>
 
-  <!-- MODAL DE OBSERVACIONES -->
+  <!-- MODAL DE OBSERVACIONES (lado a lado) -->
   <div id="obsModal">
     <div class="modal-content">
-      <h3 data-i18n>Observaciones</h3>
+      <h3>Observaciones</h3>
       <div class="notes-grid">
         <div class="note-col">
-          <h4 data-i18n>Salida</h4>
+          <h4>Salida</h4>
           <div id="obsSalida" class="note-box">—</div>
         </div>
         <div class="note-col">
-          <h4 data-i18n>Entrada</h4>
+          <h4>Entrada</h4>
           <div id="obsEntrada" class="note-box">—</div>
         </div>
       </div>
       <div class="t-right" style="margin-top:12px">
-        <button class="ghost" id="btnObsClose" data-i18n>Cerrar</button>
+        <button class="ghost" id="btnObsClose">Cerrar</button>
       </div>
     </div>
   </div>
-
-  <!-- MODAL DE FOTOS -->
-  <div id="photosModal" style="position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:9999">
-    <div class="card" style="max-width:920px;width:94%;border:1px solid #1f2937;border-radius:12px;padding:16px;background:var(--card)">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-        <h3 style="margin:0" data-i18n>Imágenes</h3>
-        <button class="ghost" id="pmClose" data-i18n>Cerrar</button>
-      </div>
-
-      <div class="row" style="margin-top:12px">
-        <div class="col">
-          <label data-i18n>Seleccionar imágenes (JPG/PNG, máx. 20MB cada)</label>
-          <input id="pmFiles" type="file" accept="image/*" multiple />
-        </div>
-        <div class="col t-right" style="align-self:flex-end">
-          <button id="pmUpload" class="secondary" data-i18n>Subir imágenes</button>
-        </div>
-      </div>
-
-      <div class="muted" id="pmHint" style="margin-top:8px">
-        Admin puede eliminar imágenes. Asistente puede subir y ver.
-      </div>
-
-      <div id="pmGrid" class="thumb-grid" style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px"></div>
+  <!-- MODAL DE FOTOS DO VEÍCULO -->
+<div id="photosModal" style="position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:9999">
+  <div class="card" style="max-width:920px;width:94%;border:1px solid #1f2937;border-radius:12px;padding:16px;background:var(--card)">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <h3 style="margin:0">Imágenes del vehículo — <span id="pmPlaca">—</span></h3>
+      <button class="ghost" id="pmClose">Cerrar</button>
     </div>
+
+    <div class="row" style="margin-top:12px">
+      <div class="col">
+        <label>Seleccionar imágenes (JPG/PNG, máx. 20MB cada)</label>
+        <input id="pmFiles" type="file" accept="image/*" multiple />
+      </div>
+      <div class="col t-right" style="align-self:flex-end">
+        <button id="pmUpload" class="secondary">Subir imágenes</button>
+      </div>
+    </div>
+
+    <div class="muted" id="pmHint" style="margin-top:8px">
+      Admin puede eliminar imágenes. Asistente puede subir y ver.
+    </div>
+
+    <div id="pmGrid" class="thumb-grid" style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px"></div>
   </div>
-  
-  <script>
+</div>
+      <script>
 /* ===== Helpers ===== */
-function parseNumber(val){ if(!val) return null; return Number(String(val).trim().replace(/\./g,"").replace(",",".")); }
+function parseNumber(val){
+  if(!val) return null;
+  // remove espaços, troca vírgula por ponto e remove separador de milhar
+  return Number(String(val).trim().replace(/\./g,"").replace(",","."));
+}
+
 const $ = sel => document.querySelector(sel);
 function esc(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;") }
 function fmtDTISOToLocal(v){ if(!v) return "—"; const d=new Date(v); return d.toLocaleString(); }
@@ -527,8 +574,12 @@ function toTZLocalValue(dtLocalInput){ if(!dtLocalInput) return null; const d=ne
 
 /* ===== Sessão / Perfil ===== */
 const session = { user: null, role: null, company_id: null, user_id: null };
+
 async function fetchProfile(userId){
-  const { data, error } = await supa.from('profiles').select('role, company_id, email').eq('id', userId).single();
+  const { data, error } = await supa
+    .from('profiles')
+    .select('role, company_id, email')
+    .eq('id', userId).single();
   if(error){ alert("Perfil no encontrado / sin acceso: " + error.message); return null; }
   return data;
 }
@@ -550,11 +601,31 @@ async function refreshCombos(){
 
 /* ===== Veículos ===== */
 async function loadVehicles(){
-  const { data, error } = await supa.from('vehicles').select('*').eq('company_id', session.company_id).order('placa', {ascending:true});
-  if(error){ alert("Error al cargar vehículos: " + error.message); return; }
+  const { data, error } = await supa
+    .from('vehicles')
+    .select('*')
+    .eq('company_id', session.company_id)
+    .order('placa', {ascending:true});
+
+  if(error){
+    alert("Error al cargar vehículos: " + error.message);
+    return;
+  }
+
+  // texto do buscador
   const vq = (document.getElementById("vQ")?.value || "").toLowerCase().trim();
-  const filtered = (data || []).filter(v=>{ if(!vq) return true; const hay = `${v.placa||""} ${v.modelo||""} ${v.cor||""}`.toLowerCase(); return hay.includes(vq); });
-  const box = document.getElementById("frotaList"); if(!box) return; box.innerHTML = "";
+
+  // aplica filtro local (placa, modelo e cor)
+  const filtered = (data || []).filter(v=>{
+    if(!vq) return true;
+    const hay = `${v.placa||""} ${v.modelo||""} ${v.cor||""}`.toLowerCase();
+    return hay.includes(vq);
+  });
+
+  const box = document.getElementById("frotaList");
+  if(!box) return;
+  box.innerHTML = "";
+
   filtered.forEach(v=>{
     const line=document.createElement("div");
     line.className="grid rowline";
@@ -566,47 +637,69 @@ async function loadVehicles(){
   <div class="kv">—</div>
   <div>${badge(v.status==="En uso"?"En uso":v.status)}</div>
   <div class="t-right">
-    <button class="ghost" data-act="edit" data-placa="${esc(v.placa)}" data-i18n>Editar</button>
-    <button class="secondary btn-img" data-act="photos" data-placa="${esc(v.placa)}" data-i18n>Imágenes</button>
-    <button class="danger" data-act="del" data-placa="${esc(v.placa)}" data-i18n>Eliminar</button>
+    <button class="ghost" data-act="edit" data-placa="${esc(v.placa)}">Editar</button>
+    <button class="secondary btn-img" data-act="photos" data-placa="${esc(v.placa)}">Imágenes</button>
+    <button class="danger" data-act="del" data-placa="${esc(v.placa)}">Eliminar</button>
   </div>`;
     box.appendChild(line);
   });
-  box.querySelectorAll("button").forEach((btn) => {
-    const act = btn.getAttribute("data-act");
-    const placa = btn.getAttribute("data-placa");
-    if (act === "edit") {
-      btn.onclick = async () => {
-        const { data } = await supa.from('vehicles').select('*').eq('company_id', session.company_id).eq('placa', placa).single();
-        if (!data) return;
-        document.getElementById("vPlaca").value = data.placa;
-        document.getElementById("vModelo").value = data.modelo || "";
-        document.getElementById("vCor").value = data.cor || "";
-        document.getElementById("vKm").value = data.km || "";
-        document.getElementById("vStatus").value = data.status || "Disponible";
-        document.getElementById("vFechaRegistro").value = data.fecha_registro || "";
-        activateTab("frota");
-      };
-    }
-    if (act === "photos") { btn.onclick = () => { openVehicleImages(placa); }; }
-    if (act === "del") {
-      btn.onclick = async () => {
-        if (!confirm(t("Eliminar")+" vehículo?")) return;
-        const { error } = await supa.from('vehicles').delete().eq('company_id', session.company_id).eq('placa', placa);
-        if (error) { alert("Error al eliminar: " + error.message); return; }
-        await supa.rpc('fn_audit', { p_action: 'vehicle_delete', p_payload: { placa } });
-        await refreshCombos(); await loadVehicles(); await refreshKPIs();
-      };
-    }
-  });
-  applyDataLabels();
-}
+
+  // ações dos botões
+box.querySelectorAll("button").forEach((btn) => {
+  const act = btn.getAttribute("data-act");
+  const placa = btn.getAttribute("data-placa");
+
+  if (act === "edit") {
+    btn.onclick = async () => {
+      const { data } = await supa
+        .from('vehicles')
+        .select('*')
+        .eq('company_id', session.company_id)
+        .eq('placa', placa)
+        .single();
+      if (!data) return;
+      document.getElementById("vPlaca").value = data.placa;
+      document.getElementById("vModelo").value = data.modelo || "";
+      document.getElementById("vCor").value = data.cor || "";
+      document.getElementById("vKm").value = data.km || "";
+      document.getElementById("vStatus").value = data.status || "Disponible";
+      document.getElementById("vFechaRegistro").value = data.fecha_registro || "";
+      activateTab("frota");
+    };
+  }
+
+  if (act === "photos") {
+    btn.onclick = () => { openVehicleImages(placa); };
+  }
+
+  if (act === "del") {
+    btn.onclick = async () => {
+      if (!confirm("¿Eliminar vehículo?")) return;
+      const { error } = await supa
+        .from('vehicles')
+        .delete()
+        .eq('company_id', session.company_id)
+        .eq('placa', placa);
+      if (error) { alert("Error al eliminar: " + error.message); return; }
+     await supa.rpc('fn_audit', { p_action: 'vehicle_delete', p_payload: { placa } });
+      await refreshCombos();
+      await loadVehicles();
+      await refreshKPIs();
+    }; // ← fecha o handler do clique
+  }   // ← fecha o if (act === "del")
+});    // ← fecha o forEach
+
+} // ← fecha a função loadVehicles()
 
 $("#btnAddVeiculo") && ($("#btnAddVeiculo").onclick = async ()=>{
   const placa=$("#vPlaca").value.trim().toUpperCase();
   const modelo=$("#vModelo").value.trim();
-  if(!placa||!modelo){ alert(t("Placa y Marca/Modelo son obligatorios.")); return; }
-  const payload={ company_id:session.company_id, placa, modelo, cor:$("#vCor").value.trim()||null, km: parseNumber($("#vKm").value), status:$("#vStatus").value, fecha_registro:$("#vFechaRegistro").value||null };
+  if(!placa||!modelo){ alert("Placa y Marca/Modelo son obligatorios."); return; }
+  const payload={ company_id:session.company_id, placa, modelo,
+    cor:$("#vCor").value.trim()||null,
+    km: parseNumber($("#vKm").value),
+    status:$("#vStatus").value,
+    fecha_registro:$("#vFechaRegistro").value||null };
   const { error } = await supa.from('vehicles').upsert(payload, { onConflict: 'company_id,placa' });
   if(error){ alert("Error al guardar vehículo: "+error.message); return; }
   await supa.rpc('fn_audit', { p_action:'vehicle_upsert', p_payload:payload });
@@ -616,36 +709,69 @@ $("#btnAddVeiculo") && ($("#btnAddVeiculo").onclick = async ()=>{
 
 /* ===== Locações ===== */
 function isLate(prev){ return prev ? (new Date() > new Date(prev)) : false; }
+
 async function loadRentals(){
+  // lê filtros
   const q = ($("#q")?.value || "").toLowerCase().trim();
   const fStatus = $("#filtroStatus")?.value || "";
+
   const [{ data: locs }, { data: veics }] = await Promise.all([
     supa.from('rentals').select('*').eq('company_id', session.company_id).order('data_saida', { ascending:false }),
     supa.from('vehicles').select('placa,modelo,status').eq('company_id', session.company_id)
   ]);
-  const box = $("#list"); if(!box) return; box.innerHTML = "";
+
+  const box = $("#list"); 
+  if(!box) return; 
+  box.innerHTML = "";
+
+  // monta rows das locações com status calculado
   let rows = (locs || []).map(l => {
     const status = l.data_entrada ? "Entregado" : (isLate(l.prev_retorno) ? "Atrasado" : "En uso");
     return { kind:"loc", status, l };
   });
-  (veics || []).filter(v => v.status === "Mantenimiento").forEach(v => rows.push({ kind:"maint", status:"Mantenimiento", v }));
+
+  // inclui veículos em manutenção como linhas "virtuais"
+  (veics || [])
+    .filter(v => v.status === "Mantenimiento")
+    .forEach(v => rows.push({ kind:"maint", status:"Mantenimiento", v }));
+
+  // aplica filtro de busca (q) e de status (fStatus)
   rows = rows.filter(r => {
     if(r.kind === "loc"){
-      const l = r.l; const text = `${l.placa||""} ${l.modelo||""} ${l.motorista||""}`.toLowerCase();
-      const okQ = q ? text.includes(q) : true; const okS = fStatus ? (r.status === fStatus) : true; return okQ && okS;
+      const l = r.l;
+      const text = `${l.placa||""} ${l.modelo||""} ${l.motorista||""}`.toLowerCase();
+      const okQ = q ? text.includes(q) : true;
+      const okS = fStatus ? (r.status === fStatus) : true;
+      return okQ && okS;
     }else{
-      const v = r.v; const text = `${v.placa||""} ${v.modelo||""}`.toLowerCase();
-      const okQ = q ? text.includes(q) : true; const okS = fStatus ? (fStatus === "Mantenimiento") : true; return okQ && okS;
+      // manutenção: busca por placa/modelo, e status precisa ser "Mantenimiento" se filtrado
+      const v = r.v;
+      const text = `${v.placa||""} ${v.modelo||""}`.toLowerCase();
+      const okQ = q ? text.includes(q) : true;
+      const okS = fStatus ? (fStatus === "Mantenimiento") : true;
+      return okQ && okS;
     }
   });
+
+  // render
   rows.forEach(r => {
-    const div = document.createElement("div"); div.className = "grid rowline";
+    const div = document.createElement("div");
+    div.className = "grid rowline";
+
     if (r.kind === "loc") {
-      const l = r.l; div.style.gridTemplateColumns = "1.2fr 1fr .9fr .9fr .9fr 1fr .7fr 260px";
+      const l = r.l;
+
+      // 8 colunas (inclui a coluna de KM)
+      div.style.gridTemplateColumns = "1.2fr 1fr .9fr .9fr .9fr 1fr .7fr 260px";
+
       const sKm = (l.km_salida!=null && !isNaN(l.km_salida)) ? Number(l.km_salida) : null;
       const eKm = (l.km_entrada!=null && !isNaN(l.km_entrada)) ? Number(l.km_entrada) : null;
       const dKm = (sKm!=null && eKm!=null) ? (eKm - sKm) : null;
-      const kmInfo = (sKm==null && eKm==null) ? "—" : (sKm!=null && eKm==null) ? `${sKm} / —` : (sKm==null && eKm!=null) ? `— / ${eKm}` : `${sKm} / ${eKm} (${dKm>=0?'+':''}${dKm} km)`;
+      const kmInfo = (sKm==null && eKm==null) ? "—"
+                    : (sKm!=null && eKm==null) ? `${sKm} / —`
+                    : (sKm==null && eKm!=null) ? `— / ${eKm}`
+                    : `${sKm} / ${eKm} (${dKm>=0?'+':''}${dKm} km)`;
+
       div.innerHTML = `
         <div><strong>${esc(l.placa)}</strong> <span class="kv">— ${esc(l.modelo||"")}</span></div>
         <div>${esc(l.motorista||"—")}</div>
@@ -655,62 +781,102 @@ async function loadRentals(){
         <div>${kmInfo}</div>
         <div>${badge(r.status)}</div>
         <div class="t-right">
-          ${!l.data_entrada ? `<button class="secondary" data-act="entrada" data-id="${l.id}" data-i18n>Dar entrada</button>` : ""}
-          <button class="btn-obs" data-act="obs" data-id="${l.id}" data-i18n>Observaciones</button>
-          <button class="danger" data-act="delLoc" data-id="${l.id}" data-i18n>Eliminar</button>
+          ${!l.data_entrada ? `<button class="secondary" data-act="entrada" data-id="${l.id}">Dar entrada</button>` : ""}
+          <button class="btn-obs" data-act="obs" data-id="${l.id}">Observaciones</button>
+          <button class="danger" data-act="delLoc" data-id="${l.id}">Eliminar</button>
         </div>`;
     } else {
-      const v = r.v; div.style.gridTemplateColumns = "1.2fr 1fr .9fr .9fr .9fr 1fr .7fr 260px";
+      const v = r.v;
+      // linha "virtual" de manutenção
+      div.style.gridTemplateColumns = "1.2fr 1fr .9fr .9fr .9fr 1fr .7fr 260px";
       div.innerHTML = `
         <div><strong>${esc(v.placa)}</strong> <span class="kv">— ${esc(v.modelo||"")}</span></div>
         <div>—</div><div>—</div><div>—</div><div>—</div>
         <div>—</div>
         <div>${badge("Mantenimiento")}</div>
-        <div class="t-right"><button class="ghost" data-act="goEdit" data-placa="${esc(v.placa)}" data-i18n>Editar</button></div>`;
+        <div class="t-right"><button class="ghost" data-act="goEdit" data-placa="${esc(v.placa)}">Editar</button></div>`;
     }
+
     box.appendChild(div);
   });
+
+  // ações dos botões
   box.querySelectorAll("button").forEach(btn=>{
     const act = btn.getAttribute("data-act");
     if(act === "entrada"){
       btn.onclick = async ()=>{ 
         const id = btn.getAttribute("data-id");
-        const { data:l } = await supa.from('rentals').select('*').eq('company_id', session.company_id).eq('id', id).single();
+        const { data:l } = await supa.from('rentals').select('*')
+          .eq('company_id', session.company_id).eq('id', id).single();
         if(l){ $("#inPlaca").value = l.placa; document.getElementById("tab-locacoes").scrollIntoView({behavior:"smooth"}); }
       };
     }
     if(act === "delLoc"){
-      btn.onclick = async ()=>{ 
-        const id = btn.getAttribute("data-id");
-        if(!confirm(t("Eliminar")+" locación?")) return;
-        const { data: loc, error: e1 } = await supa.from('rentals').select('placa, data_entrada').eq('company_id', session.company_id).eq('id', id).single();
-        if(e1){ alert("No se pudo leer la locación: " + e1.message); return; }
-        const { error: e2 } = await supa.from('rentals').delete().eq('company_id', session.company_id).eq('id', id);
-        if(e2){ alert("Error al eliminar: " + e2.message); return; }
-        if(loc && !loc.data_entrada && loc.placa){
-          await supa.from('vehicles').update({ status: 'Disponible' }).eq('company_id', session.company_id).eq('placa', loc.placa);
-        }
-        await supa.rpc('fn_audit', { p_action:'rental_delete', p_payload:{ id }});
-        await refreshCombos(); await loadRentals(); await loadVehicles(); await refreshKPIs();
-      };
+  btn.onclick = async ()=>{ 
+    const id = btn.getAttribute("data-id");
+    if(!confirm("¿Eliminar esta locación?")) return;
+
+    // 1) buscar placa e se estava aberta
+    const { data: loc, error: e1 } = await supa
+      .from('rentals')
+      .select('placa, data_entrada')
+      .eq('company_id', session.company_id)
+      .eq('id', id)
+      .single();
+
+    if(e1){ alert("No se pudo leer la locación: " + e1.message); return; }
+
+    // 2) deletar a locação
+    const { error: e2 } = await supa
+      .from('rentals')
+      .delete()
+      .eq('company_id', session.company_id)
+      .eq('id', id);
+
+    if(e2){ alert("Error al eliminar: " + e2.message); return; }
+
+    // 3) se estava aberta, liberar o veículo
+    if(loc && !loc.data_entrada && loc.placa){
+      await supa
+        .from('vehicles')
+        .update({ status: 'Disponible' })
+        .eq('company_id', session.company_id)
+        .eq('placa', loc.placa);
     }
+
+    // 4) auditoria + recarregar tudo (inclui veículos!)
+    await supa.rpc('fn_audit', { p_action:'rental_delete', p_payload:{ id }});
+    await refreshCombos();
+    await loadRentals();
+    await loadVehicles();   // <— acrescentado
+    await refreshKPIs();
+  };
+}
     if(act === "goEdit"){
-      btn.onclick = ()=>{ const placa = btn.getAttribute("data-placa"); $("#vPlaca").value = placa; activateTab("frota"); };
+      btn.onclick = ()=>{ 
+        const placa = btn.getAttribute("data-placa"); 
+        $("#vPlaca").value = placa; 
+        activateTab("frota"); 
+      };
     }
     if(act === "obs"){
       btn.onclick = async ()=>{
         const id = btn.getAttribute("data-id");
-        const { data:l } = await supa.from('rentals').select('obs_salida,obs_entrada').eq('company_id', session.company_id).eq('id', id).single();
+        const { data:l } = await supa.from('rentals')
+          .select('obs_salida,obs_entrada')
+          .eq('company_id', session.company_id)
+          .eq('id', id).single();
         $("#obsSalida").textContent  = l?.obs_salida  || "—";
         $("#obsEntrada").textContent = l?.obs_entrada || "—";
         $("#obsModal").style.display = "flex";
       };
     }
   });
-  applyDataLabels();
 }
 
-/* ===== Entrada / Saída ===== */
+// === Guardar/Actualizar vehículo (placa globalmente única) ===
+
+
 $("#btnRegistrarEntrada") && ($("#btnRegistrarEntrada").onclick = async ()=>{
   const placa=$("#inPlaca").value; const data=$("#inData").value; const km = parseNumber($("#inKm").value);
   if(!placa||!data){ alert("Placa y Fecha/Hora de entrada son obligatorios."); return; }
@@ -727,24 +893,77 @@ $("#btnRegistrarEntrada") && ($("#btnRegistrarEntrada").onclick = async ()=>{
   await refreshCombos(); await loadRentals(); await loadVehicles(); await refreshKPIs();
 });
 
+// === Registrar salida ===
 document.getElementById("btnRegistrarSaida")?.addEventListener("click", async ()=>{
   const placa = $("#outPlaca").value;
   const motorista = $("#outMotorista").value.trim();
   const dataSaida = $("#outData").value;
-  if (!placa || !motorista || !dataSaida) { alert("Placa, Conductor y Fecha/Hora de salida son obligatorios."); return; }
-  const { data: v, error: ev } = await supa.from('vehicles').select('*').eq('company_id', session.company_id).eq('placa', placa).single();
-  if (ev || !v) { alert("Vehículo no encontrado."); return; }
-  if (v.status !== 'Disponible') { alert("Vehículo no disponible."); return; }
-  const payload = { company_id: session.company_id, placa, modelo: v.modelo || null, motorista, data_saida: toTZLocalValue(dataSaida), prev_retorno: toTZLocalValue($("#outPrev").value) || null, km_salida: parseNumber($("#outKm").value) ?? (v.km ?? null), fuel_salida: $("#outFuel").value, obs_salida: $("#outObs").value.trim() || null };
+
+  if (!placa || !motorista || !dataSaida) {
+    alert("Placa, Conductor y Fecha/Hora de salida son obligatorios.");
+    return;
+  }
+
+  // Verifica veículo disponível
+  const { data: v, error: ev } = await supa
+    .from('vehicles')
+    .select('*')
+    .eq('company_id', session.company_id)
+    .eq('placa', placa)
+    .single();
+
+  if (ev || !v) {
+    alert("Vehículo no encontrado.");
+    return;
+  }
+  if (v.status !== 'Disponible') {
+    alert("Vehículo no disponible.");
+    return;
+  }
+
+  const payload = {
+    company_id: session.company_id,
+    placa,
+    modelo: v.modelo || null,
+    motorista,
+    data_saida: toTZLocalValue(dataSaida),
+    prev_retorno: toTZLocalValue($("#outPrev").value) || null,
+    km_salida: parseNumber($("#outKm").value) ?? (v.km ?? null),
+    fuel_salida: $("#outFuel").value,
+    obs_salida: $("#outObs").value.trim() || null
+  };
+
   const { error } = await supa.from('rentals').insert(payload);
-  if (error) { alert("Error al registrar salida: " + error.message); return; }
-  await supa.from('vehicles').update({ status: 'En uso' }).eq('company_id', session.company_id).eq('placa', placa);
+  if (error) {
+    alert("Error al registrar salida: " + error.message);
+    return;
+  }
+
+  // Marca veículo "En uso"
+  await supa
+    .from('vehicles')
+    .update({ status: 'En uso' })
+    .eq('company_id', session.company_id)
+    .eq('placa', placa);
+
+  // Auditoria
   await supa.rpc('fn_audit', { p_action:'rental_create', p_payload: payload });
-  $("#outMotorista").value = ""; $("#outKm").value = ""; $("#outObs").value = ""; $("#outFuel").value = "Lleno"; $("#outPrev").value = "";
-  await refreshCombos(); await loadRentals(); await loadVehicles(); await refreshKPIs();
+
+  // Limpa formulário
+  $("#outMotorista").value = "";
+  $("#outKm").value = "";
+  $("#outObs").value = "";
+  $("#outFuel").value = "Lleno";
+  $("#outPrev").value = "";
+
+  // Atualiza listas e KPIs
+  await refreshCombos();
+  await loadRentals();
+  await loadVehicles();
+  await refreshKPIs();
 });
 
-/* Export CSV */
+/* Export CSV (Locações + veículos em manutenção) */
 $("#btnExport") && ($("#btnExport").onclick = async ()=>{
   const [{ data: locs }, { data: veics }] = await Promise.all([
     supa.from('rentals').select('*').eq('company_id', session.company_id),
@@ -761,7 +980,10 @@ $("#btnExport") && ($("#btnExport").onclick = async ()=>{
 });
 
 /* ===== Mantenimiento ===== */
-const DAYS_THRESHOLD = 7, KM_THRESHOLD = 1000;
+// thresholds: 7 días y 1000 km (como solicitado)
+const DAYS_THRESHOLD = 7;
+const KM_THRESHOLD = 1000;
+
 async function loadMaint(){
   const { data: ms, error } = await supa.from('maintenances').select('*').eq('company_id', session.company_id).order('fecha', { ascending:false });
   if(error){ alert("Error al cargar mantenimientos: " + error.message); return; }
@@ -784,14 +1006,18 @@ async function loadMaint(){
       }
     }
   });
-  const i15=$("#ind15"); if(i15) i15.textContent=cntDays;
-  const i5=$("#ind5km"); if(i5) i5.textContent=cntKm;
+  $("#ind15").textContent=cntDays; $("#ind5km").textContent=cntKm;
 
-  const q=($("#mq")?.value||"").toLowerCase(); const fs=$("#mfEstado")?.value||""; const fvence=$("#mfVence")?.value||"";
+  const q=($("#mq")?.value||"").toLowerCase();
+  const fs=$("#mfEstado")?.value||"";
+  const fvence=$("#mfVence")?.value||"";
   const box=$("#mList"); if(!box) return; box.innerHTML="";
+
   (ms||[]).filter(m=>{
-    const v=byPlaca[m.placa]; const text=`${m.placa} ${v?.modelo||""} ${m.titulo||""} ${m.tipo||""}`.toLowerCase();
-    const okQ=q?text.includes(q):true; const okF=fs?(fs===m.estado):true;
+    const v=byPlaca[m.placa];
+    const text=`${m.placa} ${v?.modelo||""} ${m.titulo||""} ${m.tipo||""}`.toLowerCase();
+    const okQ=q?text.includes(q):true;
+    const okF=fs?(fs===m.estado):true;
     let okV=true;
     if(fvence==="7d"){
       if(!(m.estado==="Pendiente"&&m.prox_fecha)){ okV=false; } else {
@@ -810,10 +1036,17 @@ async function loadMaint(){
     const v=byPlaca[m.placa];
     const dleft=m.prox_fecha?Math.ceil((new Date(m.prox_fecha+"T00:00:00") - new Date().setHours(0,0,0,0))/86400000):null;
     const diffKm=(m.prox_km!=null && v && typeof v.km==="number")?(Number(m.prox_km)-Number(v.km)):null;
-    const line=document.createElement("div");
-    line.className="grid rowline";
-    line.style.gridTemplateColumns="1fr .8fr 1.2fr .9fr .9fr .8fr .8fr 1.2fr 220px";
+    let rowCls="grid rowline"; // manter estilo da lista
+    const imminent=(dleft!=null&&dleft<=Math.min(3,DAYS_THRESHOLD))||(diffKm!=null&&diffKm<=Math.min(100,KM_THRESHOLD));
+    const soon=!imminent&&((dleft!=null&&dleft<=DAYS_THRESHOLD)||(diffKm!=null&&diffKm<=KM_THRESHOLD));
+    if(imminent) rowCls+="";
+    else if(soon) rowCls+="";
+
     const kmCol = `${m.km??"—"}${m.prox_km!=null?` <span class="kv">(→ ${m.prox_km})</span>`:""} ${m.estado==='Pendiente'&&diffKm!=null&&diffKm<=KM_THRESHOLD?`<span class="kv">(faltan ${Math.max(0,diffKm)} km)</span>`:''}`;
+
+    const line=document.createElement("div");
+    line.className=rowCls;
+    line.style.gridTemplateColumns="1fr .8fr 1.2fr .9fr .9fr .8fr .8fr 1.2fr 220px";
     line.innerHTML=`
       <div><strong>${esc(m.placa)}</strong> <span class="kv">— ${esc(v?.modelo||"—")}</span></div>
       <div><span class="${m.tipo==='Preventivo'?'badge b-ok':'badge b-warn'}">${esc(m.tipo)}</span>${m.estado==='Hecho'?' <span class="kv">✅ Hecho</span>':''}</div>
@@ -824,12 +1057,13 @@ async function loadMaint(){
       <div>${(m.costo!=null && !isNaN(m.costo)) ? Number(m.costo).toFixed(2) : "—"}</div>
       <div class="kv">${esc(m.obs||"—")}</div>
       <div class="t-right">
-        <button class="secondary" data-act="editMant" data-id="${m.id}" data-i18n>Editar</button>
-        ${m.estado==="Pendiente"?`<button class="ghost" data-act="doneMant" data-id="${m.id}" data-i18n>Marcar hecho</button>`:""}
-        <button class="danger" data-act="delMant" data-id="${m.id}" data-i18n>Eliminar</button>
+        <button class="secondary" data-act="editMant" data-id="${m.id}">Editar</button>
+        ${m.estado==="Pendiente"?`<button class="ghost" data-act="doneMant" data-id="${m.id}">Marcar hecho</button>`:""}
+        <button class="danger" data-act="delMant" data-id="${m.id}">Eliminar</button>
       </div>`;
     box.appendChild(line);
   });
+
   box.querySelectorAll("button").forEach(btn=>{
     const act=btn.getAttribute("data-act"); const id=btn.getAttribute("data-id");
     if(act==="editMant"){
@@ -840,100 +1074,235 @@ async function loadMaint(){
         $("#mFecha").value=M.fecha||""; $("#mProx").value=M.prox_fecha||"";
         $("#mKm").value=M.km??""; $("#mProxKm").value=M.prox_km??"";
         $("#mEstado").value=M.estado||"Pendiente"; $("#mCosto").value=M.costo??"";
-        $("#mObs").value=M.obs||""; $("#btnAddMant").setAttribute("data-editing", id);
+        $("#mObs").value=M.obs||"";
+        $("#btnAddMant").setAttribute("data-editing", id);
         activateTab("mantenimiento");
       };
     }
     if(act==="doneMant"){
       btn.onclick=async ()=>{ const { error } = await supa.from('maintenances').update({ estado:'Hecho' }).eq('company_id', session.company_id).eq('id', id);
         if(error){ alert("Error al marcar hecho: "+error.message); return; }
-        await supa.rpc('fn_audit', { p_action:'maintenance_done', p_payload:{ id }}); await loadMaint();
+        await supa.rpc('fn_audit', { p_action:'maintenance_done', p_payload:{ id }});
+        await loadMaint();
       };
     }
     if(act==="delMant"){
       btn.onclick=async ()=>{
-        if(!confirm(t("Eliminar")+" mantenimiento?")) return;
-        const { data: M } = await supa.from('maintenances').select('fin_id').eq('company_id', session.company_id).eq('id', id).single();
+        if(!confirm("¿Eliminar mantenimiento?")) return;
+        const { data: M } = await supa
+      .from('maintenances')
+      .select('fin_id') // opcional: antes era '*'
+      .eq('company_id', session.company_id)
+      .eq('id', id)
+      .single();
+
         if (M?.fin_id) {
-          let del = supa.from('finances').delete().eq('company_id', session.company_id).eq('id', M.fin_id);
-          if (session.role !== 'admin') { del = del.eq('created_by', session.user_id); }
-          await del;
-        }
+  let del = supa.from('finances').delete()
+    .eq('company_id', session.company_id)
+    .eq('id', M.fin_id);
+
+  // Se NÃO for admin, só apaga se a finanza foi criada por este usuário
+  if (session.role !== 'admin') {
+    del = del.eq('created_by', session.user_id);
+  }
+
+  await del;
+}
         const { error } = await supa.from('maintenances').delete().eq('company_id', session.company_id).eq('id', id);
         if(error){ alert("Error al eliminar: "+error.message); return; }
-        await supa.rpc('fn_audit', { p_action:'maintenance_delete', p_payload:{ id }}); await loadMaint(); await loadFinances();
+        await supa.rpc('fn_audit', { p_action:'maintenance_delete', p_payload:{ id }});
+        await loadMaint(); await loadFinances();
       };
     }
   });
-  applyDataLabels();
 }
 
 $("#btnAddMant") && ($("#btnAddMant").onclick = async ()=>{
-  const payload = { company_id: session.company_id, placa: $("#mPlaca").value, tipo: $("#mTipo").value, titulo: $("#mTitulo").value.trim(), fecha: $("#mFecha").value || null, prox_fecha: $("#mProx").value || null, km: parseNumber($("#mKm").value), prox_km: parseNumber($("#mProxKm").value), estado: $("#mEstado").value, obs: ($("#mObs").value || "").trim() || null, costo: parseNumber($("#mCosto").value) };
+  const payload = {
+    company_id: session.company_id,
+    placa: $("#mPlaca").value,
+    tipo: $("#mTipo").value,
+    titulo: $("#mTitulo").value.trim(),
+    fecha: $("#mFecha").value || null,
+    prox_fecha: $("#mProx").value || null,
+    km: parseNumber($("#mKm").value),
+    prox_km: parseNumber($("#mProxKm").value),
+    estado: $("#mEstado").value,
+    obs: ($("#mObs").value || "").trim() || null,
+    costo: parseNumber($("#mCosto").value)
+  };
   if (!payload.placa || !payload.titulo) { alert("Placa y Servicio/Tarea son obligatorios."); return; }
+
   const editing = $("#btnAddMant").getAttribute("data-editing");
   const canWriteFin = (session.role === 'admin' || session.role === 'asesor');
+
   try {
     if (editing) {
-      const { data: before, error: e0 } = await supa.from('maintenances').select('fin_id').eq('company_id', session.company_id).eq('id', editing).single();
+      // 1) Ler fin_id atual
+      const { data: before, error: e0 } = await supa
+        .from('maintenances')
+        .select('fin_id')
+        .eq('company_id', session.company_id)
+        .eq('id', editing)
+        .single();
       if (e0) throw e0;
       const prevFinId = before?.fin_id || null;
-      const { error: e1 } = await supa.from('maintenances').update(payload).eq('company_id', session.company_id).eq('id', editing);
+
+      // 2) Atualizar manutenção
+      const { error: e1 } = await supa
+        .from('maintenances')
+        .update(payload)
+        .eq('company_id', session.company_id)
+        .eq('id', editing);
       if (e1) throw e1;
+
       await supa.rpc('fn_audit', { p_action:'maintenance_update', p_payload:{ id: editing, ...payload } });
+
+      // 3) Sincronizar finanças (admin ou asesor)
       if (canWriteFin) {
         if (payload.costo && !isNaN(payload.costo)) {
           if (prevFinId) {
-            const finUpd = { fecha: payload.fecha || todayYMD(), tipo: 'Egreso', monto: Number(payload.costo), placa: payload.placa, categoria: 'Mantenimiento', nota: payload.titulo + (payload.obs ? ` — ${payload.obs}` : '') };
-            await supa.from('finances').update(finUpd).eq('company_id', session.company_id).eq('id', prevFinId);
+            const finUpd = {
+              fecha: payload.fecha || todayYMD(),
+              tipo: 'Egreso',
+              monto: Number(payload.costo),
+              placa: payload.placa,
+              categoria: 'Mantenimiento',
+              nota: payload.titulo + (payload.obs ? ` — ${payload.obs}` : '')
+            };
+            await supa.from('finances')
+              .update(finUpd)
+              .eq('company_id', session.company_id)
+              .eq('id', prevFinId);
           } else {
-            const fin = { company_id: session.company_id, fecha: payload.fecha || todayYMD(), tipo: 'Egreso', monto: Number(payload.costo), placa: payload.placa, categoria: 'Mantenimiento', nota: payload.titulo + (payload.obs ? ` — ${payload.obs}` : ''), created_by: session.user_id };
-            const { data: f, error: e2 } = await supa.from('finances').insert(fin).select('id').single();
+            const fin = {
+              company_id: session.company_id,
+              fecha: payload.fecha || todayYMD(),
+              tipo: 'Egreso',
+              monto: Number(payload.costo),
+              placa: payload.placa,
+              categoria: 'Mantenimiento',
+              nota: payload.titulo + (payload.obs ? ` — ${payload.obs}` : ''),
+              created_by: session.user_id
+            };
+            const { data: f, error: e2 } = await supa
+              .from('finances').insert(fin).select('id').single();
             if (e2) throw e2;
-            await supa.from('maintenances').update({ fin_id: f.id }).eq('company_id', session.company_id).eq('id', editing);
+
+            await supa.from('maintenances')
+              .update({ fin_id: f.id })
+              .eq('company_id', session.company_id)
+              .eq('id', editing);
           }
         } else if (prevFinId) {
-          await supa.from('finances').delete().eq('company_id', session.company_id).eq('id', prevFinId);
-          await supa.from('maintenances').update({ fin_id: null }).eq('company_id', session.company_id).eq('id', editing);
+          // custo removido → apaga egreso e desvincula
+          await supa.from('finances')
+            .delete()
+            .eq('company_id', session.company_id)
+            .eq('id', prevFinId);
+          await supa.from('maintenances')
+            .update({ fin_id: null })
+            .eq('company_id', session.company_id)
+            .eq('id', editing);
         }
       }
+
       $("#btnAddMant").removeAttribute("data-editing");
     } else {
-      const { data: ins, error: e1 } = await supa.from('maintenances').insert(payload).select('id').single();
+      // INSERT manutenção
+      const { data: ins, error: e1 } = await supa
+        .from('maintenances')
+        .insert(payload)
+        .select('id')
+        .single();
       if (e1) throw e1;
+
       await supa.rpc('fn_audit', { p_action:'maintenance_create', p_payload:{ id: ins.id, ...payload } });
+
+      // Criar finanças se houver custo e permissão
       if (payload.costo && !isNaN(payload.costo) && canWriteFin) {
-        const fin = { company_id: session.company_id, fecha: payload.fecha || todayYMD(), tipo: 'Egreso', monto: Number(payload.costo), placa: payload.placa, categoria: 'Mantenimiento', nota: payload.titulo + (payload.obs ? ` — ${payload.obs}` : ''), created_by: session.user_id };
-        const { data: f, error: e2 } = await supa.from('finances').insert(fin).select('id').single();
+        const fin = {
+          company_id: session.company_id,
+          fecha: payload.fecha || todayYMD(),
+          tipo: 'Egreso',
+          monto: Number(payload.costo),
+          placa: payload.placa,
+          categoria: 'Mantenimiento',
+          nota: payload.titulo + (payload.obs ? ` — ${payload.obs}` : ''),
+          created_by: session.user_id
+        };
+        const { data: f, error: e2 } = await supa
+          .from('finances').insert(fin).select('id').single();
         if (e2) throw e2;
-        await supa.from('maintenances').update({ fin_id: f.id }).eq('company_id', session.company_id).eq('id', ins.id);
+
+        await supa.from('maintenances')
+          .update({ fin_id: f.id })
+          .eq('company_id', session.company_id)
+          .eq('id', ins.id);
       }
     }
-    $("#mTitulo").value = ""; $("#mFecha").value = ""; $("#mProx").value = ""; $("#mKm").value = ""; $("#mProxKm").value = ""; $("#mEstado").value = "Pendiente"; $("#mCosto").value = ""; $("#mObs").value = "";
-    await loadMaint(); await loadFinances();
-  } catch (err) { alert("Error al guardar mantenimiento: " + (err?.message || err)); }
+
+    // Limpar form e recarregar
+    $("#mTitulo").value = "";
+    $("#mFecha").value = "";
+    $("#mProx").value = "";
+    $("#mKm").value = "";
+    $("#mProxKm").value = "";
+    $("#mEstado").value = "Pendiente";
+    $("#mCosto").value = "";
+    $("#mObs").value = "";
+
+    await loadMaint();
+    await loadFinances();
+  } catch (err) {
+    alert("Error al guardar mantenimiento: " + (err?.message || err));
+  }
 });
 
 /* ===== Finanzas ===== */
 function sumFin(items){ let inSum=0,outSum=0; (items||[]).forEach(x=>{ const v=Number(x.monto)||0; if(x.tipo==='Ingreso') inSum+=v; else outSum+=v; }); return { inSum, outSum, saldo: inSum-outSum }; }
 async function loadFinances(){
   const isAdmin = (session.role === 'admin');
-  const q = ($("#finQ")?.value||"").toLowerCase(); const tpo = $("#finFiltroTipo")?.value||""; const fPlaca = $("#finFiltroPlaca")?.value||""; const d = $("#finDesde")?.value||""; const h = $("#finHasta")?.value||"";
-  let { data, error } = await supa.from('finances').select('*').eq('company_id', session.company_id).order('fecha', { ascending:false });
+
+  const q = ($("#finQ")?.value||"").toLowerCase();
+  const t = $("#finFiltroTipo")?.value||"";
+  const fPlaca = $("#finFiltroPlaca")?.value||"";
+  const d = $("#finDesde")?.value||"";
+  const h = $("#finHasta")?.value||"";
+
+  // A RLS vai devolver:
+  // - admin: tudo da company_id
+  // - asesor: só os registros dele (created_by = auth.uid())
+  let { data, error } = await supa
+    .from('finances')
+    .select('*')
+    .eq('company_id', session.company_id)
+    .order('fecha', { ascending:false });
+
   if(error){ alert("Error al cargar finanzas: "+error.message); return; }
+
   let items=(data||[]).filter(x=>{
     const okQ = q ? ((x.nota||"").toLowerCase().includes(q) || (x.categoria||"").toLowerCase().includes(q) || (x.placa||"").toLowerCase().includes(q)) : true;
-    const okT = tpo ? (x.tipo===tpo) : true; const okP = fPlaca ? (x.placa===fPlaca) : true; const okD = d ? ((x.fecha||"")>=d) : true; const okH = h ? ((x.fecha||"")<=h) : true; return okQ && okT && okP && okD && okH;
+    const okT = t ? (x.tipo===t) : true;
+    const okP = fPlaca ? (x.placa===fPlaca) : true;
+    const okD = d ? ((x.fecha||"")>=d) : true;
+    const okH = h ? ((x.fecha||"")<=h) : true;
+    return okQ && okT && okP && okD && okH;
   });
+
   const sums = sumFin(items);
   $("#finSumIn").textContent = sums.inSum.toFixed(2);
   $("#finSumOut").textContent = sums.outSum.toFixed(2);
   $("#finSaldo").textContent = sums.saldo.toFixed(2);
+
   const box=$("#finList"); if(!box) return; box.innerHTML="";
+
   items.forEach(x=>{
     const row = document.createElement("div");
     row.className = "grid fin-row " + (x.tipo === 'Ingreso' ? 'fin-ing-row' : 'fin-egr-row');
     row.style.gridTemplateColumns = ".9fr .8fr .8fr 1fr 1.6fr .8fr 160px";
+
+    // mostrar botão Excluir só para admin (ou, se quiser, também para o autor)
     const canDelete = (isAdmin || x.created_by === session.user_id);
     row.innerHTML=`
       <div>${x.fecha?x.fecha.split("-").reverse().join("/"):"—"}</div>
@@ -943,22 +1312,32 @@ async function loadFinances(){
       <div>${esc(x.nota||"—")}</div>
       <div class="t-right ${x.tipo==='Ingreso'?'fin-ing':'fin-egr'}">${Number(x.monto||0).toFixed(2)}</div>
       <div class="t-right">
-        ${canDelete ? `<button class="ghost" data-act="finDel" data-id="${x.id}" data-i18n>Eliminar</button>` : ``}
+        ${canDelete ? `<button class="ghost" data-act="finDel" data-id="${x.id}">Eliminar</button>` : ``}
       </div>`;
+
     box.appendChild(row);
   });
+
+  // handler de delete (só existirá para admin)
   box.querySelectorAll('[data-act="finDel"]').forEach(b=>{
-    b.onclick=async ()=>{ const id=b.getAttribute("data-id"); await supa.from('finances').delete().eq('company_id', session.company_id).eq('id', id); await loadFinances(); };
+    b.onclick=async ()=>{
+      const id=b.getAttribute("data-id");
+      await supa.from('finances').delete().eq('company_id', session.company_id).eq('id', id);
+      await loadFinances();
+    };
   });
-  applyDataLabels();
 }
 $("#btnFinGuardar") && ($("#btnFinGuardar").onclick = async ()=>{
-  if(session.role!=='admin' && session.role!=='asesor'){ alert("No tienes permisos para registrar finanzas."); return; }
+  if(session.role!=='admin' && session.role!=='asesor'){ 
+  alert("No tienes permisos para registrar finanzas."); 
+  return; 
+}
   const fecha=$("#finFecha").value||""; const tipo=$("#finTipo").value; const monto=parseNumber($("#finMonto").value) || 0;
   const placa=$("#finPlaca").value||null; const cat=$("#finCat").value||"Otro"; const nota=$("#finNota").value.trim()||null;
   if(!fecha){ alert("La fecha es obligatoria."); return; }
   if(!monto||monto<=0){ alert("El monto debe ser mayor que 0."); return; }
-  const payload={ company_id:session.company_id, fecha, tipo, monto, placa, categoria:cat, nota, created_by: session.user_id };
+  const payload={ company_id:session.company_id, fecha, tipo, monto, placa, categoria:cat, nota, created_by: session.user_id   // <= NOVO
+  };
   const { error } = await supa.from('finances').insert(payload);
   if(error){ alert("Error al guardar: "+error.message); return; }
   $("#finMonto").value=""; $("#finNota").value=""; await loadFinances();
@@ -975,16 +1354,29 @@ $("#btnFinExport") && ($("#btnFinExport").onclick = async ()=>{
 /* ===== KPIs ===== */
 async function refreshKPIs(){
   const { data, error } = await supa.from('v_kpis').select('*').maybeSingle();
-  if(!error && data){ $("#mDisponiveis").textContent=data.disp??0; $("#mEmUso").textContent=data.em_uso??0; $("#mAtrasados").textContent=data.atrasados??0; $("#mMantenimiento").textContent=data.manut??0; }
+  if(!error && data){
+    $("#mDisponiveis").textContent=data.disp??0;
+    $("#mEmUso").textContent=data.em_uso??0;
+    $("#mAtrasados").textContent=data.atrasados??0;
+    $("#mMantenimiento").textContent=data.manut??0;
+  }
   if(session.role==='admin'){
-    const desde=$("#repDesde")?.value||""; const hasta=$("#repHasta")?.value||"";
-    const { data: fin } = await supa.from('finances').select('fecha,tipo,monto').eq('company_id', session.company_id);
-    const items=(fin||[]).filter(x=>{ const okD=desde?((x.fecha||"")>=desde):true; const okH=hasta?((x.fecha||"")<=hasta):true; return okD&&okH; });
-    const s=sumFin(items);
-    $("#mIngTotal").textContent = s.inSum.toFixed(2);
-    $("#mEgrTotal").textContent = s.outSum.toFixed(2);
-    $("#mGanancia").textContent = s.saldo.toFixed(2);
-  } else { $("#mIngTotal").textContent="0.00"; $("#mEgrTotal").textContent="0.00"; $("#mGanancia").textContent="0.00"; }
+  const desde=$("#repDesde")?.value||""; const hasta=$("#repHasta")?.value||"";
+  const { data: fin } = await supa.from('finances').select('fecha,tipo,monto').eq('company_id', session.company_id);
+  const items=(fin||[]).filter(x=>{ 
+    const okD=desde?((x.fecha||"")>=desde):true; 
+    const okH=hasta?((x.fecha||"")<=hasta):true; 
+    return okD&&okH; 
+  });
+  const s=sumFin(items);
+  $("#mIngTotal").textContent = s.inSum.toFixed(2);
+  $("#mEgrTotal").textContent = s.outSum.toFixed(2);
+  $("#mGanancia").textContent = s.saldo.toFixed(2);   // << NOVO
+} else { 
+  $("#mIngTotal").textContent="0.00"; 
+  $("#mEgrTotal").textContent="0.00"; 
+  $("#mGanancia").textContent="0.00";                  // << NOVO
+}
 }
 
 /* ===== Tabs ===== */
@@ -1000,64 +1392,137 @@ function activateTab(name){
 }
 
 /* ===== Modal Observaciones ===== */
-(()=>{ const closeBtn=$("#btnObsClose"); const modal=$("#obsModal"); if(closeBtn) closeBtn.onclick=()=>{ modal.style.display="none"; }; document.addEventListener('keydown',(e)=>{ if(e.key==="Escape") modal.style.display="none"; }); modal?.addEventListener("click",(e)=>{ if(e.target.id==="obsModal") modal.style.display="none"; }); })();
+(() => {
+  const closeBtn = document.getElementById("btnObsClose");
+  const modal = document.getElementById("obsModal");
+  if(closeBtn) closeBtn.onclick = ()=>{ modal.style.display="none"; };
+  document.addEventListener('keydown', (e)=>{ if(e.key==="Escape") modal.style.display="none"; });
+  modal?.addEventListener("click",(e)=>{ if(e.target.id==="obsModal") modal.style.display="none"; });
+})();
 
-/* ===== Fotos (Supabase Storage) ===== */
+// ====== Fotos de veículo (Supabase Storage) ======
 const PHOTO_BUCKET = 'vehicle-photos';
-let currentPhotosPlaca = null;
-function photoPrefix(placa){ return `${session.company_id}/${placa}/`; }
+let currentPhotosPlaca = null; // placa aberta no modal
+
+function photoPrefix(placa){
+  // Pasta: company_id/PLACA/
+  return `${session.company_id}/${placa}/`;
+}
+
 async function listVehicleImages(placa){
   const prefix = photoPrefix(placa);
-  const { data: files, error } = await supa.storage.from(PHOTO_BUCKET).list(prefix, { limit: 100, sortBy: { column: 'updated_at', order: 'desc' } });
+  const { data: files, error } = await supa.storage
+    .from(PHOTO_BUCKET)
+    .list(prefix, { limit: 100, sortBy: { column: 'updated_at', order: 'desc' } });
   if(error){ alert('No se pudo listar imágenes: ' + error.message); return []; }
   return files || [];
 }
-async function signedUrl(path){ const { data, error } = await supa.storage.from(PHOTO_BUCKET).createSignedUrl(path, 3600); if(error) return null; return data?.signedUrl || null; }
+
+async function signedUrl(path){
+  const { data, error } = await supa.storage.from(PHOTO_BUCKET).createSignedUrl(path, 3600);
+  if(error) return null;
+  return data?.signedUrl || null;
+}
+
 async function renderPhotosGrid(placa){
-  const grid = document.getElementById('pmGrid'); grid.innerHTML = '<div class="muted">Cargando...</div>';
-  const files = await listVehicleImages(placa); if(!files.length){ grid.innerHTML = '<div class="muted">Sin imágenes todavía.</div>'; return; }
+  const grid = document.getElementById('pmGrid');
+  grid.innerHTML = '<div class="muted">Cargando...</div>';
+  const files = await listVehicleImages(placa);
+  if(!files.length){ grid.innerHTML = '<div class="muted">Sin imágenes todavía.</div>'; return; }
+
   grid.innerHTML = '';
   for (const f of files){
-    const path = photoPrefix(placa) + f.name; const url = await signedUrl(path);
-    const card = document.createElement('div'); card.className = 'thumb';
+    const path = photoPrefix(placa) + f.name;
+    const url = await signedUrl(path);
+    const card = document.createElement('div');
+    card.className = 'thumb';
     card.innerHTML = `
       <img src="${esc(url || '')}" alt="${esc(f.name)}" />
       <div class="meta">${esc(f.name)}</div>
       <div class="actions">
-        <a href="${esc(url || '#')}" target="_blank" class="ghost" style="text-decoration:none;padding:6px 8px;border:1px solid #334155;border-radius:8px" data-i18n>Abrir</a>
-        ${session.role==='admin' ? `<button class="danger" data-del="${esc(path)}" data-i18n>Eliminar</button>` : ``}
-      </div>`;
+        <a href="${esc(url || '#')}" target="_blank" class="ghost" style="text-decoration:none;padding:6px 8px;border:1px solid #334155;border-radius:8px">Abrir</a>
+        ${session.role==='admin' ? `<button class="danger" data-del="${esc(path)}">Eliminar</button>` : ``}
+      </div>
+    `;
     grid.appendChild(card);
   }
+
+  // deletar (só admin)
   if(session.role === 'admin'){
     grid.querySelectorAll('button[data-del]').forEach(btn=>{
-      btn.onclick = async ()=>{ const path = btn.getAttribute('data-del'); if(!confirm(t('Eliminar')+' imagen?')) return;
-        const { error } = await supa.storage.from(PHOTO_BUCKET).remove([path]); if(error){ alert('No se pudo eliminar: ' + error.message); return; } await renderPhotosGrid(placa);
+      btn.onclick = async ()=>{
+        const path = btn.getAttribute('data-del');
+        if(!confirm('¿Eliminar imagen?')) return;
+        const { error } = await supa.storage.from(PHOTO_BUCKET).remove([path]);
+        if(error){ alert('No se pudo eliminar: ' + error.message); return; }
+        await renderPhotosGrid(placa);
       };
     });
   }
 }
-function openVehicleImages(placa){ currentPhotosPlaca = placa; $("#pmHint").textContent = (session.role==='admin')? 'Admin puede eliminar imágenes. Asistente puede subir y ver.' : 'Asistente puede subir y ver.'; document.getElementById('pmGrid').innerHTML=''; document.getElementById('photosModal').style.display='flex'; renderPhotosGrid(placa); }
-function closeVehicleImages(){ document.getElementById('photosModal').style.display='none'; currentPhotosPlaca = null; const inp = document.getElementById('pmFiles'); if(inp) inp.value=''; }
+
+function openVehicleImages(placa){
+  currentPhotosPlaca = placa;
+  document.getElementById('pmPlaca').textContent = placa;
+  document.getElementById('photosModal').style.display = 'flex';
+  renderPhotosGrid(placa);
+}
+
+function closeVehicleImages(){
+  document.getElementById('photosModal').style.display = 'none';
+  currentPhotosPlaca = null;
+  const inp = document.getElementById('pmFiles');
+  if(inp) inp.value = ''; // limpa seleção
+}
+
+// Substitua sua função atual por esta:
 async function uploadVehicleImages(){
-  const inp = document.getElementById('pmFiles'); if(!currentPhotosPlaca){ alert('Placa no válida.'); return; }
+  const inp = document.getElementById('pmFiles');
+  if(!currentPhotosPlaca){ alert('Placa no válida.'); return; }
   if(!inp?.files?.length){ alert('Seleccione una o más imágenes.'); return; }
-  const MAX = 20 * 1024 * 1024;
-  for (const f of inp.files) { if (!/^image\//.test(f.type)) { alert(`Archivo no es imagen: ${f.name}`); return; } if (f.size > MAX) { alert(`Imagen supera 20MB: ${f.name}`); return; } }
+
+  // ✅ Validação: apenas imagens e até 20 MB cada
+  const MAX = 20 * 1024 * 1024; // 20MB
+  for (const f of inp.files) {
+    if (!/^image\//.test(f.type)) {
+      alert(`Archivo no es imagen: ${f.name}`);
+      return;
+    }
+    if (f.size > MAX) {
+      alert(`Imagen supera 20MB: ${f.name}`);
+      return;
+    }
+  }
+
   const prefix = photoPrefix(currentPhotosPlaca);
   for (const file of inp.files){
     const ts = new Date().toISOString().replace(/[-:T.Z]/g,'').slice(0,14);
     const safe = file.name.replace(/[^\w.\-]+/g,'_');
     const path = `${prefix}${ts}-${safe}`;
-    const { error } = await supa.storage.from(PHOTO_BUCKET).upload(path, file, { upsert: false, contentType: file.type || 'image/jpeg', cacheControl: '3600' });
-    if(error){ alert(`Fallo al subir ${file.name}: ` + error.message); return; }
+    const { error } = await supa.storage.from(PHOTO_BUCKET).upload(path, file, {
+      upsert: false,
+      contentType: file.type || 'image/jpeg',
+      cacheControl: '3600'
+    });
+    if(error){
+      alert(`Fallo al subir ${file.name}: ` + error.message);
+      return;
+    }
   }
-  await renderPhotosGrid(currentPhotosPlaca); inp.value = '';
+
+  await renderPhotosGrid(currentPhotosPlaca);
+  inp.value = ''; // limpa seleção
 }
+
+// eventos do modal
 document.getElementById('pmClose')?.addEventListener('click', closeVehicleImages);
 document.getElementById('pmUpload')?.addEventListener('click', uploadVehicleImages);
-document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && document.getElementById('photosModal').style.display==='flex') closeVehicleImages(); });
-document.getElementById('photosModal')?.addEventListener('click',(e)=>{ if(e.target && e.target.id==='photosModal') closeVehicleImages(); });
+document.addEventListener('keydown', (e)=>{ 
+  if(e.key==='Escape' && document.getElementById('photosModal').style.display==='flex') closeVehicleImages();
+});
+document.getElementById('photosModal')?.addEventListener('click',(e)=>{
+  if(e.target && e.target.id==='photosModal') closeVehicleImages();
+});
 
 /* ===== Auth ===== */
 async function doLogin(){
@@ -1068,13 +1533,24 @@ async function doLogin(){
     if(error) throw error;
     const prof=await fetchProfile(data.user.id);
     if(!prof){ await supa.auth.signOut(); return; }
-    session.user=email; session.role=prof.role; session.company_id=prof.company_id; session.user_id = data.user.id;
-    const roleBox = document.getElementById("userRole");
-    if (roleBox) {
-      if (session.role === "admin") { roleBox.textContent = "Admin"; roleBox.className = "role-admin"; }
-      else if (session.role === "asesor") { roleBox.textContent = "Asistente"; roleBox.className = "role-asesor"; }
-      else { roleBox.textContent = session.role || "—"; roleBox.className = ""; }
-    }
+    session.user=email; 
+    session.role=prof.role; 
+    session.company_id=prof.company_id; 
+    session.user_id = data.user.id;
+    // Atualiza papel visível na tela
+const roleBox = document.getElementById("userRole");
+if (roleBox) {
+  if (session.role === "admin") {
+    roleBox.textContent = "Admin";
+    roleBox.className = "role-admin";
+  } else if (session.role === "asesor") {
+    roleBox.textContent = "Asistente";   // 👈 só muda visualmente
+    roleBox.className = "role-asesor";
+  } else {
+    roleBox.textContent = session.role || "—";
+    roleBox.className = "";
+  }
+}
     document.getElementById("login").classList.add("hide");
     document.getElementById("app").classList.remove("hide");
     const d=$("#repDesde"); const h=$("#repHasta");
@@ -1083,7 +1559,6 @@ async function doLogin(){
     await refreshCombos();
     await Promise.all([loadVehicles(), loadRentals(), loadMaint(), loadFinances()]);
     await refreshKPIs();
-    applyStaticI18N(); // garante linguagem após login
   }catch(err){
     alert("Login inválido: " + (err?.message || err));
   }
@@ -1091,26 +1566,43 @@ async function doLogin(){
 
 /* ===== Boot ===== */
 document.addEventListener('DOMContentLoaded', ()=>{
-  const loginBtn=document.getElementById("btnLogin"); if(loginBtn){ loginBtn.addEventListener("click", doLogin); }
-  const logoutBtn=document.getElementById("btnLogout"); if(logoutBtn){ logoutBtn.addEventListener("click", async ()=>{ await supa.auth.signOut(); location.reload(); }); }
-  document.querySelectorAll(".tab").forEach(t=>{ t.addEventListener("click", ()=> activateTab(t.dataset.tab)); });
-  $("#q")?.addEventListener("input", loadRentals);
-  $("#filtroStatus")?.addEventListener("change", loadRentals);
-  $("#mq")?.addEventListener("input", loadMaint);
-  $("#mfEstado")?.addEventListener("change", loadMaint);
-  $("#mfVence")?.addEventListener("change", loadMaint);
-  $("#finQ")?.addEventListener("input", loadFinances);
-  $("#finDesde")?.addEventListener("change", loadFinances);
-  $("#finHasta")?.addEventListener("change", loadFinances);
-  $("#finFiltroTipo")?.addEventListener("change", loadFinances);
-  $("#finFiltroPlaca")?.addEventListener("change", loadFinances);
-  const vQ = document.getElementById("vQ"); if (vQ) vQ.addEventListener("input", loadVehicles);
-  document.getElementById('repAplicar')?.addEventListener('click', refreshKPIs);
-  document.getElementById('repLimpiar')?.addEventListener('click', ()=>{ const d = document.getElementById('repDesde'); const h = document.getElementById('repHasta'); if (d) d.value = ''; if (h) h.value = ''; refreshKPIs(); });
-  document.getElementById('repDesde')?.addEventListener('change', refreshKPIs);
-  document.getElementById('repHasta')?.addEventListener('change', refreshKPIs);
-  applyStaticI18N(); // aplica idioma também ao carregar
+  const loginBtn=document.getElementById("btnLogin");
+  if(loginBtn){ loginBtn.addEventListener("click", doLogin); }
+  const logoutBtn=document.getElementById("btnLogout");
+  if(logoutBtn){ logoutBtn.addEventListener("click", async ()=>{ await supa.auth.signOut(); location.reload(); }); }
+
+  // Abas
+  document.querySelectorAll(".tab").forEach(t=>{
+    t.addEventListener("click", ()=> activateTab(t.dataset.tab));
+  });
+
+  // Filtros
+  const q=$("#q"); if(q) q.addEventListener("input", loadRentals);
+  const fs=$("#filtroStatus"); if(fs) fs.addEventListener("change", loadRentals);
+  const mq=$("#mq"); if(mq) mq.addEventListener("input", loadMaint);
+  const mfE=$("#mfEstado"); if(mfE) mfE.addEventListener("change", loadMaint);
+  const mfV=$("#mfVence"); if(mfV) mfV.addEventListener("change", loadMaint);
+  const finQ=$("#finQ"); if(finQ) finQ.addEventListener("input", loadFinances);
+  const finD=$("#finDesde"); if(finD) finD.addEventListener("change", loadFinances);
+  const finH=$("#finHasta"); if(finH) finH.addEventListener("change", loadFinances);
+  const finT=$("#finFiltroTipo"); if(finT) finT.addEventListener("change", loadFinances);
+  const finP=$("#finFiltroPlaca"); if(finP) finP.addEventListener("change", loadFinances);
+  const vQ = document.getElementById("vQ");
+if (vQ) vQ.addEventListener("input", loadVehicles);
+  // Reportes: aplicar/limpar e recalcular
+document.getElementById('repAplicar')?.addEventListener('click', refreshKPIs);
+document.getElementById('repLimpiar')?.addEventListener('click', ()=>{
+  const d = document.getElementById('repDesde');
+  const h = document.getElementById('repHasta');
+  if (d) d.value = '';
+  if (h) h.value = '';
+  refreshKPIs(); // sem datas = soma tudo
 });
-</script>
+
+// Também recalcular ao mudar as datas (sem precisar clicar em Aplicar)
+document.getElementById('repDesde')?.addEventListener('change', refreshKPIs);
+document.getElementById('repHasta')?.addEventListener('change', refreshKPIs);
+});
+  </script>
 </body>
 </html>
