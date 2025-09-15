@@ -232,7 +232,63 @@
   .note-box{ min-height:96px }
 }
 
-  
+/* =========================
+   [i18n] Seletor de idioma (flutuante e leve)
+   ========================= */
+.i18n-switch{
+  position:fixed; right:16px; bottom:16px; z-index:99999;
+  display:flex; gap:6px; background:rgba(0,0,0,.45);
+  border:1px solid #334155; padding:6px; border-radius:10px;
+  backdrop-filter:blur(6px)
+}
+.i18n-switch button{
+  border:1px solid #334155; background:#1f2937; color:#e5e7eb;
+  padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:600
+}
+.i18n-switch button.active{ background:#93c5fd; color:#0b1220 }
+
+/* =========================
+   [i18n] Overrides de labels injetados por CSS
+   ========================= */
+</style>
+
+<!-- [i18n] CSS overrides por idioma -->
+<style id="i18n-overrides">
+/* Padrão ES (sem alterações) */
+body[data-lang="es"]{}
+/* PT: sobrescreve rótulos que estavam “fixos” no CSS */
+body[data-lang="pt"] #tab-locacoes .grid.rowline > div:nth-child(1){ --lbl:"Veículo" }
+body[data-lang="pt"] #tab-locacoes .grid.rowline > div:nth-child(2){ --lbl:"Condutor" }
+body[data-lang="pt"] #tab-locacoes .grid.rowline > div:nth-child(3){ --lbl:"Saída" }
+body[data-lang="pt"] #tab-locacoes .grid.rowline > div:nth-child(4){ --lbl:"Previsto" }
+body[data-lang="pt"] #tab-locacoes .grid.rowline > div:nth-child(5){ --lbl:"Entrada" }
+body[data-lang="pt"] #tab-locacoes .grid.rowline > div:nth-child(6){ --lbl:"KM" }
+body[data-lang="pt"] #tab-locacoes .grid.rowline > div:nth-child(7){ --lbl:"Estado" }
+
+/* #tab-frota tinha content:"Texto" direto — sobrescrevemos */
+body[data-lang="pt"] #tab-frota .grid.rowline > div:nth-child(1)::before{ content:"Veículo" }
+body[data-lang="pt"] #tab-frota .grid.rowline > div:nth-child(2)::before{ content:"Cor" }
+body[data-lang="pt"] #tab-frota .grid.rowline > div:nth-child(3)::before{ content:"KM" }
+body[data-lang="pt"] #tab-frota .grid.rowline > div:nth-child(4)::before{ content:"Data cadastro" }
+body[data-lang="pt"] #tab-frota .grid.rowline > div:nth-child(6)::before{ content:"Estado" }
+
+/* #tab-mantenimiento */
+body[data-lang="pt"] #tab-mantenimiento .grid.rowline > div:nth-child(1)::before{ content:"Veículo" }
+body[data-lang="pt"] #tab-mantenimiento .grid.rowline > div:nth-child(2)::before{ content:"Tipo" }
+body[data-lang="pt"] #tab-mantenimiento .grid.rowline > div:nth-child(3)::before{ content:"Serviço" }
+body[data-lang="pt"] #tab-mantenimiento .grid.rowline > div:nth-child(4)::before{ content:"Data" }
+body[data-lang="pt"] #tab-mantenimiento .grid.rowline > div:nth-child(5)::before{ content:"Próxima" }
+body[data-lang="pt"] #tab-mantenimiento .grid.rowline > div:nth-child(6)::before{ content:"KM" }
+body[data-lang="pt"] #tab-mantenimiento .grid.rowline > div:nth-child(7)::before{ content:"Custo" }
+body[data-lang="pt"] #tab-mantenimiento .grid.rowline > div:nth-child(8)::before{ content:"Observação" }
+
+/* #tab-finanzas */
+body[data-lang="pt"] #tab-finanzas .grid.fin-row > div:nth-child(1)::before{ content:"Data" }
+body[data-lang="pt"] #tab-finanzas .grid.fin-row > div:nth-child(2)::before{ content:"Tipo" }
+body[data-lang="pt"] #tab-finanzas .grid.fin-row > div:nth-child(3)::before{ content:"Placa" }
+body[data-lang="pt"] #tab-finanzas .grid.fin-row > div:nth-child(4)::before{ content:"Categoria" }
+body[data-lang="pt"] #tab-finanzas .grid.fin-row > div:nth-child(5)::before{ content:"Conceito" }
+body[data-lang="pt"] #tab-finanzas .grid.fin-row > div:nth-child(6)::before{ content:"Valor" }
 </style>
 </head>
 <body>
@@ -1603,5 +1659,401 @@ document.getElementById('repDesde')?.addEventListener('change', refreshKPIs);
 document.getElementById('repHasta')?.addEventListener('change', refreshKPIs);
 });
   </script>
+  
+  <!-- [i18n] Script não-destrutivo ES/PT -->
+<script>
+(function(){
+  const LS_KEY = 'ui-lang';
+  const DEFAULT_LANG = (document.documentElement.getAttribute('lang') || 'es').toLowerCase();
+
+  // Mapa de tradução (apenas textos de UI; valores permanecem ES)
+  const dict = {
+    title: { es: 'Administración — Alquiler de Autos', pt: 'Administração — Aluguel de Carros' },
+    // Cabeçalho / Tabs / Ações
+    '#app .header h1':         { es:'Panel — Alquiler de Autos',        pt:'Painel — Aluguel de Carros' },
+    '#app .header .muted':     { es:'Control de vehículos, salidas, entradas, mantenimiento y finanzas',
+                                 pt:'Controle de veículos, saídas, entradas, manutenção e finanças' },
+    '.tab[data-tab="locacoes"]':       { es:'Locaciones', pt:'Locações' },
+    '.tab[data-tab="frota"]':          { es:'Vehículos', pt:'Veículos' },
+    '.tab[data-tab="mantenimiento"]':  { es:'Mantenimiento', pt:'Manutenção' },
+    '.tab[data-tab="finanzas"]':       { es:'Finanzas', pt:'Finanças' },
+    '.tab[data-tab="relatorios"]':     { es:'Reportes', pt:'Relatórios' },
+    '#btnLogout':               { es:'Salir', pt:'Sair' },
+
+    // Login
+    '#login h1':                { es:'Inicio de sesión', pt:'Início de sessão' },
+    '#login .muted':            { es:'Acceso interno de la empresa', pt:'Acesso interno da empresa' },
+    'label[for="user"]':        { es:'Usuario', pt:'Usuário' }, // se tiver for, senão aplicamos por ordem abaixo
+    // Labels do login sem for:
+    '#login label:nth-of-type(1)': { es:'Usuario', pt:'Usuário' },
+    '#login label:nth-of-type(2)': { es:'Contraseña', pt:'Senha' },
+    '#btnLogin':                { es:'Entrar', pt:'Entrar' },
+
+    // Locaciones — títulos e cabeçalhos
+    '#tab-locacoes h3:nth-of-type(1)': { es:'Registrar salida', pt:'Registrar saída' },
+    '#tab-locacoes h3:nth-of-type(2)': { es:'Registrar entrada', pt:'Registrar entrada' },
+    '#tab-locacoes .thead > div:nth-child(1)': { es:'Placa / Marca / Modelo', pt:'Placa / Marca / Modelo' },
+    '#tab-locacoes .thead > div:nth-child(2)': { es:'Conductor', pt:'Condutor' },
+    '#tab-locacoes .thead > div:nth-child(3)': { es:'Salida', pt:'Saída' },
+    '#tab-locacoes .thead > div:nth-child(4)': { es:'Previsto', pt:'Previsto' },
+    '#tab-locacoes .thead > div:nth-child(5)': { es:'Entrada', pt:'Entrada' },
+    '#tab-locacoes .thead > div:nth-child(6)': { es:'KM', pt:'KM' },
+    '#tab-locacoes .thead > div:nth-child(7)': { es:'Estado', pt:'Estado' },
+    '#tab-locacoes .thead > div:nth-child(8)': { es:'Acciones', pt:'Ações' },
+    // Locaciones — labels/ajudas/botões
+    'label:has(+ #outPlaca)':   { es:'Placa', pt:'Placa' },
+    'label:has(+ #outMotorista)':{ es:'Conductor / Cliente', pt:'Condutor / Cliente' },
+    'label:has(+ #outData)':    { es:'Fecha/Hora salida', pt:'Data/Hora saída' },
+    'label:has(+ #outPrev)':    { es:'Previsto retorno', pt:'Previsto retorno' },
+    'label:has(+ #outKm)':      { es:'KM salida', pt:'KM saída' },
+    'label:has(+ #outFuel)':    { es:'Combustible (salida)', pt:'Combustível (saída)' },
+    '#outObs ~ .t-right .muted':{ es:'Solo aparecen autos “Disponible”.', pt:'Só aparecem carros “Disponível”.' },
+    '#btnRegistrarSaida':       { es:'Registrar salida', pt:'Registrar saída' },
+
+    'label:has(+ #inPlaca)':    { es:'Placa', pt:'Placa' },
+    'label:has(+ #inData)':     { es:'Fecha/Hora entrada', pt:'Data/Hora entrada' },
+    'label:has(+ #inKm)':       { es:'KM entrada', pt:'KM entrada' },
+    'label:has(+ #inFuel)':     { es:'Combustible (entrada)', pt:'Combustível (entrada)' },
+    'label:has(+ #inObs)':      { es:'Observaciones de retorno', pt:'Observações de retorno' },
+    '#inObs ~ .t-right .muted': { es:'Solo aparecen autos “En uso”.', pt:'Só aparecem carros “Em uso”.' },
+    '#btnRegistrarEntrada':     { es:'Registrar entrada', pt:'Registrar entrada' },
+
+    // Locaciones — toolbar
+    '#q':                        { placeholder_es:'Buscar por placa, marca/modelo o conductor...',
+                                   placeholder_pt:'Buscar por placa, marca/modelo ou condutor...' },
+    '#btnExport':                { es:'Exportar CSV', pt:'Exportar CSV' },
+
+    // Vehículos
+    '#tab-frota h3:nth-of-type(1)': { es:'Registro de vehículo', pt:'Cadastro de veículo' },
+    '#tab-frota h3:nth-of-type(2)': { es:'Vehículos', pt:'Veículos' },
+    'label:has(+ #vPlaca)':     { es:'Placa', pt:'Placa' },
+    'label:has(+ #vModelo)':    { es:'Marca / Modelo', pt:'Marca / Modelo' },
+    'label:has(+ #vCor)':       { es:'Color', pt:'Cor' },
+    'label:has(+ #vKm)':        { es:'KM actual', pt:'KM atual' },
+    'label:has(+ #vStatus)':    { es:'Estado', pt:'Estado' },
+    'label:has(+ #vFechaRegistro)': { es:'Fecha de registro', pt:'Data de cadastro' },
+    '#vPlaca':                  { placeholder_es:'ABC1D23', placeholder_pt:'ABC1D23' },
+    '#vModelo':                 { placeholder_es:'Toyota Corolla 2.0', placeholder_pt:'Toyota Corolla 2.0' },
+    '#vCor':                    { placeholder_es:'Plata', placeholder_pt:'Prata' },
+    '#btnAddVeiculo':           { es:'Guardar/Actualizar vehículo', pt:'Salvar/Atualizar veículo' },
+    '#vQ':                      { placeholder_es:'Buscar por placa, marca o modelo...', placeholder_pt:'Buscar por placa, marca ou modelo...' },
+    '#tab-frota .thead > div:nth-child(1)': { es:'Placa / Marca / Modelo', pt:'Placa / Marca / Modelo' },
+    '#tab-frota .thead > div:nth-child(2)': { es:'Color', pt:'Cor' },
+    '#tab-frota .thead > div:nth-child(3)': { es:'KM', pt:'KM' },
+    '#tab-frota .thead > div:nth-child(4)': { es:'Fecha registro', pt:'Data cadastro' },
+    '#tab-frota .thead > div:nth-child(5)': { es:'—', pt:'—' },
+    '#tab-frota .thead > div:nth-child(6)': { es:'Estado', pt:'Estado' },
+    '#tab-frota .thead > div:nth-child(7)': { es:'Acciones', pt:'Ações' },
+
+    // Mantenimiento
+    '#tab-mantenimiento h3:nth-of-type(1)': { es:'Registrar mantenimiento', pt:'Registrar manutenção' },
+    '#tab-mantenimiento h3:nth-of-type(2)': { es:'Historial y próximos', pt:'Histórico e próximos' },
+    'label:has(+ #mPlaca)':     { es:'Placa', pt:'Placa' },
+    'label:has(+ #mTipo)':      { es:'Tipo', pt:'Tipo' },
+    'label:has(+ #mTitulo)':    { es:'Servicio / Tarea', pt:'Serviço / Tarefa' },
+    'label:has(+ #mFecha)':     { es:'Fecha', pt:'Data' },
+    'label:has(+ #mProx)':      { es:'Próxima fecha (opcional)', pt:'Próxima data (opcional)' },
+    'label:has(+ #mKm)':        { es:'KM (realizado / referencia)', pt:'KM (realizado / referência)' },
+    'label:has(+ #mProxKm)':    { es:'Próximo KM (opcional)', pt:'Próximo KM (opcional)' },
+    'label:has(+ #mEstado)':    { es:'Estado', pt:'Estado' },
+    'label:has(+ #mCosto)':     { es:'Costo (opcional)', pt:'Custo (opcional)' },
+    'label:has(+ #mObs)':       { es:'Observación', pt:'Observação' },
+    '#btnAddMant':              { es:'Guardar mantenimiento', pt:'Salvar manutenção' },
+    '#mantIndicators .pill:nth-child(1)': { es:'Vencen ≤7 días: ', pt:'Vencem ≤7 dias: ' },
+    '#mantIndicators .pill:nth-child(2)': { es:'Vencen ≤1.000 km: ', pt:'Vencem ≤1.000 km: ' },
+    '#mq':                      { placeholder_es:'Buscar por placa, marca/modelo, servicio...', placeholder_pt:'Buscar por placa, marca/modelo, serviço...' },
+    '#mfEstado option[value=""]': { es:'Todos', pt:'Todos' },
+    '#mfVence option[value=""]':  { es:'Todos los vencimientos', pt:'Todos os vencimentos' },
+    '#mfVence option[value="7d"]':{ es:'Próximos 7 días', pt:'Próximos 7 dias' },
+    '#mfVence option[value="1000km"]': { es:'Próximos 1.000 km', pt:'Próximos 1.000 km' },
+    '#tab-mantenimiento .thead > div:nth-child(1)': { es:'Placa / Marca / Modelo', pt:'Placa / Marca / Modelo' },
+    '#tab-mantenimiento .thead > div:nth-child(2)': { es:'Tipo', pt:'Tipo' },
+    '#tab-mantenimiento .thead > div:nth-child(3)': { es:'Servicio', pt:'Serviço' },
+    '#tab-mantenimiento .thead > div:nth-child(4)': { es:'Fecha', pt:'Data' },
+    '#tab-mantenimiento .thead > div:nth-child(5)': { es:'Próxima', pt:'Próxima' },
+    '#tab-mantenimiento .thead > div:nth-child(6)': { es:'KM', pt:'KM' },
+    '#tab-mantenimiento .thead > div:nth-child(7)': { es:'Costo', pt:'Custo' },
+    '#tab-mantenimiento .thead > div:nth-child(8)': { es:'Observación', pt:'Observação' },
+    '#tab-mantenimiento .thead > div:nth-child(9)': { es:'Acciones', pt:'Ações' },
+
+    // Finanzas
+    '#tab-finanzas h3:nth-of-type(1)': { es:'Registrar movimiento', pt:'Registrar movimento' },
+    'label:has(+ #finFecha)':  { es:'Fecha', pt:'Data' },
+    'label:has(+ #finTipo)':   { es:'Tipo', pt:'Tipo' },
+    'label:has(+ #finMonto)':  { es:'Monto', pt:'Valor' },
+    'label:has(+ #finPlaca)':  { es:'Placa (opcional)', pt:'Placa (opcional)' },
+    'label:has(+ #finCat)':    { es:'Categoría', pt:'Categoria' },
+    'label:has(+ #finNota) + input': { placeholder_es:'Detalle del movimiento (ej. Alquiler Juan Pérez - 3 días)',
+                                       placeholder_pt:'Detalhe do movimento (ex. Aluguel João - 3 dias)' },
+    '#btnFinGuardar':         { es:'Guardar movimiento', pt:'Salvar movimento' },
+
+    '#tab-finanzas h3:nth-of-type(2)': { es:'Resumen y listado', pt:'Resumo e listagem' },
+    '#finQ':                  { placeholder_es:'Buscar por placa, concepto o categoría...', placeholder_pt:'Buscar por placa, conceito ou categoria...' },
+    '#finDesde':             { title_es:'Desde', title_pt:'De' },
+    '#finHasta':             { title_es:'Hasta', title_pt:'Até' },
+    '#finFiltroTipo option[value=""]': { es:'Ingresos + Egresos', pt:'Entradas + Saídas' },
+    '#finFiltroPlaca option[value=""]': { es:'Todas las placas', pt:'Todas as placas' },
+    '#btnFinExport':         { es:'Exportar CSV', pt:'Exportar CSV' },
+    '#tab-finanzas .thead > div:nth-child(1)': { es:'Fecha', pt:'Data' },
+    '#tab-finanzas .thead > div:nth-child(2)': { es:'Tipo', pt:'Tipo' },
+    '#tab-finanzas .thead > div:nth-child(3)': { es:'Placa', pt:'Placa' },
+    '#tab-finanzas .thead > div:nth-child(4)': { es:'Categoría', pt:'Categoria' },
+    '#tab-finanzas .thead > div:nth-child(5)': { es:'Concepto', pt:'Conceito' },
+    '#tab-finanzas .thead > div:nth-child(6)': { es:'Monto', pt:'Valor' },
+    '#tab-finanzas .thead > div:nth-child(7)': { es:'Acciones', pt:'Ações' },
+    '#finSumIn':             { prefix_es:'Ingresos: ', prefix_pt:'Entradas: ' }, // exibido no texto fora; mantemos apenas títulos acima
+
+    // Reportes
+    '#tab-relatorios h3':    { es:'Indicadores rápidos', pt:'Indicadores rápidos' },
+    '#repDesde':             { title_es:'Desde', title_pt:'De' },
+    '#repHasta':             { title_es:'Hasta', title_pt:'Até' },
+    '#repAplicar':           { es:'Aplicar', pt:'Aplicar' },
+    '#repLimpiar':           { es:'Limpiar', pt:'Limpar' },
+    '#tab-relatorios .muted:nth-of-type(1)': { es:'Autos disponibles', pt:'Carros disponíveis' },
+    '#tab-relatorios .muted:nth-of-type(2)': { es:'En uso', pt:'Em uso' },
+    '#tab-relatorios .muted:nth-of-type(3)': { es:'Atrasados', pt:'Atrasados' },
+    '#tab-relatorios .muted:nth-of-type(4)': { es:'En mantenimiento', pt:'Em manutenção' },
+    // blocos somatórios:
+    '#mIngTotal':           { label_es:'Ingresos totales (filtrado)', label_pt:'Entradas totais (filtro)' },
+    '#mEgrTotal':           { label_es:'Egresos totales (filtrado)', label_pt:'Saídas totais (filtro)' },
+    '#mGanancia':           { label_es:'Ganancia líquida', label_pt:'Lucro líquido' },
+
+    // Modais
+    '#obsModal h3':         { es:'Observaciones', pt:'Observações' },
+    '#obsModal h4:nth-of-type(1)': { es:'Salida', pt:'Saída' },
+    '#obsModal h4:nth-of-type(2)': { es:'Entrada', pt:'Entrada' },
+    '#btnObsClose':         { es:'Cerrar', pt:'Fechar' },
+    '#photosModal h3':      { es:'Imágenes del vehículo — ', pt:'Imagens do veículo — ' },
+    '#pmUpload':            { es:'Subir imágenes', pt:'Enviar imagens' },
+    '#pmClose':             { es:'Cerrar', pt:'Fechar' },
+  };
+
+  // Opções com valor fixo ES e label variável
+  const optionSets = [
+    { select:'#filtroStatus', items:[
+      {value:'', es:'Todos los estados', pt:'Todos os estados'},
+      {value:'Disponible', es:'Disponible', pt:'Disponível'},
+      {value:'En uso', es:'En uso', pt:'Em uso'},
+      {value:'Atrasado', es:'Atrasado', pt:'Atrasado'},
+      {value:'Mantenimiento', es:'Mantenimiento', pt:'Manutenção'}
+    ]},
+    { select:'#vStatus', items:[
+      {value:'Disponible', es:'Disponible', pt:'Disponível'},
+      {value:'Atrasado', es:'Atrasado', pt:'Atrasado'},
+      {value:'Mantenimiento', es:'Mantenimiento', pt:'Manutenção'}
+    ]},
+    { select:'#mTipo', items:[
+      {value:'Preventivo', es:'Preventivo', pt:'Preventivo'},
+      {value:'Correctivo', es:'Correctivo', pt:'Corretivo'}
+    ]},
+    { select:'#mEstado', items:[
+      {value:'Pendiente', es:'Pendiente', pt:'Pendente'},
+      {value:'Hecho', es:'Hecho', pt:'Feito'}
+    ]},
+    { select:'#finTipo', items:[
+      {value:'Ingreso', es:'Ingreso', pt:'Entrada'},
+      {value:'Egreso', es:'Egreso', pt:'Saída'}
+    ]},
+    { select:'#finCat', items:[
+      {value:'Alquiler', es:'Alquiler', pt:'Aluguel'},
+      {value:'Mantenimiento', es:'Mantenimiento', pt:'Manutenção'},
+      {value:'Combustible', es:'Combustible', pt:'Combustível'},
+      {value:'Multa', es:'Multa', pt:'Multa'},
+      {value:'Peaje', es:'Peaje', pt:'Pedágio'},
+      {value:'Compra', es:'Compra', pt:'Compra'},
+      {value:'Otro', es:'Otro', pt:'Outro'}
+    ]},
+    { select:'#outFuel', items:[
+      {value:'Lleno', es:'Lleno', pt:'Cheio'},
+      {value:'3/4',  es:'3/4',  pt:'3/4'},
+      {value:'1/2',  es:'1/2',  pt:'1/2'},
+      {value:'1/4',  es:'1/4',  pt:'1/4'}
+    ]},
+    { select:'#inFuel', items:[
+      {value:'Lleno', es:'Lleno', pt:'Cheio'},
+      {value:'3/4',  es:'3/4',  pt:'3/4'},
+      {value:'1/2',  es:'1/2',  pt:'1/2'},
+      {value:'1/4',  es:'1/4',  pt:'1/4'}
+    ]},
+  ];
+
+  // Ajusta labels de spans “muted” pós KPIs (texto fixo ao lado dos valores)
+  function translateKPICaptions(lang){
+    const par = document.querySelector('#tab-finanzas .muted');
+    if(par){
+      const es = 'Ingresos: ';
+      const pt = 'Entradas: ';
+      par.innerHTML = (lang==='pt'
+        ? `Entradas: <strong id="finSumIn">${document.querySelector('#finSumIn')?.textContent||'0.00'}</strong> • 
+            Saídas: <strong id="finSumOut">${document.querySelector('#finSumOut')?.textContent||'0.00'}</strong> • 
+            Saldo: <strong id="finSaldo">${document.querySelector('#finSaldo')?.textContent||'0.00'}</strong>`
+        : `Ingresos: <strong id="finSumIn">${document.querySelector('#finSumIn')?.textContent||'0.00'}</strong> • 
+            Egresos: <strong id="finSumOut">${document.querySelector('#finSumOut')?.textContent||'0.00'}</strong> • 
+            Saldo: <strong id="finSaldo">${document.querySelector('#finSaldo')?.textContent||'0.00'}</strong>`);
+    }
+    // Cartões dos KPIs no relatório
+    const cards = document.querySelectorAll('#tab-relatorios .card .muted');
+    if(cards?.length>=7){
+      cards[4].textContent = (lang==='pt' ? 'Entradas totais (filtro)' : 'Ingresos totales (filtrado)');
+      cards[5].textContent = (lang==='pt' ? 'Saídas totais (filtro)'   : 'Egresos totales (filtrado)');
+      cards[6].textContent = (lang==='pt' ? 'Lucro líquido'            : 'Ganancia líquida');
+    }
+  }
+
+  // Tradução de badges e botões gerados dinamicamente
+  function translateDynamicUI(lang){
+    const map = {
+      'Disponible': (lang==='pt'?'Disponível':'Disponible'),
+      'En uso':     (lang==='pt'?'Em uso':'En uso'),
+      'Atrasado':   (lang==='pt'?'Atrasado':'Atrasado'),
+      'Mantenimiento': (lang==='pt'?'Manutenção':'Mantenimiento'),
+      'Entregado':  (lang==='pt'?'Entregue':'Entregado'),
+      'Editar':     (lang==='pt'?'Editar':'Editar'),
+      'Imágenes':   (lang==='pt'?'Imagens':'Imágenes'),
+      'Eliminar':   (lang==='pt'?'Excluir':'Eliminar'),
+      'Observaciones': (lang==='pt'?'Observações':'Observaciones'),
+      'Dar entrada': (lang==='pt'?'Dar entrada':'Dar entrada'),
+      'Abrir':       (lang==='pt'?'Abrir':'Abrir')
+    };
+    document.querySelectorAll('.badge').forEach(b=>{
+      const t=b.textContent.trim();
+      if(map[t]) b.textContent = map[t];
+    });
+    document.querySelectorAll('#list button, #frotaList button, #mList button, #finList button, #photosModal a').forEach(btn=>{
+      const t=btn.textContent.trim();
+      if(map[t]) btn.textContent = map[t];
+    });
+  }
+
+  // Define rótulos/placeholder/titles por seletor
+  function applyDict(lang){
+    // título e lang
+    document.title = dict.title[lang] || document.title;
+    document.documentElement.setAttribute('lang', lang);
+    document.body.setAttribute('data-lang', lang);
+
+    // itens de texto direto
+    Object.keys(dict).forEach(sel=>{
+      if(sel==='title') return;
+      const conf = dict[sel];
+      const el = document.querySelector(sel);
+      if(!el || !conf) return;
+
+      if(conf.es && conf.pt){ // textContent
+        el.textContent = conf[lang];
+      }
+      if(conf.placeholder_es){
+        el.setAttribute('placeholder', lang==='pt' ? conf.placeholder_pt : conf.placeholder_es);
+      }
+      if(conf.title_es){
+        el.setAttribute('title', lang==='pt' ? conf.title_pt : conf.title_es);
+      }
+      if(conf.label_es){ // rótulo antes de um valor (usamos o CSS overrides para a maioria)
+        // usado só em alguns lugares; opcional
+      }
+    });
+
+    // selects padronizados (value ES fixo)
+    optionSets.forEach(set=>{
+      const sel = document.querySelector(set.select);
+      if(!sel) return;
+      // garantir ordem e value
+      // cria um mapa por value existente ou adiciona se faltar
+      const current = Array.from(sel.options);
+      // Monta/atualiza
+      set.items.forEach((it, idx)=>{
+        let opt = current.find(o => (o.value || o.textContent) === it.value);
+        if(!opt){
+          opt = current[idx] || document.createElement('option');
+          if(!opt.parentElement) sel.appendChild(opt);
+        }
+        opt.value = it.value;        // mantém ES
+        opt.textContent = (lang==='pt' ? it.pt : it.es); // mostra PT/ES
+      });
+      // remove sobras
+      Array.from(sel.options).forEach(o=>{
+        if(!set.items.find(it=>it.value===o.value)) o.remove();
+      });
+    });
+
+    translateKPICaptions(lang);
+    translateDynamicUI(lang);
+  }
+
+  // Envolvemos as funções de render para auto-aplicar a tradução após cada render
+  function wrapAfter(name){
+    const fn = window[name];
+    if(typeof fn !== 'function') return;
+    const wrapped = async function(){
+      const r = fn.apply(this, arguments);
+      // espera Promises
+      if(r && typeof r.then==='function'){
+        await r;
+      }
+      applyDict(currentLang);
+    };
+    window[name] = wrapped;
+  }
+
+  // Estado atual
+  let currentLang = localStorage.getItem(LS_KEY) || DEFAULT_LANG;
+
+  // Inicialização
+  function initI18N(){
+    // trava uma vez os placeholders do login (caso o seletor com :has não pegue em todos navegadores)
+    const user = document.querySelector('#user');
+    const pass = document.querySelector('#pass');
+    if(user){ user.setAttribute('placeholder', currentLang==='pt'?'usuario@empresa.com':'usuario@empresa.com'); }
+    if(pass){ pass.setAttribute('placeholder','••••••••'); }
+
+    // Wraps nas funções que re-renderizam listas
+    ['loadRentals','loadVehicles','loadMaint','loadFinances','refreshKPIs'].forEach(wrapAfter);
+
+    // Primeira aplicação
+    applyDict(currentLang);
+
+    // Marcar botão ativo
+    document.querySelectorAll('.i18n-switch button').forEach(b=>{
+      b.classList.toggle('active', b.dataset.lang===currentLang);
+    });
+  }
+
+  // Alternar idioma
+  function setLang(lang){
+    currentLang = (lang==='pt'?'pt':'es');
+    localStorage.setItem(LS_KEY, currentLang);
+    applyDict(currentLang);
+    // botões
+    document.querySelectorAll('.i18n-switch button').forEach(b=>{
+      b.classList.toggle('active', b.dataset.lang===currentLang);
+    });
+  }
+
+  // Expor pra testes manuais (opcional)
+  window.__setLang = setLang;
+
+  // Boot i18n depois do DOM carregado (seu script já adiciona eventos no DOMContentLoaded; rodamos depois)
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initI18N);
+  }else{
+    initI18N();
+  }
+
+  // Clicks no seletor
+  document.addEventListener('click', (e)=>{
+    const btn = e.target.closest('.i18n-switch button');
+    if(!btn) return;
+    e.preventDefault();
+    setLang(btn.dataset.lang);
+  });
+})();
+</script>
+
+<!-- [i18n] Seletor flutuante de idioma -->
+<div class="i18n-switch" aria-label="Seleção de idioma">
+  <button type="button" data-lang="es" class="active">ES</button>
+  <button type="button" data-lang="pt">PT</button>
+</div>
+
 </body>
 </html>
