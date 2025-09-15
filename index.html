@@ -1651,6 +1651,11 @@ const I18N_ES_PT = {
   "Subir imágenes": "Enviar imagens",
   "Abrir": "Abrir",
 
+// Filtros / Combos
+"(sin placa)": "(sem placa)",
+"Toda las placas": "Todas as placas", // segurança para variante com erro de digitação
+"Todas las placas": "Todas as placas",
+
   // --------- Placeholders / Tooltips ----------
   "usuario@empresa.com": "usuario@empresa.com",
   "Nombre del conductor": "Nome do condutor",
@@ -1987,7 +1992,7 @@ function i18nInjectSelector(){
     }
   };
   // principais renders da sua app:
-  ["loadVehicles","loadRentals","loadMaint","loadFinances","refreshKPIs"]
+  ["loadVehicles","loadRentals","loadMaint","loadFinances","refreshKPIs","refreshCombos"]
     .forEach(hook);
 
   // também no activateTab (quando você troca de aba)
