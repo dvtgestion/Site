@@ -1604,5 +1604,391 @@ document.getElementById('repDesde')?.addEventListener('change', refreshKPIs);
 document.getElementById('repHasta')?.addEventListener('change', refreshKPIs);
 });
   </script>
+  
+  <script>
+/* ========= i18n ultraleve (ES ↔ PT) ========= */
+
+/* 1) Dicionário ES -> PT (pode ampliar quando quiser) */
+const I18N_ES_PT = {
+  // --------- App / Cabeçalho ----------
+  "Administración — Alquiler de Autos": "Administração — Aluguel de Carros",
+  "Panel — Alquiler de Autos": "Painel — Aluguel de Carros",
+  "Control de vehículos, salidas, entradas, mantenimiento y finanzas":
+    "Controle de veículos, saídas, entradas, manutenção e finanças",
+  "Salir": "Sair",
+  "Locaciones": "Locações",
+  "Vehículos": "Veículos",
+  "Mantenimiento": "Manutenção",
+  "Finanzas": "Finanças",
+  "Reportes": "Relatórios",
+
+  // --------- Login ----------
+  "Inicio de sesión": "Início de sessão",
+  "Acceso interno de la empresa": "Acesso interno da empresa",
+  "Usuario": "Usuário",
+  "Contraseña": "Senha",
+  "Entrar": "Entrar",
+  "Informe usuario y contraseña.": "Informe usuário e senha.",
+  "Login inválido: ": "Login inválido: ",
+
+  // --------- Papéis ----------
+  "Admin": "Admin",
+  "Asistente": "Assistente",
+
+  // --------- Ações / Botões / Gerais ----------
+  "Guardar/Actualizar vehículo": "Salvar/Atualizar veículo",
+  "Guardar mantenimiento": "Salvar manutenção",
+  "Guardar movimiento": "Salvar movimento",
+  "Exportar CSV": "Exportar CSV",
+  "Aplicar": "Aplicar",
+  "Limpiar": "Limpar",
+  "Cerrar": "Fechar",
+  "Dar entrada": "Dar entrada",
+  "Observaciones": "Observações",
+  "Imágenes": "Imagens",
+  "Eliminar": "Excluir",
+  "Editar": "Editar",
+  "Subir imágenes": "Enviar imagens",
+  "Abrir": "Abrir",
+
+  // --------- Placeholders / Tooltips ----------
+  "usuario@empresa.com": "usuario@empresa.com",
+  "Nombre del conductor": "Nome do condutor",
+  "Accesorios, daños, depósito...": "Acessórios, danos, depósito...",
+  "Multas, daños, limpieza...": "Multas, danos, limpeza...",
+  "Buscar por placa, marca/modelo o conductor...": "Buscar por placa, marca/modelo ou condutor...",
+  "Todos los estados": "Todos os estados",
+  "Buscar por placa, marca o modelo...": "Buscar por placa, marca ou modelo...",
+  "Servicio / Tarea": "Serviço / Tarefa",
+  "Cambio de aceite, frenos, etc.": "Troca de óleo, freios, etc.",
+  "Detalle del trabajo o nota.": "Detalhe do serviço ou nota.",
+  "Buscar por placa, marca/modelo, servicio...": "Buscar por placa, marca/modelo, serviço...",
+  "Buscar por placa, concepto o categoría...": "Buscar por placa, conceito ou categoria...",
+  "Desde": "Desde",
+  "Hasta": "Até",
+
+  // --------- Títulos / Textos fixos ----------
+  "Registrar salida": "Registrar saída",
+  "Registrar entrada": "Registrar entrada",
+  "Registrar mantenimiento": "Registrar manutenção",
+  "Historial y próximos": "Histórico e próximos",
+  "Indicadores rápidos": "Indicadores rápidos",
+  "Resumen y listado": "Resumo e listagem",
+  "Autos disponibles": "Carros disponíveis",
+  "En uso": "Em uso",
+  "Atrasados": "Atrasados",
+  "En mantenimiento": "Em manutenção",
+  "Ingresos totales (filtrado)": "Receitas totais (filtrado)",
+  "Egresos totales (filtrado)": "Despesas totais (filtrado)",
+  "Ganancia líquida": "Saldo líquido",
+
+  // --------- Form / Labels ----------
+  "Placa": "Placa",
+  "Conductor / Cliente": "Condutor / Cliente",
+  "Fecha/Hora salida": "Data/Hora saída",
+  "Previsto retorno": "Previsto retorno",
+  "KM salida": "KM saída",
+  "Combustible (salida)": "Combustível (saída)",
+  "Observaciones": "Observações",
+
+  "Fecha/Hora entrada": "Data/Hora entrada",
+  "KM entrada": "KM entrada",
+  "Combustible (entrada)": "Combustível (entrada)",
+  "Observaciones de retorno": "Observações de retorno",
+
+  "Registro de vehículo": "Registro de veículo",
+  "Marca / Modelo": "Marca / Modelo",
+  "Color": "Cor",
+  "KM actual": "KM atual",
+  "Estado": "Estado",
+  "Fecha de registro": "Data de registro",
+
+  "Tipo": "Tipo",
+  "Servicio": "Serviço",
+  "Fecha": "Data",
+  "Próxima fecha (opcional)": "Próxima data (opcional)",
+  "KM (realizado / referencia)": "KM (realizado / referência)",
+  "Próximo KM (opcional)": "Próximo KM (opcional)",
+  "Costo (opcional)": "Custo (opcional)",
+  "Observación": "Observação",
+
+  "Fecha": "Data",
+  "Monto": "Valor",
+  "Categoría": "Categoria",
+  "Concepto / Nota": "Conceito / Nota",
+  "Placa (opcional)": "Placa (opcional)",
+  "Tipo": "Tipo",
+
+  // --------- Dicas / notas ----------
+  "Solo aparecen autos “Disponible”.": "Só aparecem carros “Disponível”.",
+  "Solo aparecen autos “En uso”.": "Só aparecem carros “Em uso”.",
+  "Placa y Marca/Modelo son obligatorios.": "Placa e Marca/Modelo são obrigatórios.",
+  "Al informar un Costo, se crea/actualiza un Egreso en Finanzas.":
+    "Ao informar um Custo, é criado/atualizado um Despesa em Finanças.",
+  "Placa y Servicio/Tarea son obligatorios.": "Placa e Serviço/Tarefa são obrigatórios.",
+  "El Asistente no puede ver el historial completo; solo sus propios registros.":
+    "O Assistente não pode ver todo o histórico; apenas seus próprios registros.",
+  "Solo admin puede exportar finanzas.": "Apenas admin pode exportar finanças.",
+
+  // --------- Listagens (thead / colunas) ----------
+  "Placa / Marca / Modelo": "Placa / Marca / Modelo",
+  "Conductor": "Condutor",
+  "Salida": "Saída",
+  "Previsto": "Previsto",
+  "Entrada": "Entrada",
+  "KM": "KM",
+  "Acciones": "Ações",
+
+  "Fecha registro": "Data registro",
+  "Vehículos": "Veículos",
+  "—": "—",
+
+  "Historial y próximos": "Histórico e próximos",
+  "Próxima": "Próxima",
+  "Costo": "Custo",
+
+  // --------- Filtros de manutenção ----------
+  "Todos": "Todos",
+  "Todos los vencimientos": "Todos os vencimentos",
+  "Próximos 7 días": "Próximos 7 dias",
+  "Próximos 1.000 km": "Próximos 1.000 km",
+
+  // --------- Indicadores manutenção ----------
+  "Vencen ≤7 días: ": "Vencem ≤7 dias: ",
+  "Vencen ≤1.000 km: ": "Vencem ≤1.000 km: ",
+
+  // --------- Tabela finanças ----------
+  "Ingresos: ": "Receitas: ",
+  "Egresos: ": "Despesas: ",
+  "Saldo: ": "Saldo: ",
+  "Ingresos + Egresos": "Receitas + Despesas",
+
+  // --------- Modal Observaciones ----------
+  "Observaciones": "Observações",
+  "Salida": "Saída",
+  "Entrada": "Entrada",
+
+  // --------- Modal Fotos ----------
+  "Imágenes del vehículo — ": "Imagens do veículo — ",
+  "Seleccionar imágenes (JPG/PNG, máx. 20MB cada)":
+    "Selecionar imagens (JPG/PNG, máx. 20MB cada)",
+  "Admin puede eliminar imágenes. Asistente puede subir y ver.":
+    "Admin pode excluir imagens. Assistente pode enviar e ver.",
+
+  // --------- Valores dos selects (texto exibido; o valor enviado fica ES) ----------
+  "Disponible": "Disponível",
+  "En uso": "Em uso",
+  "Atrasado": "Atrasado",
+  "Mantenimiento": "Manutenção",
+  "Entregado": "Entregue",
+  "Preventivo": "Preventivo",
+  "Correctivo": "Corretivo",
+  "Pendiente": "Pendente",
+  "Hecho": "Concluído",
+
+  "Ingreso": "Receita",
+  "Egreso": "Despesa",
+  "Alquiler": "Aluguel",
+  "Combustible": "Combustível",
+  "Multa": "Multa",
+  "Peaje": "Pedágio",
+  "Compra": "Compra",
+  "Otro": "Outro",
+
+  // Combustível
+  "Lleno": "Cheio",
+  "3/4": "3/4",
+  "1/2": "1/2",
+  "1/4": "1/4",
+
+  // --------- Mensagens / Erros / Confirmações ----------
+  "Perfil no encontrado / sin acceso: ": "Perfil não encontrado / sem acesso: ",
+  "Error al cargar vehículos: ": "Erro ao carregar veículos: ",
+  "Error al guardar vehículo: ": "Erro ao salvar veículo: ",
+  "¿Eliminar vehículo?": "Excluir veículo?",
+  "Error al eliminar: ": "Erro ao excluir: ",
+
+  "Placa y Fecha/Hora de entrada son obligatorios.": "Placa e Data/Hora de entrada são obrigatórios.",
+  "No hay locación abierta para esta placa.": "Não há locação aberta para esta placa.",
+  "KM entrada no puede ser menor que KM salida.": "KM de entrada não pode ser menor que o KM de saída.",
+  "Error al dar entrada: ": "Erro ao dar entrada: ",
+
+  "Placa, Conductor y Fecha/Hora de salida son obligatorios.":
+    "Placa, Condutor e Data/Hora de saída são obrigatórios.",
+  "Vehículo no encontrado.": "Veículo não encontrado.",
+  "Vehículo no disponible.": "Veículo não disponível.",
+  "Error al registrar salida: ": "Erro ao registrar saída: ",
+
+  "¿Eliminar esta locación?": "Excluir esta locação?",
+  "No se pudo leer la locación: ": "Não foi possível ler a locação: ",
+  "Error al eliminar: ": "Erro ao excluir: ",
+
+  "Error al cargar mantenimientos: ": "Erro ao carregar manutenções: ",
+  "Error al marcar hecho: ": "Erro ao marcar concluído: ",
+  "¿Eliminar mantenimiento?": "Excluir manutenção?",
+  "Error al guardar mantenimiento: ": "Erro ao salvar manutenção: ",
+
+  "No tienes permisos para registrar finanzas.": "Você não tem permissão para registrar finanças.",
+  "La fecha es obligatoria.": "A data é obrigatória.",
+  "El monto debe ser mayor que 0.": "O valor deve ser maior que 0.",
+  "Error al guardar: ": "Erro ao salvar: ",
+
+  "Sin imágenes todavía.": "Ainda não há imagens.",
+  "Cargando...": "Carregando...",
+  "No se pudo listar imágenes: ": "Não foi possível listar imagens: ",
+  "¿Eliminar imagen?": "Excluir imagem?",
+  "No se pudo eliminar: ": "Não foi possível excluir: ",
+  "Placa no válida.": "Placa inválida.",
+  "Seleccione una o más imágenes.": "Selecione uma ou mais imagens.",
+  "Archivo no es imagen: ": "Arquivo não é imagem: ",
+  "Imagen supera 20MB: ": "Imagem excede 20MB: ",
+  "Fallo al subir ": "Falha ao enviar "
+};
+
+/* 2) Inverso PT -> ES (para alternar de volta) */
+const I18N_PT_ES = Object.fromEntries(Object.entries(I18N_ES_PT).map(([es, pt]) => [pt, es]));
+
+/* 3) Idioma atual */
+let LANG = localStorage.getItem("lang") || (document.documentElement.lang || "es");
+
+/* 4) Util: traduz uma string por dicionário (substituição por “frases inteiras” e também por trechos) */
+function i18nTranslateString(s, fromDict){
+  if(!s) return s;
+  let out = s;
+  // tenta match exato
+  if(fromDict[out] != null) return fromDict[out];
+  // substituições por trechos conhecidos (para mensagens com sufixo de erro)
+  for(const [k,v] of Object.entries(fromDict)){
+    if(k && out.includes(k)){
+      out = out.replace(k, v);
+    }
+  }
+  return out;
+}
+
+/* 5) Traduz DOM: textos, placeholders, titles e <option> (preservando VALUE em ES) */
+function i18nApply(){
+  const dict = (LANG === "pt") ? I18N_ES_PT : I18N_PT_ES;
+
+  // <title>
+  if(document.title) document.title = i18nTranslateString(document.title, dict);
+
+  // textContent de nós “folha”
+  const all = document.querySelectorAll("body *");
+  all.forEach(el=>{
+    // atributos
+    if(el.placeholder) el.placeholder = i18nTranslateString(el.placeholder, dict);
+    if(el.title)       el.title       = i18nTranslateString(el.title, dict);
+
+    // opções de <select>: travar VALUE em ES na 1ª vez, só trocar o texto visível
+    if(el.tagName === "SELECT"){
+      Array.from(el.options).forEach(op=>{
+        if(!op.hasAttribute("data-i18n-fixed-value")){
+          op.setAttribute("data-i18n-fixed-value","1");
+          // se value não existe (era igual ao texto), fixa o value atual (ES)
+          op.setAttribute("value", op.value);
+        }
+        // troca apenas a label visível
+        op.textContent = i18nTranslateString(op.textContent, dict);
+      });
+      return; // evita reprocessar conteúdo textual do select
+    }
+
+    // nós sem filhos → troca texto inteiro
+    if(el.children.length === 0 && el.firstChild && el.firstChild.nodeType === 3){
+      const trimmed = el.textContent.trim();
+      if(trimmed){
+        const replaced = i18nTranslateString(el.textContent, dict);
+        if(replaced !== el.textContent) el.textContent = replaced;
+      }
+    }
+  });
+}
+
+/* 6) Re-traduzir após re-renderizações dinâmicas */
+function i18nRefreshAfterRender(){
+  i18nApply();
+}
+
+/* 7) Monkey-patch em alert/confirm para traduzir mensagens também */
+(function patchDialogs(){
+  const _alert  = window.alert ? window.alert.bind(window)   : null;
+  const _confirm= window.confirm ? window.confirm.bind(window): null;
+  if(_alert){
+    window.alert = (msg)=> _alert(i18nTranslateString(String(msg), (LANG==='pt')?I18N_ES_PT:I18N_PT_ES));
+  }
+  if(_confirm){
+    window.confirm = (msg)=> _confirm(i18nTranslateString(String(msg), (LANG==='pt')?I18N_ES_PT:I18N_PT_ES));
+  }
+})();
+
+/* 8) Injeta seletor de idioma no cabeçalho (.tabs) */
+function i18nInjectSelector(){
+  if(document.getElementById("langSelect")) return;
+  const tabs = document.querySelector(".header .tabs") || document.querySelector(".header");
+  if(!tabs) return;
+  const wrap = document.createElement("div");
+  wrap.style.display = "flex";
+  wrap.style.gap = "8px";
+  wrap.style.alignItems = "center";
+
+  const sel = document.createElement("select");
+  sel.id = "langSelect";
+  sel.style.padding = "8px 10px";
+  sel.style.borderRadius = "10px";
+  sel.style.border = "1px solid #334155";
+  sel.style.background = "transparent";
+  sel.style.color = "#e2e8f0";
+  sel.innerHTML = `
+    <option value="es">Español</option>
+    <option value="pt">Português</option>
+  `;
+  sel.value = (LANG === "pt" ? "pt" : "es");
+  sel.onchange = ()=>{
+    LANG = sel.value;
+    localStorage.setItem("lang", LANG);
+    document.documentElement.setAttribute("lang", LANG);
+    i18nApply();
+  };
+
+  wrap.appendChild(sel);
+  tabs.appendChild(wrap);
+}
+
+/* 9) Hook nos seus renders para re-aplicar a tradução automaticamente */
+(function i18nHookRenders(){
+  // intercepta funções globais de render se existirem
+  const hook = (name)=>{
+    const fn = window[name];
+    if(typeof fn === "function"){
+      window[name] = async function(...args){
+        const r = await fn.apply(this, args);
+        i18nRefreshAfterRender();
+        return r;
+      };
+    }
+  };
+  // principais renders da sua app:
+  ["loadVehicles","loadRentals","loadMaint","loadFinances","refreshKPIs"]
+    .forEach(hook);
+
+  // também no activateTab (quando você troca de aba)
+  const act = window.activateTab;
+  if(typeof act === "function"){
+    window.activateTab = function(name){
+      const r = act(name);
+      i18nRefreshAfterRender();
+      return r;
+    };
+  }
+})();
+
+/* 10) Start */
+document.addEventListener("DOMContentLoaded", ()=>{
+  document.documentElement.setAttribute("lang", LANG);
+  i18nInjectSelector();
+  i18nApply();
+});
+</script>
 </body>
 </html>
