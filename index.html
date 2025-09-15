@@ -232,6 +232,16 @@
   .note-box{ min-height:96px }
 }
 
+/* === i18n: seletor flutuante de idioma === */
+#langSwitch{
+  position:fixed; right:12px; bottom:12px; z-index:10000;
+  background:rgba(0,0,0,.55); border:1px solid #334155; border-radius:12px; padding:8px;
+  display:flex; gap:6px; align-items:center; backdrop-filter:blur(6px)
+}
+#langSwitch button{
+  background:#1f2937; color:#e2e8f0; border:1px solid #334155; border-radius:8px; padding:8px 10px; cursor:pointer; font-weight:700
+}
+#langSwitch button.active{ outline:2px solid #93c5fd }
   
 </style>
 </head>
@@ -1602,6 +1612,266 @@ document.getElementById('repLimpiar')?.addEventListener('click', ()=>{
 document.getElementById('repDesde')?.addEventListener('change', refreshKPIs);
 document.getElementById('repHasta')?.addEventListener('change', refreshKPIs);
 });
+  </script>
+
+  <!-- i18n: seletor de idioma -->
+  <div id="langSwitch" aria-label="Idioma">
+    <button type="button" data-lang="es" class="active" title="Español">ES</button>
+    <button type="button" data-lang="pt" title="Português">PT</button>
+  </div>
+
+  <!-- i18n: tradutor drop-in -->
+  <script>
+  (function(){
+    const ATTRS = ["placeholder","title","alt","aria-label","value"];
+    const SUP = ["es","pt"];
+    const storeKey = "site_lang";
+
+    // ES → PT (exatos)
+    const mapExact = {
+      "Administración — Alquiler de Autos":"Administração — Aluguel de Carros",
+      "Panel — Alquiler de Autos":"Painel — Aluguel de Carros",
+      "Control de vehículos, salidas, entradas, mantenimiento y finanzas":"Controle de veículos, saídas, entradas, manutenção e finanças",
+
+      "Inicio de sesión":"Início de sessão",
+      "Acceso interno de la empresa":"Acesso interno da empresa",
+      "Usuario":"Usuário",
+      "Contraseña":"Senha",
+      "Entrar":"Entrar",
+
+      "Locaciones":"Locações",
+      "Vehículos":"Veículos",
+      "Mantenimiento":"Manutenção",
+      "Finanzas":"Finanças",
+      "Reportes":"Relatórios",
+      "Salir":"Sair",
+
+      "Registrar salida":"Registrar saída",
+      "Conductor / Cliente":"Condutor / Cliente",
+      "Fecha/Hora salida":"Data/Hora de saída",
+      "Previsto retorno":"Previsão de retorno",
+      "KM salida":"KM de saída",
+      "Combustible (salida)":"Combustível (saída)",
+      "Observaciones":"Observações",
+      "Accesorios, daños, depósito...":"Acessórios, danos, caução...",
+      "Solo aparecen autos “Disponible”.":"Somente aparecem carros “Disponível”.",
+      "Registrar entrada":"Registrar entrada",
+      "Fecha/Hora entrada":"Data/Hora de entrada",
+      "KM entrada":"KM de entrada",
+      "Combustible (entrada)":"Combustível (entrada)",
+      "Observaciones de retorno":"Observações de retorno",
+      "Multas, daños, limpieza...":"Multas, danos, limpeza...",
+      "Solo aparecen autos “En uso”.":"Somente aparecem carros “Em uso”.",
+
+      "Buscar por placa, marca/modelo o conductor...":"Buscar por placa, marca/modelo ou condutor...",
+      "Todos los estados":"Todos os estados",
+      "Exportar CSV":"Exportar CSV",
+      "Placa / Marca / Modelo":"Placa / Marca / Modelo",
+      "Conductor":"Condutor",
+      "Salida":"Saída",
+      "Previsto":"Previsto",
+      "Entrada":"Entrada",
+      "KM":"KM",
+      "Estado":"Estado",
+      "Acciones":"Ações",
+
+      "Disponible":"Disponível",
+      "En uso":"Em uso",
+      "Atrasado":"Atrasado",
+      "Entregado":"Entregue",
+      "Mantenimiento":"Manutenção",
+
+      "Registro de vehículo":"Cadastro de veículo",
+      "Marca / Modelo":"Marca / Modelo",
+      "Color":"Cor",
+      "KM actual":"KM atual",
+      "Fecha de registro":"Data de registro",
+      "Plata":"Prata",
+      "Guardar/Actualizar vehículo":"Salvar/Atualizar veículo",
+      "Vehículos":"Veículos",
+      "Buscar por placa, marca o modelo...":"Buscar por placa, marca ou modelo...",
+      "Fecha registro":"Data de registro",
+      "Editar":"Editar",
+      "Imágenes":"Imagens",
+      "Eliminar":"Excluir",
+
+      "Registrar mantenimiento":"Registrar manutenção",
+      "Tipo":"Tipo",
+      "Servicio / Tarea":"Serviço / Tarefa",
+      "Fecha":"Data",
+      "Próxima fecha (opcional)":"Próxima data (opcional)",
+      "KM (realizado / referencia)":"KM (realizado / referência)",
+      "Próximo KM (opcional)":"Próximo KM (opcional)",
+      "Estado":"Status",
+      "Costo (opcional)":"Custo (opcional)",
+      "Observación":"Observação",
+      "Detalle del trabajo o nota.":"Detalhe do trabalho ou nota.",
+      "Al informar un Costo, se crea/actualiza un Egreso en Finanzas.":"Ao informar um Custo, é criado/atualizado um Egresso em Finanças.",
+      "Guardar mantenimiento":"Salvar manutenção",
+      "Historial y próximos":"Histórico e próximos",
+      "Vencen ≤7 días: ":"Vencem ≤7 dias: ",
+      "Vencen ≤1.000 km: ":"Vencem ≤1.000 km: ",
+      "Todos":"Todos",
+      "Filtrar vencimientos":"Filtrar vencimentos",
+      "Todos los vencimientos":"Todos os vencimentos",
+      "Próximos 7 días":"Próximos 7 dias",
+      "Próximos 1.000 km":"Próximos 1.000 km",
+      "Servicio":"Serviço",
+      "Próxima":"Próxima",
+      "Costo":"Custo",
+      "Marcar hecho":"Marcar feito",
+      "Hecho":"Feito",
+      "Pendiente":"Pendente",
+
+      "Registrar movimiento":"Registrar movimento",
+      "Monto":"Valor",
+      "Placa (opcional)":"Placa (opcional)",
+      "Categoría":"Categoria",
+      "Alquiler":"Aluguel",
+      "Combustible":"Combustível",
+      "Multa":"Multa",
+      "Peaje":"Pedágio",
+      "Compra":"Compra",
+      "Otro":"Outro",
+      "Concepto / Nota":"Conceito / Nota",
+      "Detalle del movimiento (ej. Alquiler Juan Pérez - 3 días)":"Detalhe do movimento (ex. Aluguel João Silva - 3 dias)",
+      "El Asistente no puede ver el historial completo; solo sus propios registros.":"O Assistente não pode ver o histórico completo; apenas seus próprios registros.",
+      "Guardar movimiento":"Salvar movimento",
+      "Resumen y listado":"Resumo e listagem",
+      "Buscar por placa, concepto o categoría...":"Buscar por placa, conceito ou categoria...",
+      "Desde":"De",
+      "Hasta":"Até",
+      "Ingresos + Egresos":"Receitas + Despesas",
+      "Todas las placas":"Todas as placas",
+      "Ingresos: ":"Receitas: ",
+      "Egresos: ":"Despesas: ",
+      "Saldo: ":"Saldo: ",
+
+      "Indicadores rápidos":"Indicadores rápidos",
+      "Autos disponibles":"Carros disponíveis",
+      "En mantenimiento":"Em manutenção",
+      "Aplicar":"Aplicar",
+      "Limpiar":"Limpar",
+      "Ingresos totales (filtrado)":"Receitas totais (filtrado)",
+      "Egresos totales (filtrado)":"Despesas totais (filtrado)",
+      "Ganancia líquida":"Lucro líquido",
+
+      "Observaciones":"Observações",
+      "Salida":"Saída",
+      "Entrada":"Entrada",
+      "Cerrar":"Fechar",
+      "Imágenes del vehículo — ":"Imagens do veículo — ",
+      "Seleccionar imágenes (JPG/PNG, máx. 20MB cada)":"Selecionar imagens (JPG/PNG, máx. 20MB cada)",
+      "Subir imágenes":"Enviar imagens",
+      "Admin puede eliminar imágenes. Asistente puede subir y ver.":"Admin pode excluir imagens. Assistente pode enviar e ver.",
+      "Abrir":"Abrir"
+    };
+
+    // 'contains' genéricos
+    const mapContains = {
+      "Vencen ≤":"Vencem ≤",
+      "Próximos ":"Próximos ",
+      " (filtrado)":" (filtrado)"
+    };
+
+    function invert(obj){
+      const inv={}; Object.keys(obj).forEach(k=>{ inv[obj[k]] = k; }); return inv;
+    }
+    const mapExactPTtoES = invert(mapExact);
+    const mapContainsPTtoES = invert(mapContains);
+
+    function getLang(){
+      const saved = localStorage.getItem(storeKey);
+      if(saved && SUP.includes(saved)) return saved;
+      const nav = (navigator.language||"").toLowerCase();
+      return nav.startsWith("pt") ? "pt" : "es";
+    }
+
+    function translateTextNode(node, to){
+      const txt = node.nodeValue.trim();
+      if(!txt) return;
+      const table = (to==="pt") ? mapExact : mapExactPTtoES;
+      const tableC = (to==="pt") ? mapContains : mapContainsPTtoES;
+
+      if(table[txt]){ node.nodeValue = node.nodeValue.replace(txt, table[txt]); return; }
+      for(const frag in tableC){
+        if(txt.includes(frag)){
+          node.nodeValue = node.nodeValue.replace(frag, tableC[frag]);
+        }
+      }
+    }
+
+    function translateAttrs(el, to){
+      const table = (to==="pt") ? mapExact : mapExactPTtoES;
+      const tableC = (to==="pt") ? mapContains : mapContainsPTtoES;
+      ["placeholder","title","alt","aria-label","value"].forEach(a=>{
+        if(!el.hasAttribute(a)) return;
+        const val = el.getAttribute(a);
+        if(!val) return;
+        let out = table[val] || val;
+        if(out===val){
+          for(const k in tableC){ if(out.includes(k)) out = out.replace(k, tableC[k]); }
+        }
+        el.setAttribute(a, out);
+        if(el.tagName==="OPTION"){
+          if(!el.dataset.i18nOriginalValue){
+            el.dataset.i18nOriginalValue = el.value; // mantém value ES
+          }
+          el.value = el.dataset.i18nOriginalValue;
+        }
+      });
+    }
+
+    function walk(node, to){
+      if(node.nodeType===Node.TEXT_NODE){
+        translateTextNode(node, to);
+        return;
+      }
+      if(node.nodeType!==Node.ELEMENT_NODE) return;
+      const tag = node.tagName;
+      if(tag==="SCRIPT"||tag==="STYLE") return;
+      translateAttrs(node, to);
+      node.childNodes.forEach(child=>walk(child, to));
+    }
+
+    function applyLang(to){
+      document.documentElement.setAttribute("lang", to);
+      walk(document.body, to);
+      const titleMap = (to==="pt") ? mapExact : mapExactPTtoES;
+      const t = document.title;
+      if(titleMap[t]) document.title = titleMap[t];
+      document.querySelectorAll('#langSwitch button').forEach(b=>{
+        b.classList.toggle('active', b.dataset.lang===to);
+      });
+    }
+
+    const obs = new MutationObserver(muts=>{
+      const to = localStorage.getItem(storeKey) || getLang();
+      muts.forEach(m=>{
+        m.addedNodes?.forEach(n=>{ if(n.nodeType===1||n.nodeType===3) walk(n, to); });
+        if(m.type==="attributes"){ translateAttrs(m.target, to); }
+      });
+    });
+
+    function startObserver(){
+      obs.observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:ATTRS });
+    }
+
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const start = getLang();
+      localStorage.setItem(storeKey, start);
+      applyLang(start);
+      startObserver();
+
+      document.querySelectorAll('#langSwitch button').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const lang = btn.dataset.lang;
+          localStorage.setItem(storeKey, lang);
+          applyLang(lang);
+        });
+      });
+    });
+  })();
   </script>
 </body>
 </html>
