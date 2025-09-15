@@ -1598,4 +1598,10 @@ document.getElementById('repLimpiar')?.addEventListener('click', ()=>{
   refreshKPIs(); // sem datas = soma tudo
 });
 
-// Tam
+// Também recalcular ao mudar as datas (sem precisar clicar em Aplicar)
+document.getElementById('repDesde')?.addEventListener('change', refreshKPIs);
+document.getElementById('repHasta')?.addEventListener('change', refreshKPIs);
+});
+  </script>
+</body>
+</html>
