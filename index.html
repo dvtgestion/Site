@@ -1857,14 +1857,29 @@ let LANG = localStorage.getItem("lang") || (document.documentElement.lang || "es
 /* 4) Util: traduz uma string por dicionário (substituição por “frases inteiras” e também por trechos) */
 function i18nTranslateString(s, fromDict){
   if(!s) return s;
+
+  // 1) match exato — se bater, já retorna
+  if(fromDict[s] != null) return fromDict[s];
+
+  // 2) substituições por trechos, porém com limites de palavra quando a chave for "só letras"
   let out = s;
-  // tenta match exato
-  if(fromDict[out] != null) return fromDict[out];
-  // substituições por trechos conhecidos (para mensagens com sufixo de erro)
-  for(const [k,v] of Object.entries(fromDict)){
-    if(k && out.includes(k)){
-      out = out.replace(k, v);
-    }
+  const entries = Object.entries(fromDict).sort((a,b)=> b[0].length - a[0].length);
+
+  const isWordOnly = (str) => /^[A-Za-zÀ-ÖØ-öø-ÿ]+$/u.test(str);
+
+  for (const [k, v] of entries){
+    if(!k) continue;
+    const escaped = k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const pattern = isWordOnly(k) ? `\\b${escaped}\\b` : escaped;
+    const re = new RegExp(pattern, "gi");
+
+    out = out.replace(re, (match)=>{
+      // preserva caixa
+      if (match.toUpperCase() === match) return v.toUpperCase();
+      if (match.toLowerCase() === match) return v.toLowerCase();
+      if (match[0] === match[0].toUpperCase()) return v[0].toUpperCase() + v.slice(1);
+      return v;
+    });
   }
   return out;
 }
