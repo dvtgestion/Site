@@ -1959,37 +1959,57 @@ function i18nRefreshAfterRender(){
   }
 })();
 
-/* 8) Injeta seletor de idioma no cabeçalho (.tabs) */
-function i18nInjectSelector(){
-  if(document.getElementById("langSelect")) return;
-  const tabs = document.querySelector(".header .tabs") || document.querySelector(".header");
-  if(!tabs) return;
-  const wrap = document.createElement("div");
-  wrap.style.display = "flex";
-  wrap.style.gap = "8px";
-  wrap.style.alignItems = "center";
 
-  const sel = document.createElement("select");
-  sel.id = "langSelect";
-  sel.style.padding = "8px 10px";
-  sel.style.borderRadius = "10px";
-  sel.style.border = "1px solid #334155";
-  sel.style.background = "transparent";
-  sel.style.color = "#e2e8f0";
-  sel.innerHTML = `
-    <option value="es">Español</option>
-    <option value="pt">Português</option>
-  `;
-  sel.value = (LANG === "pt" ? "pt" : "es");
-  sel.onchange = ()=>{
-    LANG = sel.value;
-    localStorage.setItem("lang", LANG);
-    document.documentElement.setAttribute("lang", LANG);
-    i18nApply();
+/* 8) Injeta seletor de idioma no cabeçalho e no login */
+function i18nInjectSelector(){
+  // helper para criar o <select> e sincronizar os dois
+  const makeSelect = (id)=>{
+    const sel = document.createElement("select");
+    sel.id = id;
+    sel.style.padding = "8px 10px";
+    sel.style.borderRadius = "10px";
+    sel.style.border = "1px solid #334155";
+    sel.style.background = "transparent";
+    sel.style.color = "#e2e8f0";
+    sel.innerHTML = `
+      <option value="es">Español</option>
+      <option value="pt">Português</option>
+    `;
+    sel.value = (LANG === "pt" ? "pt" : "es");
+    sel.onchange = ()=>{
+      LANG = sel.value;
+      localStorage.setItem("lang", LANG);
+      document.documentElement.setAttribute("lang", LANG);
+      // sincroniza o outro seletor, se existir
+      const otherId = id === "langSelectHeader" ? "langSelectLogin" : "langSelectHeader";
+      const other = document.getElementById(otherId);
+      if(other) other.value = LANG;
+      i18nApply();
+    };
+    return sel;
   };
 
-  wrap.appendChild(sel);
-  tabs.appendChild(wrap);
+  // Header (como já fazia)
+  const tabs = document.querySelector(".header .tabs") || document.querySelector(".header");
+  if(tabs && !document.getElementById("langSelectHeader")){
+    const wrap = document.createElement("div");
+    wrap.style.display = "flex";
+    wrap.style.gap = "8px";
+    wrap.style.alignItems = "center";
+    wrap.appendChild(makeSelect("langSelectHeader"));
+    tabs.appendChild(wrap);
+  }
+
+  // Login — colocamos um seletor no topo do card
+  const login = document.getElementById("login");
+  if(login && !document.getElementById("langSelectLogin")){
+    const row = document.createElement("div");
+    row.style.display = "flex";
+    row.style.justifyContent = "flex-end";
+    row.style.marginBottom = "8px";
+    row.appendChild(makeSelect("langSelectLogin"));
+    login.insertBefore(row, login.firstChild); // aparece acima do título
+  }
 }
 
 /* 9) Hook nos seus renders para re-aplicar a tradução automaticamente */
