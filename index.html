@@ -1406,76 +1406,97 @@ async function refreshKPIs(){
   const dict = (typeof i18nTranslateString==="function" && typeof I18N_ES_PT!=="undefined")
     ? ((LANG==='pt')?I18N_ES_PT:I18N_PT_ES) : null;
 
-  if(session.role==='admin'){
-    const desde=$("#repDesde")?.value||"";
-    const hasta=$("#repHasta")?.value||"";
-    const { data: fin } = await supa
-      .from('finances')
-      .select('fecha,tipo,monto,categoria')
-      .eq('company_id', session.company_id);
+  if (session.role === 'admin') {
+  const desde=$("#repDesde")?.value||"";
+  const hasta=$("#repHasta")?.value||"";
+  const { data: fin } = await supa
+    .from('finances')
+    .select('fecha,tipo,monto,categoria')
+    .eq('company_id', session.company_id);
 
-    const items=(fin||[]).filter(x=>{
-      const okD = desde ? ((x.fecha||"")>=desde) : true;
-      const okH = hasta ? ((x.fecha||"")<=hasta) : true;
-      return okD && okH;
+  const items=(fin||[]).filter(x=>{
+    const okD = desde ? ((x.fecha||"")>=desde) : true;
+    const okH = hasta ? ((x.fecha||"")<=hasta) : true;
+    return okD && okH;
+  });
+
+  // Totais (como já fazia)
+  const s = sumFin(items);
+  $("#mIngTotal").textContent = s.inSum.toFixed(2);
+  $("#mEgrTotal").textContent = s.outSum.toFixed(2);
+  $("#mGanancia").textContent = s.saldo.toFixed(2);
+
+  // === Distribución por categoría (pizza) — com cores por tipo ===
+  if (pieCanvas) {
+    const CATS = ["Alquiler","Mantenimiento","Combustible","Multa","Peaje","Compra","Otro"];
+
+    // acumula separado: Ingreso x Egreso por categoria
+    const accIn  = new Map(CATS.map(c=>[c,0]));
+    const accOut = new Map(CATS.map(c=>[c,0]));
+
+    items.forEach(x=>{
+      const cat = CATS.includes(x.categoria) ? x.categoria : "Otro";
+      const val = Number(x.monto) || 0;
+      if (x.tipo === 'Ingreso') accIn.set(cat,  accIn.get(cat)  + val);
+      else                      accOut.set(cat, accOut.get(cat) + val);
     });
 
-    // Totais (como já fazia)
-    const s = sumFin(items);
-    $("#mIngTotal").textContent = s.inSum.toFixed(2);
-    $("#mEgrTotal").textContent = s.outSum.toFixed(2);
-    $("#mGanancia").textContent = s.saldo.toFixed(2);
+    // série: valor total (tamanho da fatia) e tipo dominante (cor)
+    const series = CATS.map(label=>{
+      const vin  = accIn.get(label);
+      const vout = accOut.get(label);
+      return { label, value: vin + vout, tipo: (vout >= vin) ? 'Egreso' : 'Ingreso' };
+    }).filter(s=>s.value>0);
 
-    // === Distribuição por categoria (pizza) ===
-    if(pieCanvas){
-      const CATS = ["Alquiler","Mantenimiento","Combustible","Multa","Peaje","Compra","Otro"];
-      const acc = new Map(CATS.map(c=>[c,0]));
+    const total = series.reduce((a,b)=>a+b.value,0);
 
-      items.forEach(x=>{
-        const cat = CATS.includes(x.categoria) ? x.categoria : "Otro";
-        const val = Number(x.monto)||0;  // soma ambos (Ingreso/Egreso)
-        acc.set(cat, acc.get(cat) + val);
-      });
-
-      const series = CATS.map(label=>({ label, value: acc.get(label) }))
-                         .filter(s=>s.value>0);
-      const total = series.reduce((a,b)=>a+b.value,0);
-
-      if(total<=0){
-        const ctx=pieCanvas.getContext('2d');
-        ctx.clearRect(0,0,pieCanvas.width,pieCanvas.height);
-        if(pieLegend){
-          const text = dict ? i18nTranslateString("Sin datos", dict) : "Sin datos";
-          pieLegend.innerHTML = `<span class="muted">${text}</span>`;
-        }
-      }else{
-        const colors = genColors(series.length);
-        drawPie(pieCanvas, series, colors);
-        if(pieLegend){
-          pieLegend.innerHTML = series.map((s,i)=>{
-            const pct = ((s.value/total)*100).toFixed(1);
-            const label = dict ? i18nTranslateString(s.label, dict) : s.label;
-            return `<span class="item"><span class="sw" style="background:${colors[i]}"></span>${label}: ${pct}% (${Number(s.value).toFixed(2)})</span>`;
-          }).join(" ");
-        }
-      }
-    }
-
-  } else {
-    // Não-admin: zera KPIs e limpa gráfico
-    $("#mIngTotal").textContent="0.00";
-    $("#mEgrTotal").textContent="0.00";
-    $("#mGanancia").textContent="0.00";
-    if(pieCanvas){
-      const ctx=pieCanvas.getContext('2d'); ctx.clearRect(0,0,pieCanvas.width,pieCanvas.height);
-      if(pieLegend){
+    if (total <= 0) {
+      const ctx=pieCanvas.getContext('2d');
+      ctx.clearRect(0,0,pieCanvas.width,pieCanvas.height);
+      if (pieLegend) {
         const text = dict ? i18nTranslateString("Sin datos", dict) : "Sin datos";
         pieLegend.innerHTML = `<span class="muted">${text}</span>`;
       }
+    } else {
+      // paletas
+      const greens = ["#22c55e","#4ade80","#86efac","#16a34a"]; // Ingreso
+      const reds   = ["#ef4444","#f87171","#fecaca","#dc2626"]; // Egreso
+
+      let gIdx=0, rIdx=0;
+      const colors = series.map(s=>{
+        if (s.tipo==='Ingreso') { const c=greens[gIdx%greens.length]; gIdx++; return c; }
+        else                    { const c=reds[rIdx%reds.length];     rIdx++; return c; }
+      });
+
+      // desenha
+      drawPie(pieCanvas, series, colors);
+
+      // legenda
+      if (pieLegend) {
+        pieLegend.innerHTML = series.map((s,i)=>{
+          const pct   = ((s.value/total)*100).toFixed(1);
+          const label = dict ? i18nTranslateString(s.label, dict) : s.label;
+          const tipoLab = dict ? i18nTranslateString(s.tipo, dict) : s.tipo; // usa seu dicionário
+          return `<span class="item"><span class="sw" style="background:${colors[i]}"></span>${label}: ${pct}% (${Number(s.value).toFixed(2)}) — ${tipoLab}</span>`;
+        }).join(" ");
+      }
+    }
+  }
+
+} else {
+  // Não-admin: zera KPIs e limpa gráfico
+  $("#mIngTotal").textContent="0.00";
+  $("#mEgrTotal").textContent="0.00";
+  $("#mGanancia").textContent="0.00";
+  if (pieCanvas) {
+    const ctx=pieCanvas.getContext('2d'); ctx.clearRect(0,0,pieCanvas.width,pieCanvas.height);
+    if (pieLegend) {
+      const text = dict ? i18nTranslateString("Sin datos", dict) : "Sin datos";
+      pieLegend.innerHTML = `<span class="muted">${text}</span>`;
     }
   }
 }
-
+} // ← fecha a função refreshKPIs
 /* ===== Tabs ===== */
 function activateTab(name){
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active", t.dataset.tab===name));
