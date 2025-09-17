@@ -2099,15 +2099,22 @@ function i18nInjectSelector(){
     `;
     sel.value = (LANG === "pt" ? "pt" : "es");
     sel.onchange = ()=>{
-      LANG = sel.value;
-      localStorage.setItem("lang", LANG);
-      document.documentElement.setAttribute("lang", LANG);
-      // sincroniza o outro seletor, se existir
-      const otherId = id === "langSelectHeader" ? "langSelectLogin" : "langSelectHeader";
-      const other = document.getElementById(otherId);
-      if(other) other.value = LANG;
-      i18nApply();
-    };
+  LANG = sel.value;
+  localStorage.setItem("lang", LANG);
+  document.documentElement.setAttribute("lang", LANG);
+
+  // sincroniza o outro seletor (login ↔ header)
+  const otherId = id === "langSelectHeader" ? "langSelectLogin" : "langSelectHeader";
+  const other = document.getElementById(otherId);
+  if (other) other.value = LANG;
+
+  // reaplica textos estáticos
+  i18nApply();
+
+  // 🔁 re-renderiza os KPIs/legenda do gráfico no novo idioma
+  if (typeof refreshKPIs === "function") { try { refreshKPIs(); } catch(_){} }
+};
+    
     return sel;
   };
 
