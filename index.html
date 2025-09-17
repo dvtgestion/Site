@@ -233,6 +233,14 @@
   .note-box{ min-height:96px }
 }
 
+/* === Pie (Reportes) === */
+.pie-legend{ display:flex; flex-wrap:wrap; gap:8px; font-size:13px }
+.pie-legend .item{
+  display:flex; align-items:center; gap:6px;
+  background: rgba(0,0,0,.25); border:1px solid #293042;
+  border-radius: 999px; padding:4px 8px; color: var(--white)
+}
+.pie-legend .sw{ width:10px; height:10px; border-radius:2px; display:inline-block }
   
 </style>
 </head>
@@ -498,6 +506,15 @@
   <div class="col"><div class="card"><div class="muted">Egresos totales (filtrado)</div><div id="mEgrTotal" style="font-size:28px;font-weight:700">0.00</div></div></div>
   <div class="col"><div class="card"><div class="muted">Ganancia líquida</div><div id="mGanancia" style="font-size:28px;font-weight:700">0.00</div></div></div>
 </div>
+
+<div class="card" style="margin-top:16px">
+  <h3 style="margin:0 0 8px 0">Distribución por categoría</h3>
+  <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+    <canvas id="finPie" width="260" height="260" class="thumb" style="background:#0b1220;border:1px solid #293042;border-radius:10px"></canvas>
+    <div id="finPieLegend" class="pie-legend"></div>
+  </div>
+</div>
+
 
         
         </div>
@@ -1261,6 +1278,27 @@ $("#btnAddMant") && ($("#btnAddMant").onclick = async ()=>{
 
 /* ===== Finanzas ===== */
 function sumFin(items){ let inSum=0,outSum=0; (items||[]).forEach(x=>{ const v=Number(x.monto)||0; if(x.tipo==='Ingreso') inSum+=v; else outSum+=v; }); return { inSum, outSum, saldo: inSum-outSum }; }
+// === Pie helpers (leves, sem libs) ===
+function genColors(n){
+  const out=[]; let h=210, golden=137.508; // separação de tons
+  for(let i=0;i<n;i++){ h=(h+golden)%360; out.push(`hsl(${Math.round(h)}deg 70% 55%)`); }
+  return out;
+}
+function drawPie(canvas, series, colors){
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const cx=W/2, cy=H/2, r=Math.min(cx,cy)-4;
+  const total = series.reduce((a,b)=>a+b.value,0) || 1;
+  let ang = -Math.PI/2;
+  series.forEach((s,i)=>{
+    const a = (s.value/total)*Math.PI*2;
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,ang,ang+a); ctx.closePath();
+    ctx.fillStyle = colors[i%colors.length]; ctx.fill();
+    ang += a;
+  });
+}
 async function loadFinances(){
   const isAdmin = (session.role === 'admin');
 
@@ -1353,6 +1391,7 @@ $("#btnFinExport") && ($("#btnFinExport").onclick = async ()=>{
 
 /* ===== KPIs ===== */
 async function refreshKPIs(){
+  // KPIs de veículos
   const { data, error } = await supa.from('v_kpis').select('*').maybeSingle();
   if(!error && data){
     $("#mDisponiveis").textContent=data.disp??0;
@@ -1360,23 +1399,81 @@ async function refreshKPIs(){
     $("#mAtrasados").textContent=data.atrasados??0;
     $("#mMantenimiento").textContent=data.manut??0;
   }
+
+  // Referências do gráfico
+  const pieCanvas = document.getElementById('finPie');
+  const pieLegend = document.getElementById('finPieLegend');
+  const dict = (typeof i18nTranslateString==="function" && typeof I18N_ES_PT!=="undefined")
+    ? ((LANG==='pt')?I18N_ES_PT:I18N_PT_ES) : null;
+
   if(session.role==='admin'){
-  const desde=$("#repDesde")?.value||""; const hasta=$("#repHasta")?.value||"";
-  const { data: fin } = await supa.from('finances').select('fecha,tipo,monto').eq('company_id', session.company_id);
-  const items=(fin||[]).filter(x=>{ 
-    const okD=desde?((x.fecha||"")>=desde):true; 
-    const okH=hasta?((x.fecha||"")<=hasta):true; 
-    return okD&&okH; 
-  });
-  const s=sumFin(items);
-  $("#mIngTotal").textContent = s.inSum.toFixed(2);
-  $("#mEgrTotal").textContent = s.outSum.toFixed(2);
-  $("#mGanancia").textContent = s.saldo.toFixed(2);   // << NOVO
-} else { 
-  $("#mIngTotal").textContent="0.00"; 
-  $("#mEgrTotal").textContent="0.00"; 
-  $("#mGanancia").textContent="0.00";                  // << NOVO
-}
+    const desde=$("#repDesde")?.value||"";
+    const hasta=$("#repHasta")?.value||"";
+    const { data: fin } = await supa
+      .from('finances')
+      .select('fecha,tipo,monto,categoria')
+      .eq('company_id', session.company_id);
+
+    const items=(fin||[]).filter(x=>{
+      const okD = desde ? ((x.fecha||"")>=desde) : true;
+      const okH = hasta ? ((x.fecha||"")<=hasta) : true;
+      return okD && okH;
+    });
+
+    // Totais (como já fazia)
+    const s = sumFin(items);
+    $("#mIngTotal").textContent = s.inSum.toFixed(2);
+    $("#mEgrTotal").textContent = s.outSum.toFixed(2);
+    $("#mGanancia").textContent = s.saldo.toFixed(2);
+
+    // === Distribuição por categoria (pizza) ===
+    if(pieCanvas){
+      const CATS = ["Alquiler","Mantenimiento","Combustible","Multa","Peaje","Compra","Otro"];
+      const acc = new Map(CATS.map(c=>[c,0]));
+
+      items.forEach(x=>{
+        const cat = CATS.includes(x.categoria) ? x.categoria : "Otro";
+        const val = Number(x.monto)||0;  // soma ambos (Ingreso/Egreso)
+        acc.set(cat, acc.get(cat) + val);
+      });
+
+      const series = CATS.map(label=>({ label, value: acc.get(label) }))
+                         .filter(s=>s.value>0);
+      const total = series.reduce((a,b)=>a+b.value,0);
+
+      if(total<=0){
+        const ctx=pieCanvas.getContext('2d');
+        ctx.clearRect(0,0,pieCanvas.width,pieCanvas.height);
+        if(pieLegend){
+          const text = dict ? i18nTranslateString("Sin datos", dict) : "Sin datos";
+          pieLegend.innerHTML = `<span class="muted">${text}</span>`;
+        }
+      }else{
+        const colors = genColors(series.length);
+        drawPie(pieCanvas, series, colors);
+        if(pieLegend){
+          pieLegend.innerHTML = series.map((s,i)=>{
+            const pct = ((s.value/total)*100).toFixed(1);
+            const label = dict ? i18nTranslateString(s.label, dict) : s.label;
+            return `<span class="item"><span class="sw" style="background:${colors[i]}"></span>${label}: ${pct}% (${Number(s.value).toFixed(2)})</span>`;
+          }).join(" ");
+        }
+      }
+    }
+
+  } else {
+    // Não-admin: zera KPIs e limpa gráfico
+    $("#mIngTotal").textContent="0.00";
+    $("#mEgrTotal").textContent="0.00";
+    $("#mGanancia").textContent="0.00";
+    if(pieCanvas){
+      const ctx=pieCanvas.getContext('2d'); ctx.clearRect(0,0,pieCanvas.width,pieCanvas.height);
+      if(pieLegend){
+        const text = dict ? i18nTranslateString("Sin datos", dict) : "Sin datos";
+        pieLegend.innerHTML = `<span class="muted">${text}</span>`;
+      }
+    }
+  }
 }
 
 /* ===== Tabs ===== */
@@ -1683,6 +1780,10 @@ const I18N_ES_PT = {
 "Gris": "Cinza",
 "Verde": "Verde",
 "Amarillo": "Amarelo",
+
+// Reportes / Gráfico
+"Distribución por categoría": "Distribuição por categoria",
+"Sin datos": "Sem dados",
 
 // Finanças — colunas/labels
 "Concepto": "Descrição",
