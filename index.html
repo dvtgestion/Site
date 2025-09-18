@@ -242,6 +242,19 @@
 }
 .pie-legend .sw{ width:10px; height:10px; border-radius:2px; display:inline-block }
   
+  /* FAB WhatsApp no login */
+.wa-fab{
+  position: fixed; right: 16px; bottom: 16px; z-index: 10000;
+  width: 56px; height: 56px; border-radius: 999px;
+  display: grid; place-items: center;
+  background: #25D366; color: #0b1220;
+  border: 1px solid #1f2937; box-shadow: 0 8px 24px rgba(0,0,0,.35);
+  text-decoration: none; cursor: pointer;
+}
+.wa-fab:hover{ filter: brightness(1.05); }
+.wa-fab:active{ transform: translateY(1px); }
+.wa-fab svg{ width: 26px; height: 26px; }
+  
 </style>
 </head>
 <body>
@@ -257,6 +270,19 @@
       <button id="btnLogin">Entrar</button>
     </div>
   </section>
+  
+  <!-- FAB WhatsApp (só no login) -->
+<a id="waBtn"
+   href="#"
+   target="_blank" rel="noopener"
+   class="wa-fab"
+   title="Contáctanos por WhatsApp"  aria-label="Contáctanos por WhatsApp">
+  <!-- ícone SVG -->
+  <svg viewBox="0 0 32 32" aria-hidden="true">
+    <path fill="currentColor" d="M19.1 17.6c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1-.2.2-.3.2-.6.1-.3-.1-1.1-.4-2.1-1.3-.8-.7-1.3-1.6-1.5-1.9-.2-.3 0-.4.1-.6.1-.1.3-.4.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.7-1.8-.9-2.4-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3 .2.5.5.8c.3.4 2 3.1 4.9 4.3.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.3.2-1.4 0-.1-.3-.2-.6-.3z"/>
+    <path fill="currentColor" d="M26.7 5.3C23.9 2.5 20.1 1 16.1 1 8.3 1 2 7.3 2 15.1c0 2.4.6 4.7 1.8 6.8L2 31l9.3-1.9c2 1.1 4.3 1.7 6.8 1.7 7.8 0 14.1-6.3 14.1-14.1 0-3.7-1.5-7.5-4.3-10.3zM16.1 28.2c-2.2 0-4.3-.6-6.2-1.7l-.4-.2-5.5 1.1 1.1-5.4-.2-.4c-1.1-1.9-1.7-4-1.7-6.1 0-6.7 5.5-12.2 12.3-12.2 3.3 0 6.4 1.3 8.7 3.6 2.3 2.3 3.6 5.4 3.6 8.7-.1 6.8-5.6 12.6-12.7 12.6z"/>
+  </svg>
+</a>
 
   <!-- APP (oculta até logar) -->
   <section id="app" class="app hide">
@@ -1642,6 +1668,23 @@ document.getElementById('photosModal')?.addEventListener('click',(e)=>{
   if(e.target && e.target.id==='photosModal') closeVehicleImages();
 });
 
+/* WhatsApp: atualiza link conforme idioma */
+function updateWhatsAppLink(){
+  const a = document.getElementById('waBtn');
+  if(!a) return;
+
+  // ✅ Substitua pelo seu número em formato E.164 (ex.: +55DDDNUMERO)
+  const phone = '+5599999999999'; // <-- EDITAR AQUI
+
+  // mensagem padrão por idioma
+  const msgES = 'Hola, necesito ayuda con el acceso.';
+  const msgPT = 'Olá, preciso de ajuda com o acesso.';
+
+  const msg = (typeof LANG!=='undefined' && LANG==='pt') ? msgPT : msgES;
+  const url = 'https://wa.me/' + phone.replace(/[^\d+]/g,'') + '?text=' + encodeURIComponent(msg);
+  a.href = url;
+}
+
 /* ===== Auth ===== */
 async function doLogin(){
   try{
@@ -1671,6 +1714,9 @@ if (roleBox) {
 }
     document.getElementById("login").classList.add("hide");
     document.getElementById("app").classList.remove("hide");
+    // Esconde o botão flutuante do WhatsApp após login
+const wa = document.getElementById('waBtn');
+if (wa) wa.style.display = 'none';
     const d=$("#repDesde"); const h=$("#repHasta");
     if(d) d.value=(new Date()).toISOString().slice(0,10).replace(/-\d{2}$/,"-01");
     if(h) h.value=(new Date()).toISOString().slice(0,10);
@@ -1688,6 +1734,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
   if(loginBtn){ loginBtn.addEventListener("click", doLogin); }
   const logoutBtn=document.getElementById("btnLogout");
   if(logoutBtn){ logoutBtn.addEventListener("click", async ()=>{ await supa.auth.signOut(); location.reload(); }); }
+  
+  updateWhatsAppLink();
 
   // Abas
   document.querySelectorAll(".tab").forEach(t=>{
@@ -2113,8 +2161,10 @@ function i18nInjectSelector(){
 
   // 🔁 re-renderiza os KPIs/legenda do gráfico no novo idioma
   if (typeof refreshKPIs === "function") { try { refreshKPIs(); } catch(_){} }
-};
+
     
+    if (typeof updateWhatsAppLink === "function") { try { updateWhatsAppLink(); } catch(_){} }
+  };
     return sel;
   };
 
